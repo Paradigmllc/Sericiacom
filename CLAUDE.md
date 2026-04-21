@@ -617,7 +617,7 @@ Ships within 14 days from Japan.
 
 **DB**: Supabase Postgres + schemaName `payload`（既存 `app.*` テーブルと衝突回避）
 
-**ロケール**: 9 言語（en/ja/de/fr/es/it/ko/zh-TW/**ar** 新規）・ `ar` は M4 で RTL 有効化
+**ロケール**: 現在 **9 言語**（en/ja/de/fr/es/it/ko/zh-TW/**ru**）稼働中。M4 で `ar` を追加して 10 言語化（RTL 有効化）
 
 **インストール済パッケージ** (全て `3.83.0`):
 - `payload` / `@payloadcms/next` / `@payloadcms/db-postgres` / `@payloadcms/richtext-lexical` / `@payloadcms/plugin-cloud-storage` / `@payloadcms/storage-s3` / `sharp 0.34.5` / `graphql 16.13.2`
@@ -658,6 +658,14 @@ Ships within 14 days from Japan.
 - 新規サービス `sericia-medusa-backend` を作成中
 
 **Seed 拡張**: 9 regions（JP/US/EU/UK/CA/AU/SG/HK/**ME**）+ 4 products（sencha/miso/shiitake 単体 + Drop #1 bundle）+ EMS配送プロファイル + Tokyo Fulfillment stock location + Default Sericia sales channel
+
+### 2026-04-21 i18n ホットフィックス（完了・`302f037b` + `874a903d`）
+
+ユーザー指摘による本番UX修正3点を M3 稼働中に差し込みで対応:
+
+1. **🇬🇧 → 🇺🇸 切替** (`302f037b`): LocaleSwitcher の `en` ロケールが 🇬🇧 に固定されていて US ユーザーを視覚的に疎外していた。Sericia は `en` ロケール1つで US+UK+CA+AU+SG+HK を hreflang 経由でサーブする設計のため、最大市場の🇺🇸を採用。ラベルも "EN" → "English" に変更してネイティブ表記（日本語/Deutsch/Español等）と統一
+2. **Windows 国旗絵文字レンダリング修正** (`874a903d`): Windows の Segoe UI Emoji が Regional Indicator Symbol を描画拒否し "US"/"JP" 等のテキスト2文字で表示されていた問題。`flag-icons@^7.5.0` の SVG スプライトCSS を導入（`app/globals.css` で import）、`<span class="fi fi-*" />` でクロスプラットフォーム描画。国旗は 18×14 (trigger) / 22×16 (dropdown) + 0.5px ink border-shadow でラグジュアリー仕上げ
+3. **🇷🇺 Russian ロケール追加** (`874a903d`): 145M ネイティブ・top-10 e-commerce 市場・日本クラフト食品（抹茶/味噌/椎茸）との文化的親和性が高いロシア語圏を追加。`messages/ru.json` (en.json 1:1 スキーマ・完全ネイティブ翻訳) + `routing.ts`/`middleware.ts` LOCALES + `accountGuard` regex + `app/layout.tsx` hreflang (`ru-RU` + 不足していた `ja-JP`/`ko-KR`/`zh-TW`/`es-ES`/`it-IT` も追加)
 
 ### M4 スコープ（待機中・要件確定済）
 
