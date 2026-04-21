@@ -94,6 +94,7 @@ export default buildConfig({
       { code: "it", label: "Italiano" },
       { code: "ko", label: "한국어" },
       { code: "zh-TW", label: "繁體中文" },
+      { code: "ru", label: "Русский" },
       { code: "ar", label: "العربية", rtl: true },
     ],
     defaultLocale: "en",

@@ -11,7 +11,7 @@ import { JOURNAL, getArticle } from "@/lib/journal";
 // same per-locale since the middleware rewrites /ja/journal/... → /journal/...
 // and NextIntl reads copy via the cookie. Editorial copy is English-first;
 // hreflang points to the same slug for every locale.
-const LOCALES = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW"] as const;
+const LOCALES = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW", "ru"] as const;
 
 export const revalidate = 86400; // 24h
 export const dynamicParams = false;
