@@ -1,10 +1,21 @@
 "use client";
 import { useLocale } from "next-intl";
-import { useRouter, usePathname } from "next/navigation";
-import { useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LOCALE_LABELS, type Locale } from "@/i18n/routing";
 
 const LOCALES: Locale[] = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW"];
+
+const FLAGS: Record<Locale, string> = {
+  en: "🇬🇧",
+  ja: "🇯🇵",
+  de: "🇩🇪",
+  fr: "🇫🇷",
+  es: "🇪🇸",
+  it: "🇮🇹",
+  ko: "🇰🇷",
+  "zh-TW": "🇹🇼",
+};
 
 function stripLocalePrefix(path: string): string {
   for (const l of LOCALES) {
@@ -16,19 +27,44 @@ function stripLocalePrefix(path: string): string {
 
 export default function LocaleSwitcher() {
   const current = useLocale() as Locale;
-  const router = useRouter();
   const pathname = usePathname() || "/";
   const [open, setOpen] = useState(false);
-  const [, startTransition] = useTransition();
+  const [switching, setSwitching] = useState<Locale | null>(null);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    if (open) window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   function switchTo(next: Locale) {
+    if (next === current) {
+      setOpen(false);
+      return;
+    }
+    setSwitching(next);
     setOpen(false);
+
+    // 1. Set NEXT_LOCALE cookie client-side (1 year).
+    //    The middleware's rewrite branch only sets the cookie when a locale
+    //    prefix is present. Without this line, navigating from /fr/... to /
+    //    would leave NEXT_LOCALE=fr and server components keep rendering French.
+    const maxAge = 60 * 60 * 24 * 365;
+    document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=${maxAge}; samesite=lax`;
+
+    // 2. Compute target URL (default locale `en` is unprefixed).
     const base = stripLocalePrefix(pathname);
     const target = next === "en" ? base : `/${next}${base === "/" ? "" : base}`;
-    startTransition(() => {
-      router.replace(target);
-      router.refresh();
-    });
+
+    // 3. Hard navigation forces the middleware to re-run with the fresh
+    //    cookie, re-imports the correct message bundle, and guarantees
+    //    every server component re-renders with the new locale. Soft
+    //    (router.replace) was the source of the "stuck on French" bug:
+    //    middleware doesn't rewrite on client-side transitions, so the
+    //    old cookie persisted and the messages never reloaded.
+    window.location.assign(target || "/");
   }
 
   return (
@@ -37,10 +73,19 @@ export default function LocaleSwitcher() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
+        aria-haspopup="listbox"
         aria-label="Change language"
-        className="hover:text-sericia-ink transition uppercase tracking-wider"
+        className="inline-flex items-center gap-1.5 hover:text-sericia-ink transition uppercase tracking-wider text-[13px]"
       >
-        {LOCALE_LABELS[current]}
+        <span aria-hidden className="text-[15px] leading-none">{FLAGS[current]}</span>
+        <span>{LOCALE_LABELS[current]}</span>
+        <svg
+          aria-hidden
+          viewBox="0 0 10 6"
+          className={`w-[10px] h-[6px] transition-transform ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M1 1l4 4 4-4" stroke="currentColor" fill="none" strokeWidth="1.2" />
+        </svg>
       </button>
       {open && (
         <>
@@ -51,19 +96,30 @@ export default function LocaleSwitcher() {
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-10 cursor-default"
           />
-          <div className="absolute right-0 top-full mt-3 w-44 border border-sericia-line bg-sericia-paper z-20">
+          <div
+            role="listbox"
+            aria-label="Languages"
+            className="absolute right-0 top-full mt-3 w-52 border border-sericia-line bg-sericia-paper z-20 shadow-[0_10px_40px_-20px_rgba(33,35,29,0.25)]"
+          >
             {LOCALES.map((l) => (
               <button
                 key={l}
                 type="button"
+                role="option"
+                aria-selected={l === current}
                 onClick={() => switchTo(l)}
-                className={`block w-full text-left px-4 py-2.5 text-[13px] transition ${
+                disabled={switching !== null}
+                className={`flex w-full items-center gap-3 text-left px-4 py-2.5 text-[13px] transition ${
                   l === current
                     ? "bg-sericia-ink text-sericia-paper"
                     : "text-sericia-ink hover:bg-sericia-paper-card"
-                }`}
+                } ${switching === l ? "opacity-60" : ""}`}
               >
-                {LOCALE_LABELS[l]}
+                <span aria-hidden className="text-[16px] leading-none">{FLAGS[l]}</span>
+                <span className="flex-1">{LOCALE_LABELS[l]}</span>
+                {l === current && (
+                  <span aria-hidden className="text-[11px] tracking-[0.18em]">•</span>
+                )}
               </button>
             ))}
           </div>

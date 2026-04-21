@@ -78,7 +78,11 @@ export async function middleware(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.pathname = pathWithoutLocale;
     res = NextResponse.rewrite(url);
-    res.cookies.set(LOCALE_COOKIE, prefixLocale, { path: "/", sameSite: "lax" });
+    res.cookies.set(LOCALE_COOKIE, prefixLocale, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+    });
   } else if (prefixLocale && isNonI18nPath(pathWithoutLocale)) {
     // e.g. /ja/guides/... — redirect to the unlocalized canonical.
     const url = req.nextUrl.clone();
@@ -86,9 +90,18 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   } else {
     res = NextResponse.next({ request: { headers: req.headers } });
-    // Ensure NEXT_LOCALE cookie exists for default locale users.
-    if (!req.cookies.get(LOCALE_COOKIE)) {
-      res.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, { path: "/", sameSite: "lax" });
+    // For unprefixed (default locale) paths, we trust the NEXT_LOCALE cookie
+    // if already set by the locale switcher client-side. If no cookie at all,
+    // default to `en`. If the switcher wrote a non-en cookie without a prefix
+    // (shouldn't happen in normal flow) we still respect it so users aren't
+    // re-flipped to English unintentionally. Never overwrite a valid cookie.
+    const existing = req.cookies.get(LOCALE_COOKIE)?.value;
+    if (!existing) {
+      res.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, {
+        path: "/",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+      });
     }
   }
 
