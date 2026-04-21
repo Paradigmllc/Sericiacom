@@ -576,13 +576,20 @@ export default async function seedSericia({ container }: ExecArgs) {
     logger.info(`[products] created ${productsToCreate.length} products`);
 
     // Link each new product to the EMS Worldwide shipping profile.
-    const productProfileLinks = (createdProducts ?? []).map((p: any) => ({
-      [Modules.PRODUCT]: { product_id: p.id },
-      [Modules.FULFILLMENT]: { shipping_profile_id: shippingProfile.id },
-    }));
-    if (productProfileLinks.length > 0) {
-      await createLinksWorkflow(container).run({ input: productProfileLinks });
-      logger.info(`[products] linked ${productProfileLinks.length} products to shipping profile`);
+    // This relies on src/links/product-shipping-profile.ts being registered by the framework.
+    // We wrap the call in try/catch so that a missing link registration does NOT block
+    // the rest of the seed (inventory levels, sales-channel links, etc.).
+    try {
+      const productProfileLinks = (createdProducts ?? []).map((p: any) => ({
+        [Modules.PRODUCT]: { product_id: p.id },
+        [Modules.FULFILLMENT]: { shipping_profile_id: shippingProfile.id },
+      }));
+      if (productProfileLinks.length > 0) {
+        await createLinksWorkflow(container).run({ input: productProfileLinks });
+        logger.info(`[products] linked ${productProfileLinks.length} products to shipping profile`);
+      }
+    } catch (e: any) {
+      logger.warn(`[products] shipping-profile link step skipped: ${e?.message || e}`);
     }
   } else {
     logger.info("[products] all 4 products already present");
