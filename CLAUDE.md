@@ -606,6 +606,9 @@ Ships within 14 days from Japan.
 | **M4a-7a** | Google OAuth UI 実装（`GoogleSignInButton` + `/login` + `/signup` に配線・PKCE/`access_type:offline`・プロフィール自動生成は `sericia_handle_new_user()` トリガー活用）| ✅ 完了 | (this commit) | `storefront/components/GoogleSignInButton.tsx` 新規 / `LoginForm.tsx` + `SignupForm.tsx` に「or」区切りで配置 / `/auth/callback` は既存の `exchangeCodeForSession` がそのまま動作 |
 | **M4a-7b** | Google Cloud Console + Supabase Dashboard セットアップガイド | ✅ 完了 | (this commit) | `docs/GOOGLE_OAUTH_SETUP.md`（8章構成・Client ID 発行手順・troubleshooting・スコープ仕様）/ ユーザー作業として Google Cloud Console + Supabase Dashboard 設定が必要 |
 | **M4a-OOM hotfix** | ビルド時 OOM 対策（`NODE_OPTIONS=--max-old-space-size=3072` + `NEXT_TELEMETRY_DISABLED=1` を Coolify envs に追加 + Hetzner box に 4GB swap file + `vm.swappiness=10`）| ✅ 完了 | (this commit) | Rule WW で Hetzner API POST `/actions/reset` ハードリセット復旧後、次の storefront ビルドが 3GB ヒープキャップで成功 / 以降は swap が OOM のセーフティネットとして機能 |
+| **M4a-Webhook hard** | Crossmint webhook fail-close（本番で `CROSSMINT_WEBHOOK_SECRET` 未設定時は 503 を返す）| ✅ 完了 | `9d12bfb4` | prod で未署名POSTが 200 で受理されるセキュリティリグレッションを封鎖（Rule V） / dev/test は従来通り bypass 可能 / verify-live-storefront.sh で 503 をランチブロッカー表示 |
+| **M4a-Header mobile** | ヘッダーUXモバイル修正（国旗横の英語ラベル削除・アカウントアイコンを sm 以下でも表示）| ✅ 完了 | `3208fc19` | `HeaderClient.tsx` / `LocaleSwitcher.tsx` 両方更新 / 本番で検証済み |
+| **M4a-Dify v2** | `udify.app` embed を破棄し `/api/dify-chat` サーバープロキシ + カスタム Sericia UI に全面刷新 | ✅ 完了 | `f31e17a0` | `DIFY_SERVICE_API_KEY`（`app-*` 秘密鍵）がクライアントJSに漏れない設計 / 503 時は offline 状態で `hello@sericia.com` 案内表示（Rule V）/ Tailwind `sericia-accent` 等のデザイントークンで統一 / Dify KB の Sericia コンテキストをそのまま活用 |
 | **M4b-f** | Payload 配線 / 共通サイドバー / Aesopヒーロー・桜・赤ハート・マーケ / アラビア語RTL / PWA・SEO | ⏸️ 待機 | — | — |
 | **M5** | pSEO 量産基盤（DeepSeek Context Caching + キーワードリサーチ + 20記事サンプル） | ⏸️ 待機 | — | — |
 
@@ -615,10 +618,16 @@ Ships within 14 days from Japan.
 
 **/tools/* 404**: Coolifyが古いビルド（`87c813f4` 以前）をサーブしていた。再デプロイで解消。
 
-**Dify**: `components/DifyChat.tsx` を2段戦略に刷新（`87782adf`）:
-1. `udify.app/embed.min.js` SDK 注入を試行
-2. 3秒後に `#dify-chatbot-bubble-button` の存在確認
-3. 欠けていれば自前の浮遊ボタン + iframe パネルにフォールバック（CDNブロック/SDKクラッシュ時もUI到達可能）
+**Dify（現行: M4a-Dify v2 / `f31e17a0`）**: `components/DifyChat.tsx` を **自前カスタムUI + `/api/dify-chat` サーバープロキシ** に全面刷新。旧アーキテクチャ（`udify.app/embed.min.js` SDK + iframe fallback / `87782adf`）は破棄した。
+
+**なぜ刷新したか**:
+1. **秘密鍵漏洩リスク除去**: Dify の `app-*` キーは Service API の全権限を持つ SECRET。`NEXT_PUBLIC_DIFY_TOKEN` 方式だと `.next/static/chunks/*.js` にバンドルされ全訪問者のDevToolsから見える。サーバープロキシなら `DIFY_SERVICE_API_KEY`（Coolify env・runtime-only）が一度もブラウザに届かない
+2. **`udify.app/chatbot/{token}` が 404 を返すようになった**: URL パターン変更 or 公開共有トグル問題。`api.dify.ai/v1/chat-messages` Service API は健全
+
+**構成**:
+- `storefront/app/api/dify-chat/route.ts` — Service API プロキシ（Rule V 準拠で secret 未設定時は 503 + `dify_not_configured`）
+- `storefront/components/DifyChat.tsx` — カスタム UI（`sericia-accent` / `sericia-paper-card` トークン・Enter で送信・Shift+Enter で改行・conversation_id 維持・localStorage 匿名 user_id・offline 状態で `hello@sericia.com` 案内）
+- Coolify env: `DIFY_SERVICE_API_KEY=app-WnX69EkeJYork2rTBtbB3wnY` / `DIFY_API_URL=https://api.dify.ai/v1`（両方 runtime-only）
 
 ### M2 スコープ（完了・`db83336b`）
 
