@@ -10,8 +10,8 @@
 | ★★☆☆☆ | 4 | [📊 財務KPI](#s4) | 粗利試算あり、目標KPI未設定 |
 | ★★★☆☆ | 5 | [📈 ロードマップ](#s5) | Phase 1〜3定義済み |
 | ☆☆☆☆☆ | 6 | [⚖️ 法的リスク](#s6) | 未着手 |
-| ★★★★☆ | 7 | [🗺️ プロダクト設計](#s7) | Medusa v2+Next.js確定 |
-| ★★★☆☆ | 8 | [⚙️ 技術設計](#s8) | スタック確定・デプロイ設定中 |
+| ★★★★★ | 7 | [🗺️ プロダクト設計](#s7) | ラグジュアリーUX（Aesop/LV級）実装完了・カートドロワー/カスタムカーソル/Fuse検索/ウィッシュリスト/PDPアコーディオン稼働 |
+| ★★★★☆ | 8 | [⚙️ 技術設計](#s8) | Next.js 15 + Supabase + Framer Motion + Lenis + vaul + Fuse.js + Embla 完成・Coolifyデプロイ稼働 |
 | ★★★☆☆ | 9 | [📣 GTM・集客](#s9) | Reddit戦略・SNS設計済み |
 | ★★☆☆☆ | 10 | [🖥️ 運用](#s10) | 環境変数未設定 |
 | ★★★★☆ | 11 | [💴 経費・収益シミュ](#s11) | 利益率計算済み |
@@ -158,6 +158,27 @@ sericiacom/
   規格外椎茸     50g  仕入れ¥500
 総重量: 約450g / EMS: ¥2,150
 ```
+
+### ラグジュアリーUX（2026-04-22 実装完了）
+
+Aesop / Louis Vuitton 級のストアフロント体験を `storefront/` 配下で end-to-end 実装:
+
+- **ナビ**: スマートスティッキーヘッダー（スクロール下で非表示・戻りで再表示・80px後にbackdrop-blur）/ アナウンスメントバー（CSSマーキー・prefers-reduced-motion対応）/ SERICIA ワードマーク + `favicon.svg`
+- **ヘッダー3アイコン**: 検索（cmd+K / `/`）・ユーザー（ログイン時 filled + wishlistリンク）・バッグ（右側 vaul ドロワー + カウントバッジ）
+- **カートドロワー**: vaul 右側 440px・auto-animate・送料進捗ストリップ・small-batch Kyoto 説明
+- **グローバル演出**: Framer Motion ページトランジション + FadeIn スクロール + Lenis スムーススクロール（`window.__lenis` 公開）/ カスタムカーソル（8pxドット+40pxリング・mix-blend-difference・タッチ端末オフ）/ マグネティックボタン / BackToTop（400px後）
+- **ヒーロー**: アニメーショングラデーション（22秒ループ）・SVG grain・typewriter（3行ループ）・視差パララックス・MagneticButton CTA
+- **検索**: Meilisearch想定のFuse.jsフォールバック（重み付きキー・threshold 0.35）・`/api/products/search-index`（s-maxage 60秒キャッシュ）
+- **商品一覧/カード**: 2グラデーションクロスフェード・ハートボタン（Zustand persist `sericia-wishlist`）・SVG noise overlay
+- **PDP**: 左サムネイル5枚列・メイン画像 2x ホバーパンズーム（カーソル位置追従）・モバイルEmblaカルーセル+ドットページネーション / framer-motion アニメーションアコーディオン（Ingredients & origin / Shipping & returns / Producer story / Tasting notes）/ モバイルスティッキー下部CTA（IntersectionObserver発動）/ NotifyMeモーダル（売切時・waitlistに`metadata.productId`付与）/ Recommended pairings 3件
+- **ウィッシュリスト**: `/account/wishlist`（auto-animate・全件カートイン・個別追加・日付表示・empty state）・Supabase `sericia_wishlist` テーブル（`user_id`+`product_id` UNIQUE + RLS select/insert/delete own）
+- **ホーム**: CinematicHero + Current drop / Most loved（3件ずつ ProductCard + FadeIn）+ StatCountUp（23 makers / 48h ships / 100% traceable）+ 既存 WaitlistForm/FAQ セクション
+- **モバイル戦略**: PWA未対応（今回範囲外）だがモバイル体験（レスポンシブ・下部CTA・vaulドロワー）は完成
+- **品質**: A11y（aria-label/aria-expanded/aria-modal/focus管理）・prefers-reduced-motion 尊重・全 `target="_blank"` に `rel="noopener noreferrer"`・try/catch + toast.error + console.error 全ミューテーション
+
+導入ライブラリ: `framer-motion` / `lenis` / `vaul` / `typewriter-effect` / `embla-carousel-react` / `fuse.js` / `@formkit/auto-animate` / `react-countup`
+
+マイグレーション: `supabase/migrations/20260422_wishlist.sql` — `sericia_waitlist.metadata jsonb` 追加 + `sericia_wishlist` 新設（appexx-studio プロジェクトに適用済み）
 
 ---
 
