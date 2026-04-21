@@ -6,8 +6,15 @@ import { LOCALE_LABELS, type Locale } from "@/i18n/routing";
 
 const LOCALES: Locale[] = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW"];
 
+// Flag rationale: `en` is a single locale serving US + UK + CA + AU + SG + HK
+// via hreflang country-specific guides (see app/layout.tsx alternates.languages).
+// 🇺🇸 is chosen over 🇬🇧 because (1) the US is the largest English e-commerce
+// market, (2) Japan→US is Sericia's primary EMS export route, and (3) the
+// previous 🇬🇧 visually excluded US shoppers. To go fully country-neutral
+// (Aesop / Le Labo style), delete the FLAGS object entirely and drop the
+// {FLAGS[...]} render below.
 const FLAGS: Record<Locale, string> = {
-  en: "🇬🇧",
+  en: "🇺🇸",
   ja: "🇯🇵",
   de: "🇩🇪",
   fr: "🇫🇷",

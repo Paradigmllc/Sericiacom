@@ -8,8 +8,11 @@ export const routing = defineRouting({
 
 export type Locale = (typeof routing.locales)[number];
 
+// Native-name labels — avoid country-biased abbreviations (e.g. "EN" paired
+// with 🇬🇧 implied UK-only and excluded US shoppers). Single `en` locale
+// serves both US and UK via hreflang country-specific guide pages.
 export const LOCALE_LABELS: Record<Locale, string> = {
-  en: "EN",
+  en: "English",
   ja: "日本語",
   de: "Deutsch",
   fr: "Français",
