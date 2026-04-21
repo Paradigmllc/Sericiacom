@@ -1,17 +1,26 @@
 import { cookies } from "next/headers";
-import Link from "next/link";
 import WaitlistForm from "../components/WaitlistForm";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
-import { Container, Eyebrow, Button, SectionHeading, StatBlock, Rule } from "../components/ui";
+import { Container, Eyebrow, Button, SectionHeading, Rule } from "../components/ui";
 import { formatPricePPP, PPP } from "../lib/ppp";
 import { getCurrentDrop } from "../lib/drops";
+import CinematicHero from "../components/CinematicHero";
+import FadeIn from "../components/FadeIn";
+import { listActiveProducts } from "../lib/products";
+import ProductCard from "../components/ProductCard";
+import StatCountUp from "../components/StatCountUp";
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const country = (await cookies()).get("country")?.value ?? "us";
   const drop = await getCurrentDrop();
+  const products = await listActiveProducts();
+  const currentDropProducts = products.slice(0, 3);
+  const mostLoved = products.slice(3, 6);
+
   const dropData = drop ?? {
     id: "drop-001",
     title: "Drop No. 01 — Sencha, Miso & Hand-dried Shiitake",
@@ -60,55 +69,36 @@ export default async function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <SiteHeader />
+      <CinematicHero />
 
-      {/* Hero */}
-      <section className="relative bg-sericia-paper">
-        <Container size="wide" className="pt-24 md:pt-32 pb-20 md:pb-28">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-end">
-            <div className="md:col-span-7">
-              <Eyebrow>Drop No. 01 — Limited release</Eyebrow>
-              <h1 className="text-[44px] md:text-[68px] leading-[1.05] font-normal tracking-tight">
-                Rescued Japanese<br />craft food,<br />
-                <span className="text-sericia-accent">shipped worldwide.</span>
-              </h1>
+      {/* Current drop featured products */}
+      {currentDropProducts.length > 0 && (
+        <section className="border-b border-sericia-line">
+          <Container size="wide" className="py-24 md:py-32">
+            <FadeIn>
+              <SectionHeading
+                eyebrow="Current drop"
+                title="Three rescued craft items, one curated set."
+                lede="Small-batch producers, photographed and shipped from Kyoto within 48 hours."
+              />
+            </FadeIn>
+            <div className="grid grid-cols-1 md:grid-cols-3 bg-sericia-line gap-px">
+              {currentDropProducts.map((p, i) => (
+                <FadeIn key={p.id} delay={i * 0.08}>
+                  <ProductCard product={p} />
+                </FadeIn>
+              ))}
             </div>
-            <div className="md:col-span-5">
-              <p className="text-[17px] text-sericia-ink-soft leading-[1.7] max-w-md">
-                Each drop is a single curated bundle of near-expiry Japanese producers' surplus —
-                tea, miso, shiitake, and more. When it is gone, it is gone.
-              </p>
-              <div className="mt-8 flex items-center gap-6 text-[13px] text-sericia-ink-soft tracking-wider">
-                <span>Kyoto, Japan</span>
-                <span className="h-px w-6 bg-sericia-line" />
-                <span>EMS worldwide</span>
-                <span className="h-px w-6 bg-sericia-line" />
-                <span>{dropData.total_units} units only</span>
-              </div>
-            </div>
-          </div>
-        </Container>
-        <div className="h-[42vh] min-h-[320px] max-h-[520px] w-full bg-gradient-to-br from-[#e8e1d3] via-[#d8cfbd] to-[#b8a987] relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-40 mix-blend-multiply"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 40%, rgba(92,93,69,0.3) 0px, transparent 40%), radial-gradient(circle at 80% 60%, rgba(33,35,29,0.2) 0px, transparent 45%)",
-            }}
-          />
-          <div className="absolute inset-0 flex items-end">
-            <Container size="wide" className="pb-10 w-full">
-              <p className="label text-sericia-paper/80">Photographed in Kyoto · Spring 2026</p>
-            </Container>
-          </div>
-        </div>
-      </section>
+          </Container>
+        </section>
+      )}
 
       {/* Drop detail */}
-      <section id="drop" className="border-b border-sericia-line">
+      <section id="drop" className="border-b border-sericia-line bg-sericia-paper-card">
         <Container size="wide" className="py-24 md:py-32">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
-            <div className="md:col-span-5">
-              <Eyebrow>The current drop</Eyebrow>
+            <FadeIn as="div" className="md:col-span-5">
+              <Eyebrow>The featured bundle</Eyebrow>
               <h2 className="text-[36px] md:text-[44px] leading-[1.15] font-normal tracking-tight mb-8">
                 {dropData.title}
               </h2>
@@ -119,18 +109,18 @@ export default async function Home() {
               <dl className="grid grid-cols-3 gap-6 mb-10">
                 <div>
                   <dt className="label mb-2">Price</dt>
-                  <dd className="text-[22px] font-normal">
+                  <dd className="text-[22px] font-normal tabular-nums">
                     {isLocalized ? localPrice : `$${dropData.price_usd}`}
                   </dd>
                   {isLocalized && <p className="text-[11px] text-sericia-ink-mute mt-1">≈ ${dropData.price_usd} billed USD</p>}
                 </div>
                 <div>
                   <dt className="label mb-2">Weight</dt>
-                  <dd className="text-[22px] font-normal">{dropData.weight_g}g</dd>
+                  <dd className="text-[22px] font-normal tabular-nums">{dropData.weight_g}g</dd>
                 </div>
                 <div>
                   <dt className="label mb-2">Ships within</dt>
-                  <dd className="text-[22px] font-normal">{dropData.ships_within_hours}h</dd>
+                  <dd className="text-[22px] font-normal tabular-nums">{dropData.ships_within_hours}h</dd>
                 </div>
               </dl>
 
@@ -166,28 +156,50 @@ export default async function Home() {
                 EMS worldwide · ships within {dropData.ships_within_hours}h from Kyoto · Card checkout in USD.
                 Duties & taxes calculated at destination.
               </p>
-            </div>
+            </FadeIn>
 
-            <div className="md:col-span-7">
+            <FadeIn delay={0.1} className="md:col-span-7">
               <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-[4/5] bg-gradient-to-br from-[#d4c9b0] to-[#8a7d5c] col-span-2" />
+                <div className="aspect-[4/5] bg-gradient-to-br from-[#d4c9b0] to-[#8a7d5c] col-span-2 relative overflow-hidden">
+                  <div aria-hidden className="absolute inset-0 opacity-[0.15] mix-blend-overlay" style={{backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>\")"}} />
+                </div>
                 <div className="aspect-square bg-gradient-to-br from-[#c9bfa3] to-[#6f6443]" />
                 <div className="aspect-square bg-gradient-to-br from-[#e0d7bf] to-[#9f8f69]" />
               </div>
               <p className="label mt-5">Clockwise · Sencha · Miso · Shiitake</p>
-            </div>
+            </FadeIn>
           </div>
         </Container>
       </section>
 
+      {/* Most loved */}
+      {mostLoved.length > 0 && (
+        <section className="border-b border-sericia-line">
+          <Container size="wide" className="py-24 md:py-32">
+            <FadeIn>
+              <SectionHeading eyebrow="Most loved" title="Return favourites from previous drops." />
+            </FadeIn>
+            <div className="grid grid-cols-1 md:grid-cols-3 bg-sericia-line gap-px">
+              {mostLoved.map((p, i) => (
+                <FadeIn key={p.id} delay={i * 0.08}>
+                  <ProductCard product={p} />
+                </FadeIn>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
       {/* Makers */}
       <section className="border-b border-sericia-line bg-sericia-paper-card">
         <Container size="wide" className="py-24 md:py-32">
-          <SectionHeading
-            eyebrow="The makers"
-            title="Three producers, one bundle."
-            lede="Each drop brings together small Japanese craft producers whose surplus would otherwise be discarded. We pay them full price, photograph their work, and ship the bundle to a curious table around the world."
-          />
+          <FadeIn>
+            <SectionHeading
+              eyebrow="The makers"
+              title="Three producers, one bundle."
+              lede="Each drop brings together small Japanese craft producers whose surplus would otherwise be discarded. We pay them full price, photograph their work, and ship the bundle to a curious table around the world."
+            />
+          </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
             {[
               {
@@ -208,14 +220,14 @@ export default async function Home() {
                 region: "Yamagata",
                 note: "Bamboo-rack dried over five days. Sorted-out small caps with deeper flavour.",
               },
-            ].map((m) => (
-              <article key={m.name}>
+            ].map((m, i) => (
+              <FadeIn as="article" key={m.name} delay={i * 0.08}>
                 <div className="aspect-[4/5] bg-gradient-to-br from-[#cfc5aa] to-[#716649] mb-6" />
                 <p className="label mb-2">{m.region}</p>
                 <h3 className="text-[22px] font-normal mb-2">{m.name}</h3>
                 <p className="text-[14px] text-sericia-ink-soft mb-3">{m.craft}</p>
                 <p className="text-[14px] text-sericia-ink-soft leading-relaxed">{m.note}</p>
-              </article>
+              </FadeIn>
             ))}
           </div>
         </Container>
@@ -224,17 +236,34 @@ export default async function Home() {
       {/* Philosophy */}
       <section id="story" className="border-b border-sericia-line">
         <Container size="default" className="py-28 md:py-36 text-center">
-          <Eyebrow>Our philosophy</Eyebrow>
-          <p className="text-[24px] md:text-[32px] leading-[1.45] font-normal max-w-3xl mx-auto text-sericia-ink">
-            Japan&apos;s craft food makers produce exceptional goods on small margins.
-            Near-expiry or overrun stock often ends up discarded.
-            Sericia finds that stock, curates it into a single drop, and ships it to
-            tables around the world — at a price that is kind to everyone in the chain.
-          </p>
+          <FadeIn>
+            <Eyebrow>Our philosophy</Eyebrow>
+            <p className="text-[24px] md:text-[32px] leading-[1.45] font-normal max-w-3xl mx-auto text-sericia-ink">
+              Japan&apos;s craft food makers produce exceptional goods on small margins.
+              Near-expiry or overrun stock often ends up discarded.
+              Sericia finds that stock, curates it into a single drop, and ships it to
+              tables around the world — at a price that is kind to everyone in the chain.
+            </p>
+          </FadeIn>
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 max-w-4xl mx-auto text-left">
-            <StatBlock value="23+" label="Countries shipped" />
-            <StatBlock value="48h" label="Dispatch from Kyoto" />
-            <StatBlock value="100%" label="Producers paid full price" />
+            <FadeIn>
+              <div className="text-[28px] md:text-[36px] font-normal leading-none mb-2 tabular-nums">
+                <StatCountUp value={23} suffix="+" />
+              </div>
+              <div className="label">Countries shipped</div>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <div className="text-[28px] md:text-[36px] font-normal leading-none mb-2 tabular-nums">
+                <StatCountUp value={48} suffix="h" />
+              </div>
+              <div className="label">Dispatch from Kyoto</div>
+            </FadeIn>
+            <FadeIn delay={0.2}>
+              <div className="text-[28px] md:text-[36px] font-normal leading-none mb-2 tabular-nums">
+                <StatCountUp value={100} suffix="%" />
+              </div>
+              <div className="label">Producers paid full price</div>
+            </FadeIn>
           </div>
         </Container>
       </section>
@@ -242,37 +271,41 @@ export default async function Home() {
       {/* Waitlist */}
       <section id="waitlist" className="border-b border-sericia-line bg-sericia-paper-deep">
         <Container size="narrow" className="py-24 md:py-28 text-center">
-          <Eyebrow>Early access</Eyebrow>
-          <h2 className="text-[32px] md:text-[40px] leading-[1.15] font-normal tracking-tight mb-5">
-            The next drop, twenty-four hours early.
-          </h2>
-          <p className="text-[15px] text-sericia-ink-soft leading-relaxed mb-10 max-w-prose mx-auto">
-            Drops sell out in hours. Subscribers receive the release twenty-four hours before public sale,
-            a photographed maker&apos;s note, and a small tasting card.
-          </p>
-          <WaitlistForm source="homepage" country={country} />
-          <p className="text-[11px] text-sericia-ink-mute mt-5 tracking-wider uppercase">
-            One email per drop · Unsubscribe in a click
-          </p>
+          <FadeIn>
+            <Eyebrow>Early access</Eyebrow>
+            <h2 className="text-[32px] md:text-[40px] leading-[1.15] font-normal tracking-tight mb-5">
+              The next drop, twenty-four hours early.
+            </h2>
+            <p className="text-[15px] text-sericia-ink-soft leading-relaxed mb-10 max-w-prose mx-auto">
+              Drops sell out in hours. Subscribers receive the release twenty-four hours before public sale,
+              a photographed maker&apos;s note, and a small tasting card.
+            </p>
+            <WaitlistForm source="homepage" country={country} />
+            <p className="text-[11px] text-sericia-ink-mute mt-5 tracking-wider uppercase">
+              One email per drop · Unsubscribe in a click
+            </p>
+          </FadeIn>
         </Container>
       </section>
 
       {/* How it works */}
       <section className="border-b border-sericia-line">
         <Container size="wide" className="py-24 md:py-32">
-          <SectionHeading eyebrow="How it works" title="From Kyoto to your door in four steps." />
+          <FadeIn>
+            <SectionHeading eyebrow="How it works" title="From Kyoto to your door in four steps." />
+          </FadeIn>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             {[
               { n: "01", t: "Browse the drop", d: "One curated bundle per release. Every piece photographed, every producer named." },
               { n: "02", t: "Checkout", d: "Card or stablecoin via Crossmint. USD pricing, duties shown at destination." },
               { n: "03", t: "Dispatch", d: "Packed and posted from Kyoto within 48 hours by EMS with tracking." },
               { n: "04", t: "Delivered", d: "2–7 working days to most countries. Tasting card included." },
-            ].map((s) => (
-              <div key={s.n}>
+            ].map((s, i) => (
+              <FadeIn key={s.n} delay={i * 0.08}>
                 <p className="label mb-4">{s.n}</p>
                 <h3 className="text-[18px] font-normal mb-3">{s.t}</h3>
                 <p className="text-[14px] text-sericia-ink-soft leading-relaxed">{s.d}</p>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </Container>
@@ -281,11 +314,13 @@ export default async function Home() {
       {/* FAQ teaser */}
       <section id="faq" className="border-b border-sericia-line bg-sericia-paper-card">
         <Container size="default" className="py-24 md:py-28">
-          <SectionHeading eyebrow="Frequently asked" title="Questions & considerations." />
+          <FadeIn>
+            <SectionHeading eyebrow="Frequently asked" title="Questions & considerations." />
+          </FadeIn>
           <div className="divide-y divide-sericia-line">
             {[
               {
-                q: "Does “rescued” mean expired or second-grade?",
+                q: "Does \"rescued\" mean expired or second-grade?",
                 a: "No. We only source surplus that is well within best-before, and from the exact same batches the producer sells at retail. Rescued refers to stock the producer could not sell before release windows closed — not quality.",
               },
               {

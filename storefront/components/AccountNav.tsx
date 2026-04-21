@@ -8,6 +8,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 const NAV: Array<{ href: string; label: string }> = [
   { href: "/account", label: "Overview" },
   { href: "/account/orders", label: "Orders" },
+  { href: "/account/wishlist", label: "Wishlist" },
   { href: "/account/addresses", label: "Addresses" },
   { href: "/account/settings", label: "Settings" },
 ];

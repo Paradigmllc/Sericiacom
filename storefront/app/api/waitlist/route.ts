@@ -10,6 +10,7 @@ const Schema = z.object({
   utm_source: z.string().max(100).optional().nullable(),
   utm_medium: z.string().max(100).optional().nullable(),
   utm_campaign: z.string().max(100).optional().nullable(),
+  metadata: z.record(z.string(), z.unknown()).optional().nullable(),
 });
 
 export async function POST(req: NextRequest) {
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
       utm_source: input.utm_source ?? null,
       utm_medium: input.utm_medium ?? null,
       utm_campaign: input.utm_campaign ?? null,
+      metadata: input.metadata ?? null,
       unsubscribed: false,
     },
     { onConflict: "email" }

@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import Analytics from "../components/Analytics";
 import DifyChat from "../components/DifyChat";
+import GlobalOverlay from "../components/GlobalOverlay";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
@@ -86,7 +87,14 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.svg",
+  },
   manifest: "/manifest.json",
   category: "food & beverage",
 };
@@ -130,6 +138,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="font-sans antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
+          <GlobalOverlay />
           <Toaster position="top-right" richColors />
           <Analytics />
           <DifyChat />

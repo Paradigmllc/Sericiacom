@@ -6,7 +6,9 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useCart } from "@/lib/cart-store";
+import { useUi } from "@/lib/ui-store";
 import LocaleSwitcher from "./LocaleSwitcher";
+import { BagIcon, SearchIcon, UserIcon } from "./Icons";
 
 type SessionState = {
   status: "loading" | "anon" | "authed";
@@ -20,6 +22,8 @@ export default function HeaderClient() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const items = useCart((s) => s.items);
+  const openCart = useUi((s) => s.openCart);
+  const openSearch = useUi((s) => s.openSearch);
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
 
   useEffect(() => {
@@ -56,75 +60,112 @@ export default function HeaderClient() {
     }
   }
 
+  const authed = session.status === "authed";
+
   return (
-    <div className="flex items-center gap-6 text-[13px] tracking-wider text-sericia-ink-soft">
-      {session.status === "loading" && (
-        <span className="hidden md:inline opacity-0">.</span>
-      )}
+    <div className="flex items-center gap-5 md:gap-6 text-[13px] tracking-wider text-sericia-ink-soft">
+      <button
+        type="button"
+        onClick={openSearch}
+        aria-label="Open search"
+        data-cursor="link"
+        className="p-1.5 hover:text-sericia-ink transition-colors"
+      >
+        <SearchIcon className="h-5 w-5" />
+      </button>
+
       {session.status === "anon" && (
         <Link
           href="/login"
-          className="hidden md:inline-block hover:text-sericia-ink transition"
+          aria-label="Sign in"
+          data-cursor="link"
+          className="hidden sm:inline-flex p-1.5 hover:text-sericia-ink transition-colors"
         >
-          {t("sign_in")}
+          <UserIcon filled={false} className="h-5 w-5" />
         </Link>
       )}
-      {session.status === "authed" && (
-        <div className="relative hidden md:block">
+      {authed && (
+        <div className="relative hidden sm:block">
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}
-            className="hover:text-sericia-ink transition"
+            className="p-1.5 hover:text-sericia-ink transition-colors"
             aria-expanded={menuOpen}
             aria-label="Account menu"
+            data-cursor="link"
           >
-            {t("account")}
+            <UserIcon filled className="h-5 w-5 text-sericia-ink" />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-3 w-56 border border-sericia-line bg-sericia-paper z-20">
-              <div className="px-5 py-4 border-b border-sericia-line">
-                <div className="label mb-1">{t("signed_in")}</div>
-                <div className="text-[12px] text-sericia-ink break-all">{session.email}</div>
-              </div>
-              <Link
-                href="/account"
-                onClick={() => setMenuOpen(false)}
-                className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
-              >
-                {t("overview")}
-              </Link>
-              <Link
-                href="/account/orders"
-                onClick={() => setMenuOpen(false)}
-                className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
-              >
-                {t("orders")}
-              </Link>
-              <Link
-                href="/account/addresses"
-                onClick={() => setMenuOpen(false)}
-                className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
-              >
-                {t("addresses")}
-              </Link>
+            <>
               <button
                 type="button"
-                onClick={signOut}
-                className="block w-full text-left px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition border-t border-sericia-line"
-              >
-                {t("sign_out")}
-              </button>
-            </div>
+                aria-hidden
+                tabIndex={-1}
+                onClick={() => setMenuOpen(false)}
+                className="fixed inset-0 z-10 cursor-default"
+              />
+              <div className="absolute right-0 top-full mt-3 w-60 border border-sericia-line bg-sericia-paper z-20 shadow-[0_10px_40px_-20px_rgba(33,35,29,0.2)]">
+                <div className="px-5 py-4 border-b border-sericia-line">
+                  <div className="label mb-1">{t("signed_in")}</div>
+                  <div className="text-[12px] text-sericia-ink break-all">{session.email}</div>
+                </div>
+                <Link
+                  href="/account"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
+                >
+                  {t("overview")}
+                </Link>
+                <Link
+                  href="/account/orders"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
+                >
+                  {t("orders")}
+                </Link>
+                <Link
+                  href="/account/wishlist"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
+                >
+                  Wishlist
+                </Link>
+                <Link
+                  href="/account/addresses"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition"
+                >
+                  {t("addresses")}
+                </Link>
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="block w-full text-left px-5 py-3 text-[13px] text-sericia-ink hover:bg-sericia-paper-card transition border-t border-sericia-line"
+                >
+                  {t("sign_out")}
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
-      <Link
-        href="/cart"
-        className="relative hover:text-sericia-ink transition"
-        aria-label={`Cart with ${count} item${count === 1 ? "" : "s"}`}
+
+      <button
+        type="button"
+        onClick={openCart}
+        aria-label={`Open cart${mounted && count > 0 ? ` with ${count} item${count === 1 ? "" : "s"}` : ""}`}
+        data-cursor="link"
+        className="relative p-1.5 hover:text-sericia-ink transition-colors"
       >
-        {t("cart")}{mounted && count > 0 ? ` (${count})` : ""}
-      </Link>
+        <BagIcon className="h-5 w-5" />
+        {mounted && count > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-sericia-ink text-sericia-paper text-[10px] leading-4 text-center tabular-nums">
+            {count > 99 ? "99+" : count}
+          </span>
+        )}
+      </button>
+
       <LocaleSwitcher />
     </div>
   );
