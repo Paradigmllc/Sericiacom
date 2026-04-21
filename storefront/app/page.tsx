@@ -1,4 +1,6 @@
+import { cookies } from "next/headers";
 import CrossmintButton from "@/components/CrossmintButton";
+import { formatPricePPP, PPP } from "@/lib/ppp";
 
 const DROP = {
   id: "drop-001",
@@ -12,7 +14,10 @@ const DROP = {
     "Three small Japanese producers had 480g of surplus on their hands — craft sencha near peak, barrel-aged miso, and hand-dried shiitake. Rescued before disposal. Same quality. Half the waste.",
 };
 
-export default function Home() {
+export default async function Home() {
+  const country = (await cookies()).get("country")?.value ?? "us";
+  const localPrice = formatPricePPP(DROP.price, country);
+  const isLocalized = country !== "us" && PPP[country];
   return (
     <main className="min-h-screen bg-sericia-paper text-sericia-ink">
       <header className="border-b border-sericia-ink/10">
@@ -50,8 +55,10 @@ export default function Home() {
           <p className="text-sericia-ink/80 leading-relaxed mb-8">{DROP.story}</p>
           <div className="grid grid-cols-3 gap-4 text-sm text-sericia-ink/70 mb-8">
             <div>
-              <div className="font-semibold text-sericia-ink">${DROP.price}</div>
-              <div>Flat (USD)</div>
+              <div className="font-semibold text-sericia-ink">
+                {isLocalized ? `${localPrice}` : `$${DROP.price}`}
+              </div>
+              <div>{isLocalized ? `≈ $${DROP.price} · billed USD` : "Flat (USD)"}</div>
             </div>
             <div>
               <div className="font-semibold text-sericia-ink">{DROP.weight_g}g</div>

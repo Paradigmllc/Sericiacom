@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase, type PseoArticle } from "@/lib/supabase";
 import { COUNTRIES, PRODUCTS } from "@/lib/pseo-matrix";
+import { formatPricePPP } from "@/lib/ppp";
 
 export const revalidate = 86400; // 24h ISR
 export const dynamicParams = true;
@@ -106,7 +107,10 @@ export default async function GuidePage({ params }: { params: Promise<Params> })
       </div>
 
       <div className="mt-16 rounded-lg bg-sericia-accent/10 p-6 text-center">
-        <p className="mb-4 text-lg">Next drop arrives every 2 weeks — limited quantities, one-time releases.</p>
+        <p className="mb-2 text-lg">Next drop arrives every 2 weeks — limited quantities, one-time releases.</p>
+        <p className="mb-4 text-sm text-sericia-ink/70">
+          Current drop: {formatPricePPP(95, country)} <span className="text-sericia-ink/50">(≈ $95 billed in USD · EMS worldwide)</span>
+        </p>
         {article.related_drop_handle ? (
           <Link href={`/drops/${article.related_drop_handle}`} className="inline-block rounded bg-sericia-accent px-6 py-3 text-white hover:bg-sericia-accent/90">
             See Current Drop →
