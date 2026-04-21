@@ -18,6 +18,7 @@
 | ★★☆☆☆ | 12 | [🌐 ドメイン・商標](#s12) | sericia.com取得予定 |
 | ★☆☆☆☆ | 13 | [📚 リソース一覧](#s13) | 未整備 |
 | ★★★★☆ | 14 | [🧠 壁打ち詳細メモ](#s14) | 仕入れTier/EMS最適化/非採用/Phase戦略 |
+| ★★★☆☆ | 15 | [🚧 M1-M5 実行トラッカー](#s15) | M1完了 / M2M3実行中 / M4-M5待機（2026-04-21〜） |
 
 ⚠️ **要強化**: 6(法的) / 10(運用) / 13(リソース)
 
@@ -582,3 +583,126 @@ Ships within 14 days from Japan.
 + "Sending 5 free samples to the first 5 people who DM me their address"
 → 無料サンプル→レビュー→次ドロップ売り切れ
 ```
+
+---
+
+## <a id="s15"></a>15. 🚧 M1-M5 実行トラッカー（2026-04-21〜）
+
+### 進捗
+
+| # | マイルストーン | 状態 | コミット | 検証 |
+|---|-------------|-----|---------|------|
+| **M1** | /tools/* 500/404 修正 + Dify チャットボット | ✅ 完了 | `fe30f8c2`, `87782adf` | 全ツール200 / Dify 2段フォールバック（SDK→iframe） |
+| **M2** | PayloadCMS v3 インストール（7 collections + 2 globals + 6 blocks） | 🔄 実行中 | — | `/cms/admin` ログイン確認 |
+| **M3** | Medusa v2 起動（9 regions + 4 products + Coolifyデプロイ） | 🔄 実行中 | — | `medusa.sericia.com/app` 200 |
+| **M4** | 統合（Aesopヒーロー/桜/赤ハート/マーケ/アラビア語/PWA/SEO/全ページ共通サイドバー） | ⏸️ 待機 | — | — |
+| **M5** | pSEO 量産基盤（DeepSeek Context Caching + キーワードリサーチ + 20記事サンプル） | ⏸️ 待機 | — | — |
+
+### M1 根本原因（完了済）
+
+**/tools/* 500**: `SiteHeader`/`SiteFooter` が async server component として `getTranslations`（server-only）を呼んでいたが、`/tools/*` は `"use client"` のためクライアント境界でクラッシュ。**`useTranslations` hook に切り替え**て解決（`fe30f8c2`）。
+
+**/tools/* 404**: Coolifyが古いビルド（`87c813f4` 以前）をサーブしていた。再デプロイで解消。
+
+**Dify**: `components/DifyChat.tsx` を2段戦略に刷新（`87782adf`）:
+1. `udify.app/embed.min.js` SDK 注入を試行
+2. 3秒後に `#dify-chatbot-bubble-button` の存在確認
+3. 欠けていれば自前の浮遊ボタン + iframe パネルにフォールバック（CDNブロック/SDKクラッシュ時もUI到達可能）
+
+### M2 スコープ（実行中）
+
+**目的**: 記事/メディア/テスティモニアル/ヒーロー/サイト設定をエディタが編集可能にする。
+
+**配置**: `/cms/admin`（既存 `/admin/*` スクラッチ管理画面との衝突回避）・route group `app/(payload)/`
+
+**DB**: Supabase Postgres + schemaName `payload`（既存 `app.*` テーブルと衝突回避）
+
+**ロケール**: 9 言語（en/ja/de/fr/es/it/ko/zh-TW/**ar** 新規）・ `ar` は M4 で RTL 有効化
+
+**Collections**: Users / Articles / Guides / Tools / Media / Testimonials / PressMentions
+
+**Globals**: SiteSettings / Homepage
+
+**Blocks**: Hero / Drop / Testimonials / PressStrip / Story / Newsletter
+
+### M3 スコープ（実行中）
+
+**目的**: Medusa v2 Admin を本番稼働させ、商品・注文・在庫・割引・配送を集中管理。
+
+**配置**: `medusa.sericia.com/app` (Coolify Hetzner CPX22)
+
+**リソース**:
+- Coolify project `qnry7poqtz364qhgupfq4c0k`
+- Postgres `h128il6uh7sxdkb5s3w0vuz7` / Redis `yau9i5yafa98tc8dm8ag5kmp`
+- 新規サービス `sericia-medusa-backend` を作成中
+
+**Seed 拡張**: 9 regions（JP/US/EU/UK/CA/AU/SG/HK/**ME**）+ 4 products（sencha/miso/shiitake 単体 + Drop #1 bundle）+ EMS配送プロファイル + Tokyo Fulfillment stock location + Default Sericia sales channel
+
+### M4 スコープ（待機中・要件確定済）
+
+`M2`+`M3` 完了後に以下を統合:
+
+1. **記事・固定ページ・ツール 全ページ共通サイドバー**（2026-04-21 ユーザー指示）
+   - 現在 `ContentSidebar` は 4 新ツール + `/journal/[slug]` + `/guides/[country]/[product]` のみ
+   - 要追加: `/tools/shelf-life` `/tools/miso-finder` `/tools/matcha-grade` `/tools/ems-calculator` / `/tools`(index) / `/journal`(index) / `/guides` / `/guides/[country]` / `/privacy` / `/terms` / `/refund` / `/shipping`
+   - 共通 layout（例: `app/(with-sidebar)/layout.tsx` route group）で一度だけ定義してDRY化
+
+2. **Aesop シネマティックヒーロー** — 背景動画（Payload Media 経由で差し替え可能）・スクロール連動ズームアウト・paper-cream 配色維持
+
+3. **日本らしい演出** — 桜が散るパーティクル（tsparticles・prefers-reduced-motion尊重）・ウィッシュリストハート赤塗り（`fill-red-500` + framer-motion bounce）
+
+4. **マーケティング（品よく）**:
+   - 初回クーポン（-10% first order・静的バナー・popupなし）
+   - ドロップカウントダウンタイマー（ホーム + PDP、`react-countdown`）
+   - "Most requested" ランキング（Medusa 売上 top 3）
+   - `<social-proof>` トースト（Sonner、最近の購入地域表示）
+   - ❌ 採用しない: 派手な割引スタンプ / 強制ポップアップ / 恐怖系タイマー
+
+5. **PLG/UGC バイラル**:
+   - 15-20 seeded testimonials（Payload Testimonials 経由）
+   - "As seen in" プレスストリップ（Payload PressMentions）
+   - 紹介プログラム（refer-a-friend → 次注文 $10 OFF）
+   - `#SericiaDrop` ハッシュタグ CTA
+
+6. **カテゴリー/タグソート** — 商品一覧に category chips + sort dropdown（URL sync `?category=&sort=`）
+
+7. **pUtility 拡充** — 5 新ツール + 記事内埋め込み（ContentSidebar / 記事中 `<ToolEmbed>` blocks）
+
+8. **アラビア語（ar）** — UAE/サウジ/カタール向け RTL 対応（next-intl `as const` + Tailwind `[dir=rtl]`）
+
+9. **PWA** — manifest.json拡充・service-worker.js・web-push基盤（Supabase `push_subscriptions`）
+
+10. **SEO/GEO** — JSON-LD Article/FAQ/Product/Recipe、sitemap auto-gen、hreflang、TL;DR先出し
+
+### M5 スコープ（待機中）
+
+**DeepSeek V3 Context Caching 基盤**（$0.014/1M = 90% OFF）:
+- n8n workflow で 1 プロンプト × 1,000 キーワード × 9 言語を自動量産
+- Ahrefs/Mangools で月検索100-1,000件のロングテールを収集（徹底リサーチ後）
+- 競合（Bokksu / Misfits Market / The Feedfeed 等）のSEOギャップを特定
+- 最初に 20 記事サンプルを手動レビューしてプロンプトを固める → その後自動量産
+- 記事は Payload `articles` コレクションに投入（ローカライズ 9 言語）
+
+**注意**: やみくもな量産禁止（Googleペナルティリスク）。TL;DR先出し・自社統計・一次データ・Recipe Schema 完備で GEO（AI検索）評価も狙う。
+
+### 共通サイドバー仕様（M4 で実装）
+
+```tsx
+// app/(with-sidebar)/layout.tsx
+<div className="mx-auto max-w-7xl lg:grid lg:grid-cols-[1fr_300px] lg:gap-12">
+  <main className="min-w-0">{children}</main>
+  <aside className="hidden lg:block sticky top-24 h-fit">
+    <ContentSidebar />
+  </aside>
+</div>
+```
+
+**ContentSidebar セクション**:
+1. **Tools**（ツール一覧リンク・現在ページハイライト）
+2. **Guides**（国別配送ガイド）
+3. **Shop**（Most requested + Drop #1 CTA）
+4. **Newsletter**（メール登録）
+5. **Journal**（最近の記事 3件）
+
+モバイル: hidden（下部タブで代替・タッチしやすい単一カラム）
+
