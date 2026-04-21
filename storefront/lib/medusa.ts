@@ -47,9 +47,26 @@ export const DEFAULT_REGION_SLUG =
   process.env.NEXT_PUBLIC_DEFAULT_REGION || "jp";
 
 /**
- * Resolve a region_id from a region slug (cached per request).
- * Returns null if the region doesn't exist — caller decides whether to
- * fall back to default or error.
+ * Resolve a region_id from a region slug (cached per process).
+ *
+ * Three-layer lookup — any of these keys resolve to the same region_id so we
+ * tolerate drift between Medusa admin config and storefront env:
+ *   1. metadata.slug       — canonical if seed script set it (e.g. "jp")
+ *   2. name.toLowerCase()  — human-typed name ("Japan" → "japan")
+ *   3. countries[].iso_2   — ISO-3166 alpha-2 code ("JP" → "jp")
+ *
+ * Why the widening: we shipped with `NEXT_PUBLIC_DEFAULT_REGION=jp` but the
+ * Medusa region was created as "Japan" (no metadata.slug). The old lookup only
+ * indexed "japan" and returned null for "jp" — every product query then fired
+ * without region_id and Medusa v2 threw "Missing required pricing context".
+ * PDPs 404'd, /products was empty. Building all three keys means no future
+ * env/backend drift can reproduce the bug.
+ *
+ * Lookup is case-insensitive (we lowercase both the key writes and the slug
+ * read) so callers don't need to know the original casing.
+ *
+ * Returns null if the region doesn't exist — caller decides whether to fall
+ * back to default or error out.
  */
 let _regionCache: Map<string, string> | null = null;
 
@@ -58,23 +75,24 @@ export async function getRegionId(slug: string): Promise<string | null> {
     _regionCache = new Map();
     try {
       // Note: module-level _regionCache (above) gives us per-process caching.
-      // We previously passed `{ next: { revalidate: 3600 } }` here, but the
-      // Medusa v2 SDK second arg is typed `{ tags: string[] }` and was
-      // discarding the Next hint anyway. The Map cache is enough — regions
-      // only change on a redeploy.
+      // Regions only change on redeploy so we warm once and reuse.
       const { regions } = await medusa.store.region.list({
-        fields: "id,name,currency_code,metadata",
+        fields: "id,name,currency_code,metadata,countries.iso_2",
       });
       for (const r of regions) {
-        // Seed writes metadata.slug; fall back to lowercased name match.
-        const key =
-          (r.metadata?.slug as string | undefined) ?? r.name?.toLowerCase();
-        if (key) _regionCache.set(key, r.id);
+        const keys: (string | undefined)[] = [
+          (r.metadata?.slug as string | undefined)?.toLowerCase(),
+          r.name?.toLowerCase(),
+          ...((r.countries ?? []).map((c) => c.iso_2?.toLowerCase())),
+        ];
+        for (const k of keys) {
+          if (k) _regionCache.set(k, r.id);
+        }
       }
     } catch (err) {
       console.error("[medusa] region.list failed", err);
       return null;
     }
   }
-  return _regionCache.get(slug) ?? null;
+  return _regionCache.get(slug.toLowerCase()) ?? null;
 }
