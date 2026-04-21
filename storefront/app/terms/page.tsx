@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
-import { Container, PageHero } from "../../components/ui";
+import { Container, PageHero, Rule } from "../../components/ui";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
+  title: "Terms of Service | Sericia",
   description: "Sericia Terms of Service — rules for using sericia.com and purchasing drops.",
+  alternates: { canonical: "https://sericia.com/terms" },
 };
 
 export default function TermsPage() {
@@ -94,6 +96,18 @@ export default function TermsPage() {
           Questions? Write to{" "}
           <a href="mailto:contact@sericia.com" className="underline-link">contact@sericia.com</a>.
         </p>
+
+        <Rule className="my-14" />
+
+        <p className="label mb-4">Also on Sericia</p>
+        <ul className="not-prose grid grid-cols-1 md:grid-cols-2 gap-3 text-[14px]">
+          <li><Link href="/privacy" className="text-sericia-ink-soft hover:text-sericia-ink">Privacy policy</Link></li>
+          <li><Link href="/refund" className="text-sericia-ink-soft hover:text-sericia-ink">Refund policy</Link></li>
+          <li><Link href="/shipping" className="text-sericia-ink-soft hover:text-sericia-ink">Shipping information</Link></li>
+          <li><Link href="/journal" className="text-sericia-ink-soft hover:text-sericia-ink">Journal</Link></li>
+          <li><Link href="/tools" className="text-sericia-ink-soft hover:text-sericia-ink">Tools</Link></li>
+          <li><Link href="/guides" className="text-sericia-ink-soft hover:text-sericia-ink">Country guides</Link></li>
+        </ul>
       </Container>
       <SiteFooter />
     </>

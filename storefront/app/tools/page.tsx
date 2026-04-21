@@ -5,8 +5,10 @@ import SiteFooter from "../../components/SiteFooter";
 import { Container, PageHero } from "../../components/ui";
 
 export const metadata: Metadata = {
-  title: "Japanese Food Tools — EMS Calculator, Matcha Grader, Miso Finder | Sericia",
-  description: "Free utilities for Japanese craft food buyers: EMS shipping calculator, matcha grade decoder, miso finder, shelf-life checker. Built by Sericia.",
+  title:
+    "Japanese Food Tools — EMS Calculator, Matcha Grader, Dashi Ratio | Sericia",
+  description:
+    "Free utilities for Japanese craft food buyers: EMS shipping calculator, matcha grade decoder, miso finder, shelf-life checker, dashi ratios, tea brewing, shiitake rehydration, yuzu substitutes.",
   alternates: { canonical: "https://sericia.com/tools" },
 };
 
@@ -35,6 +37,30 @@ const TOOLS = [
     title: "Shelf-life checker",
     desc: "How long miso, sencha, and dried shiitake actually keep once they arrive at your door.",
   },
+  {
+    href: "/tools/dashi-ratio",
+    number: "Five",
+    title: "Dashi ratio calculator",
+    desc: "Ichiban, niban, kombu, iriko, shiitake — exact gram ratios for any volume of water.",
+  },
+  {
+    href: "/tools/tea-brewer",
+    number: "Six",
+    title: "Japanese tea brewer",
+    desc: "Temperature, steep time, and leaf weight for sencha, gyokuro, hojicha, and matcha.",
+  },
+  {
+    href: "/tools/shiitake-rehydrate",
+    number: "Seven",
+    title: "Shiitake rehydration",
+    desc: "Cold water overnight extracts four times the guanylate of boiling. The method matters.",
+  },
+  {
+    href: "/tools/yuzu-substitute",
+    number: "Eight",
+    title: "Yuzu substitute finder",
+    desc: "Build yuzu's flavour from accessible citrus when the real fruit is unavailable.",
+  },
 ];
 
 export default function ToolsIndex() {
@@ -58,12 +84,24 @@ export default function ToolsIndex() {
               <h2 className="text-[24px] md:text-[28px] font-normal leading-snug mb-4 group-hover:text-sericia-accent transition-colors">
                 {t.title}
               </h2>
-              <p className="text-[15px] text-sericia-ink-soft leading-relaxed max-w-prose">{t.desc}</p>
+              <p className="text-[15px] text-sericia-ink-soft leading-relaxed max-w-prose">
+                {t.desc}
+              </p>
               <p className="mt-8 text-[12px] tracking-wider uppercase text-sericia-ink-mute">
                 Open tool →
               </p>
             </Link>
           ))}
+        </div>
+
+        <div className="mt-20 md:mt-28 border-t border-sericia-line pt-12 md:pt-16">
+          <p className="label mb-4">Also</p>
+          <Link
+            href="/journal"
+            className="text-[22px] md:text-[28px] font-normal leading-tight tracking-tight hover:text-sericia-accent transition-colors"
+          >
+            Read the journal — long-form writing on Japanese craft food →
+          </Link>
         </div>
       </Container>
       <SiteFooter />

@@ -6,8 +6,9 @@ import SiteFooter from "../../components/SiteFooter";
 import { Container, PageHero, SectionHeading, Rule } from "../../components/ui";
 
 export const metadata: Metadata = {
-  title: "Shipping Information",
+  title: "Shipping Information | Sericia",
   description: "EMS worldwide shipping from Japan — transit times, customs, and tracking.",
+  alternates: { canonical: "https://sericia.com/shipping" },
 };
 
 export default function ShippingPage() {

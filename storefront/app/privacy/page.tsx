@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
-import { Container, PageHero } from "../../components/ui";
+import { Container, PageHero, Rule } from "../../components/ui";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: "Privacy Policy | Sericia",
   description: "How Sericia collects, uses, and protects your personal data.",
+  alternates: { canonical: "https://sericia.com/privacy" },
 };
 
 export default function PrivacyPage() {
@@ -64,6 +66,18 @@ export default function PrivacyPage() {
           Data controller — Paradigm LLC. Write to{" "}
           <a href="mailto:contact@sericia.com" className="underline-link">contact@sericia.com</a>.
         </p>
+
+        <Rule className="my-14" />
+
+        <p className="label mb-4">Also on Sericia</p>
+        <ul className="not-prose grid grid-cols-1 md:grid-cols-2 gap-3 text-[14px]">
+          <li><Link href="/terms" className="text-sericia-ink-soft hover:text-sericia-ink">Terms of Service</Link></li>
+          <li><Link href="/refund" className="text-sericia-ink-soft hover:text-sericia-ink">Refund policy</Link></li>
+          <li><Link href="/shipping" className="text-sericia-ink-soft hover:text-sericia-ink">Shipping information</Link></li>
+          <li><Link href="/journal" className="text-sericia-ink-soft hover:text-sericia-ink">Journal</Link></li>
+          <li><Link href="/tools" className="text-sericia-ink-soft hover:text-sericia-ink">Tools</Link></li>
+          <li><Link href="/guides" className="text-sericia-ink-soft hover:text-sericia-ink">Country guides</Link></li>
+        </ul>
       </Container>
       <SiteFooter />
     </>

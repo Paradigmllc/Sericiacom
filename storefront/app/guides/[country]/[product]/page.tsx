@@ -6,6 +6,7 @@ import { COUNTRIES, PRODUCTS } from "@/lib/pseo-matrix";
 import { formatPricePPP } from "@/lib/ppp";
 import SiteHeader from "../../../../components/SiteHeader";
 import SiteFooter from "../../../../components/SiteFooter";
+import ContentSidebar from "../../../../components/ContentSidebar";
 import { Container, Eyebrow, Rule, Button } from "../../../../components/ui";
 
 export const revalidate = 86400;
@@ -131,32 +132,53 @@ export default async function GuidePage({ params }: { params: Promise<Params> })
         </Container>
       </section>
 
-      <Container size="narrow" className="py-20 md:py-28 prose-aesop">
-        <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.intro_md) }} />
+      <Container size="wide" className="py-20 md:py-28">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          <article className="flex-1 min-w-0 max-w-prose prose-aesop">
+            <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.intro_md) }} />
 
-        <Rule className="my-16" />
-        <p className="label mb-4">Why Japanese</p>
-        <h2>Why Japanese {article.product_name}?</h2>
-        <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.why_japanese_md) }} />
+            <Rule className="my-16" />
+            <p className="label mb-4">Why Japanese</p>
+            <h2 id="why-japanese" className="scroll-mt-28">Why Japanese {article.product_name}?</h2>
+            <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.why_japanese_md) }} />
 
-        <Rule className="my-16" />
-        <p className="label mb-4">Shipping</p>
-        <h2>Shipping to {article.country_name}</h2>
-        <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.shipping_info_md) }} />
+            <Rule className="my-16" />
+            <p className="label mb-4">Shipping</p>
+            <h2 id="shipping" className="scroll-mt-28">Shipping to {article.country_name}</h2>
+            <div dangerouslySetInnerHTML={{ __html: mdToHtml(article.shipping_info_md) }} />
 
-        <Rule className="my-16" />
-        <p className="label mb-4">Frequently asked</p>
-        <h2>Frequently asked questions.</h2>
-        <div className="not-prose space-y-px bg-sericia-line mt-6">
-          {article.faq.map((f, i) => (
-            <details key={i} className="bg-sericia-paper group">
-              <summary className="cursor-pointer py-6 flex items-baseline justify-between gap-6 list-none">
-                <span className="text-[17px] font-normal">{f.q}</span>
-                <span className="text-[24px] text-sericia-ink-mute group-open:rotate-45 transition-transform">+</span>
-              </summary>
-              <p className="text-[15px] text-sericia-ink-soft pb-6 leading-relaxed max-w-prose">{f.a}</p>
-            </details>
-          ))}
+            <Rule className="my-16" />
+            <p className="label mb-4">Frequently asked</p>
+            <h2 id="faq" className="scroll-mt-28">Frequently asked questions.</h2>
+            <div className="not-prose space-y-px bg-sericia-line mt-6">
+              {article.faq.map((f, i) => (
+                <details key={i} className="bg-sericia-paper group">
+                  <summary className="cursor-pointer py-6 flex items-baseline justify-between gap-6 list-none">
+                    <span className="text-[17px] font-normal">{f.q}</span>
+                    <span className="text-[24px] text-sericia-ink-mute group-open:rotate-45 transition-transform">+</span>
+                  </summary>
+                  <p className="text-[15px] text-sericia-ink-soft pb-6 leading-relaxed max-w-prose">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </article>
+
+          <ContentSidebar
+            sectionTitle="On this page"
+            sections={[
+              { href: "#why-japanese", label: `Why Japanese ${article.product_name}` },
+              { href: "#shipping", label: `Shipping to ${article.country_name}` },
+              { href: "#faq", label: "FAQ" },
+            ]}
+            relatedGuides={COUNTRIES
+              .filter((c) => c.code !== country)
+              .slice(0, 4)
+              .map((c) => ({
+                href: `/guides/${c.code}/${product}`,
+                label: `${article.product_name} — ${c.name}`,
+              }))}
+            languageNote={`Available in 8 languages. Pricing localised for ${article.country_name}.`}
+          />
         </div>
       </Container>
 

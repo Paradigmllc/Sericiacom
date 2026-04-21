@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
-import { Container, PageHero } from "../../components/ui";
+import { Container, PageHero, Rule } from "../../components/ui";
 
 export const metadata: Metadata = {
-  title: "Refund & Returns",
+  title: "Refund & Returns | Sericia",
   description: "Sericia refund policy for perishable Japanese craft food drops.",
+  alternates: { canonical: "https://sericia.com/refund" },
 };
 
 export default function RefundPage() {
@@ -53,6 +55,18 @@ export default function RefundPage() {
         <p className="text-[13px] text-sericia-ink-mute mt-8">
           Refunds are issued in United States dollars. Currency conversion differences are not refundable.
         </p>
+
+        <Rule className="my-14" />
+
+        <p className="label mb-4">Also on Sericia</p>
+        <ul className="not-prose grid grid-cols-1 md:grid-cols-2 gap-3 text-[14px]">
+          <li><Link href="/terms" className="text-sericia-ink-soft hover:text-sericia-ink">Terms of Service</Link></li>
+          <li><Link href="/privacy" className="text-sericia-ink-soft hover:text-sericia-ink">Privacy policy</Link></li>
+          <li><Link href="/shipping" className="text-sericia-ink-soft hover:text-sericia-ink">Shipping information</Link></li>
+          <li><Link href="/journal" className="text-sericia-ink-soft hover:text-sericia-ink">Journal</Link></li>
+          <li><Link href="/tools" className="text-sericia-ink-soft hover:text-sericia-ink">Tools</Link></li>
+          <li><Link href="/guides" className="text-sericia-ink-soft hover:text-sericia-ink">Country guides</Link></li>
+        </ul>
       </Container>
       <SiteFooter />
     </>
