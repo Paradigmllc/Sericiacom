@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -9,6 +10,8 @@ export const metadata: Metadata = {
   description: "Create a Sericia account to track orders and save addresses.",
   robots: { index: false, follow: false },
 };
+
+export const dynamic = "force-dynamic";
 
 export default function SignupPage() {
   return (
@@ -26,7 +29,9 @@ export default function SignupPage() {
         </Container>
       </section>
       <Container size="narrow" className="py-16 md:py-24">
-        <SignupForm />
+        <Suspense fallback={<div className="text-sericia-ink-soft">Loading…</div>}>
+          <SignupForm />
+        </Suspense>
       </Container>
       <SiteFooter />
     </>

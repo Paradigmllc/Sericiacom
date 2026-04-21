@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   title: "Magic link sign-in",
   robots: { index: false, follow: false },
 };
+
+export const dynamic = "force-dynamic";
 
 export default function MagicPage() {
   return (
@@ -25,7 +28,9 @@ export default function MagicPage() {
         </Container>
       </section>
       <Container size="narrow" className="py-16 md:py-24">
-        <MagicForm />
+        <Suspense fallback={<div className="text-sericia-ink-soft">Loading…</div>}>
+          <MagicForm />
+        </Suspense>
       </Container>
       <SiteFooter />
     </>
