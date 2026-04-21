@@ -1,12 +1,16 @@
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import HeaderClient from "./HeaderClient";
 import HeaderShell from "./HeaderShell";
 import Logo from "./Logo";
 import AnnouncementBar from "./AnnouncementBar";
 import Link from "next/link";
 
-export default async function SiteHeader() {
-  const t = await getTranslations("nav");
+// Uses `useTranslations` (works in both server and client boundaries)
+// rather than `getTranslations` (server-only). This lets client-component
+// pages like /tools/* import SiteHeader without triggering the
+// "`getTranslations` is not supported in Client Components" runtime error.
+export default function SiteHeader() {
+  const t = useTranslations("nav");
   return (
     <>
       <AnnouncementBar />

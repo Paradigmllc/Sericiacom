@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
-export default async function SiteFooter() {
-  const t = await getTranslations("footer");
-  const tNav = await getTranslations("nav");
+// Uses `useTranslations` (works in both server and client boundaries)
+// rather than `getTranslations` (server-only). Mirrors SiteHeader so that
+// /tools/* client pages can import the footer without SSR crashing.
+export default function SiteFooter() {
+  const t = useTranslations("footer");
+  const tNav = useTranslations("nav");
   return (
     <footer className="bg-sericia-paper-deep text-sericia-ink">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-20">
