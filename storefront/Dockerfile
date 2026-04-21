@@ -30,6 +30,7 @@ COPY --from=build /app/payload-types.ts ./
 COPY --from=build /app/collections ./collections
 COPY --from=build /app/globals ./globals
 COPY --from=build /app/blocks ./blocks
+COPY --from=build /app/migrations ./migrations
 COPY --from=build /app/scripts ./scripts
 # Entrypoint runs idempotent migrate+bootstrap then hands off to `next start`.
 # Both inner steps short-circuit on repeat runs so container restarts are safe.
