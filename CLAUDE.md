@@ -593,7 +593,8 @@ Ships within 14 days from Japan.
 | # | マイルストーン | 状態 | コミット | 検証 |
 |---|-------------|-----|---------|------|
 | **M1** | /tools/* 500/404 修正 + Dify チャットボット | ✅ 完了 | `fe30f8c2`, `87782adf` | 全ツール200 / Dify 2段フォールバック（SDK→iframe） |
-| **M2** | PayloadCMS v3 インストール（7 collections + 2 globals + 6 blocks） | ✅ 完了 | `db83336b` | ビルド成功・要Coolify env 設定 + migrate + bootstrap |
+| **M2** | PayloadCMS v3 インストール（7 collections + 2 globals + 6 blocks） | ✅ 完了 | `db83336b` | ビルド成功・M2-activate で本番稼働済み |
+| **M2-activate** | Payload 本番アクティベーション（env 投入 → DB pw reset → migrate/bootstrap → admin login E2E 検証 → init migration コミット） | ✅ 完了 | `21156de8`, `f60042fc` | https://sericia.com/cms/admin 稼働中（`admin@sericia.com` ログイン HTTP 200 + JWT 発行確認）/ Dockerfile に Payload CLI ソース依存（tsconfig/payload.config.ts/collections/globals/blocks/migrations/scripts）を同梱 / `docker-entrypoint.sh` の3フェーズ冪等ブート（migrate=fail-fast / bootstrap=fail-open / next start exec）/ SSL急所 = `sslmode=no-verify`（pg v3 が `require` を `verify-full` エイリアスするため必須） |
 | **M3** | Medusa v2 起動（9 regions + 4 products + Coolifyデプロイ） | ✅ 完了 | `46384141`, `6737fd61` | `api.sericia.com/health` 200 / `/store/regions` 9件 / `/store/products` 4件 / `/admin` JWT 200 |
 | **M4a-1** | storefront products facade → Medusa（listing/PDP/search-index の data source 切替 + Strategy B カテゴリ紐付け 4 products） | ✅ 完了 | `40d7b9e6`, `f858ac5c` | `/store/products` 4件にカテゴリ付き（tea/miso/mushroom/seasoning）/ Coolify storefront の env vars 待ち |
 | **M4a-2** | checkout rewrite（`/api/orders/create-cart` を Medusa 価格・在庫ソースに切替 / Crossmint 保持） | ✅ 完了 | (this commit) | `getProductsByIds()` 経由で Medusa が prices + stock の source of truth / sericia_orders は受注台帳として残し Crossmint は無変更 / Slack webhook on order_created 追加（Rule N 準拠） |
@@ -656,11 +657,11 @@ Ships within 14 days from Japan.
 
 **既存ルート**（`/admin/*`・`/tools/*`・`/products`・`/guides`・`/journal`等 20+）は全て変更なしでコンパイル成功。
 
-**Coolifyデプロイ手順** (M3完了後に実施):
-1. Coolify env に `PAYLOAD_SECRET` (32文字+) / `DATABASE_URL_PAYLOAD` (`?schema=payload` suffix必須) / `PAYLOAD_ADMIN_EMAIL` / `PAYLOAD_ADMIN_PASSWORD` / `SUPABASE_S3_*` をセット
-2. `npm run payload:migrate` で `payload` schema作成
-3. `npm run payload:bootstrap` で admin ユーザー作成
-4. `https://sericia.com/cms/admin` ログイン検証
+**Coolifyデプロイ手順** (✅ M2-activate `f60042fc` で完了済):
+1. ✅ Coolify env 投入済: `PAYLOAD_SECRET` (64-hex) / `DATABASE_URL_PAYLOAD` (`?schema=payload&sslmode=no-verify` 必須) / `PAYLOAD_ADMIN_EMAIL` / `PAYLOAD_ADMIN_PASSWORD`（SUPABASE_S3_* はpost-open）
+2. ✅ `docker-entrypoint.sh` が起動時に `payload:migrate` → `payload:bootstrap` を冪等に自動実行（新しいコンテナ再起動でも安全）
+3. ✅ `https://sericia.com/cms/admin` ログイン検証完了（HTTP 200 + JWT）
+4. 認証情報は `~/.claude/projects/C--Users-apple-OneDrive-Desktop-sericiacom/memory/reference_api_keys.md` 参照
 
 **既知の留意点**:
 - Windowsビルドは `node ./node_modules/next/dist/bin/next build` 直呼び必要（`npm run build` の cmd.exe PATH 問題）。Linux/Coolifyでは問題なし
