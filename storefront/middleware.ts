@@ -5,7 +5,7 @@ import { PPP } from "@/lib/ppp";
 const ADMIN_COOKIE = "sericia_admin";
 
 // Locales supported. Keep in sync with i18n/routing.ts.
-const LOCALES = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW"] as const;
+const LOCALES = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW", "ru"] as const;
 const DEFAULT_LOCALE = "en";
 const LOCALE_COOKIE = "NEXT_LOCALE";
 
@@ -153,7 +153,7 @@ export async function middleware(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Guard /account/* (and localized /<locale>/account/*)
-  const accountGuard = /^\/(en|ja|de|fr|es|it|ko|zh-TW)?\/?account(\/|$)/;
+  const accountGuard = /^\/(en|ja|de|fr|es|it|ko|zh-TW|ru)?\/?account(\/|$)/;
   if (accountGuard.test(path) && !user) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = "/login";

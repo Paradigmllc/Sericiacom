@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* flag-icons: SVG country flags that render consistently on Windows
+   (where native emoji flags fail to render and show "US"/"JP" text codes).
+   Usage: <span class="fi fi-us" /> etc. See LocaleSwitcher.tsx. */
+@import "flag-icons/css/flag-icons.min.css";
+
 :root {
   --background: #f5f0e8;
   --foreground: #21231d;

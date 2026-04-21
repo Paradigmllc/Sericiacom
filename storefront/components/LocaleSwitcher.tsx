@@ -4,24 +4,29 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LOCALE_LABELS, type Locale } from "@/i18n/routing";
 
-const LOCALES: Locale[] = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW"];
+const LOCALES: Locale[] = ["en", "ja", "de", "fr", "es", "it", "ko", "zh-TW", "ru"];
 
 // Flag rationale: `en` is a single locale serving US + UK + CA + AU + SG + HK
 // via hreflang country-specific guides (see app/layout.tsx alternates.languages).
-// 🇺🇸 is chosen over 🇬🇧 because (1) the US is the largest English e-commerce
-// market, (2) Japan→US is Sericia's primary EMS export route, and (3) the
-// previous 🇬🇧 visually excluded US shoppers. To go fully country-neutral
-// (Aesop / Le Labo style), delete the FLAGS object entirely and drop the
-// {FLAGS[...]} render below.
-const FLAGS: Record<Locale, string> = {
-  en: "🇺🇸",
-  ja: "🇯🇵",
-  de: "🇩🇪",
-  fr: "🇫🇷",
-  es: "🇪🇸",
-  it: "🇮🇹",
-  ko: "🇰🇷",
-  "zh-TW": "🇹🇼",
+// `us` is chosen over `gb` because (1) the US is the largest English e-commerce
+// market, (2) Japan→US is Sericia's primary EMS export route, (3) the
+// previous 🇬🇧 visually excluded US shoppers.
+//
+// We use `flag-icons` CSS (SVG sprite) instead of Unicode emoji flags because
+// Windows refuses to render emoji flags and shows 2-letter regional indicator
+// text ("US"/"JP"/"GB") instead. SVG sprites render identically on every OS.
+// To go fully country-neutral (Aesop / Le Labo style), remove FLAG_CODES and
+// drop the <span class="fi fi-*" /> render below.
+const FLAG_CODES: Record<Locale, string> = {
+  en: "us",
+  ja: "jp",
+  de: "de",
+  fr: "fr",
+  es: "es",
+  it: "it",
+  ko: "kr",
+  "zh-TW": "tw",
+  ru: "ru",
 };
 
 function stripLocalePrefix(path: string): string {
@@ -82,9 +87,13 @@ export default function LocaleSwitcher() {
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label="Change language"
-        className="inline-flex items-center gap-1.5 hover:text-sericia-ink transition uppercase tracking-wider text-[13px]"
+        className="inline-flex items-center gap-2 hover:text-sericia-ink transition uppercase tracking-wider text-[13px]"
       >
-        <span aria-hidden className="text-[15px] leading-none">{FLAGS[current]}</span>
+        <span
+          aria-hidden
+          className={`fi fi-${FLAG_CODES[current]} inline-block`}
+          style={{ width: "18px", height: "14px", borderRadius: "1.5px", boxShadow: "0 0 0 0.5px rgba(33,35,29,0.15)" }}
+        />
         <span>{LOCALE_LABELS[current]}</span>
         <svg
           aria-hidden
@@ -122,7 +131,11 @@ export default function LocaleSwitcher() {
                     : "text-sericia-ink hover:bg-sericia-paper-card"
                 } ${switching === l ? "opacity-60" : ""}`}
               >
-                <span aria-hidden className="text-[16px] leading-none">{FLAGS[l]}</span>
+                <span
+                  aria-hidden
+                  className={`fi fi-${FLAG_CODES[l]} inline-block shrink-0`}
+                  style={{ width: "22px", height: "16px", borderRadius: "2px", boxShadow: "0 0 0 0.5px rgba(33,35,29,0.18)" }}
+                />
                 <span className="flex-1">{LOCALE_LABELS[l]}</span>
                 {l === current && (
                   <span aria-hidden className="text-[11px] tracking-[0.18em]">•</span>
