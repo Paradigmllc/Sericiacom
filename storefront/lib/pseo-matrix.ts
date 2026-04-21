@@ -1,12 +1,12 @@
 export const COUNTRIES = [
-  { code: "us", name: "United States", currency: "USD", flag: "🇺🇸" },
-  { code: "uk", name: "United Kingdom", currency: "GBP", flag: "🇬🇧" },
-  { code: "de", name: "Germany", currency: "EUR", flag: "🇩🇪" },
-  { code: "fr", name: "France", currency: "EUR", flag: "🇫🇷" },
-  { code: "au", name: "Australia", currency: "AUD", flag: "🇦🇺" },
-  { code: "sg", name: "Singapore", currency: "SGD", flag: "🇸🇬" },
-  { code: "ca", name: "Canada", currency: "CAD", flag: "🇨🇦" },
-  { code: "hk", name: "Hong Kong", currency: "HKD", flag: "🇭🇰" },
+  { code: "us", name: "United States", currency: "USD", flag: "🇺🇸", locale: "en-US" },
+  { code: "uk", name: "United Kingdom", currency: "GBP", flag: "🇬🇧", locale: "en-GB" },
+  { code: "de", name: "Germany", currency: "EUR", flag: "🇩🇪", locale: "de-DE" },
+  { code: "fr", name: "France", currency: "EUR", flag: "🇫🇷", locale: "fr-FR" },
+  { code: "au", name: "Australia", currency: "AUD", flag: "🇦🇺", locale: "en-AU" },
+  { code: "sg", name: "Singapore", currency: "SGD", flag: "🇸🇬", locale: "en-SG" },
+  { code: "ca", name: "Canada", currency: "CAD", flag: "🇨🇦", locale: "en-CA" },
+  { code: "hk", name: "Hong Kong", currency: "HKD", flag: "🇭🇰", locale: "en-HK" },
 ] as const;
 
 export const PRODUCTS = [
