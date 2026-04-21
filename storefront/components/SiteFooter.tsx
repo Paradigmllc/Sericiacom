@@ -31,11 +31,12 @@ export default function SiteFooter() {
           <div>
             <p className="label mb-5">{t("company")}</p>
             <ul className="space-y-3 text-[14px] text-sericia-ink-soft">
-              <li><Link href="/#story" className="hover:text-sericia-ink">{tNav("our_story")}</Link></li>
+              <li><Link href="/about" className="hover:text-sericia-ink">{tNav("our_story")}</Link></li>
               <li><Link href="/shipping" className="hover:text-sericia-ink">{tNav("shipping")}</Link></li>
               <li><Link href="/refund" className="hover:text-sericia-ink">Refunds</Link></li>
               <li><Link href="/terms" className="hover:text-sericia-ink">Terms of sale</Link></li>
               <li><Link href="/privacy" className="hover:text-sericia-ink">Privacy</Link></li>
+              <li><Link href="/tokushoho" className="hover:text-sericia-ink">特定商取引法</Link></li>
             </ul>
           </div>
           <div>

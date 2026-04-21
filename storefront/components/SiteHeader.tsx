@@ -27,7 +27,7 @@ export default function SiteHeader() {
             <Link href="/guides" className="hover:text-sericia-ink transition" data-cursor="link">
               {t("guides")}
             </Link>
-            <Link href="/#story" className="hover:text-sericia-ink transition" data-cursor="link">
+            <Link href="/about" className="hover:text-sericia-ink transition" data-cursor="link">
               {t("our_story")}
             </Link>
             <Link href="/shipping" className="hover:text-sericia-ink transition" data-cursor="link">
