@@ -9,7 +9,7 @@
 #      (sencha/miso/shiitake/matcha/tea — Drop #1 SKUs exposed by handle, not prod_01 IDs)
 #   4. Medusa backend health (api.sericia.com reachable)
 #   5. Publishable key still works on store API
-#   6. Crossmint webhook endpoint reachable (expects 401 without signature)
+#   6. Crossmint webhook endpoint: MUST reject unsigned POSTs (401 ok, 503 = secret unset launch-blocker, 200 = regression)
 #   7. i18n hotfix live — flag-icons CSS active + 'English' label (not '>EN<' + '🇬🇧')
 #   8. Google OAuth button present on /login and /signup (post-M4a-7 rollout)
 #
@@ -64,13 +64,18 @@ store_http=$(curl -s --max-time 20 -o /tmp/sericia_store_api.json -w "%{http_cod
   -H "x-publishable-api-key: $pk" || echo "000")
 [ "$store_http" = "200" ] && check "Medusa Store API + publishable key" 1 "(HTTP 200)" || check "Medusa Store API + publishable key" 0 "(HTTP $store_http)"
 
-# 6. Crossmint webhook endpoint (401 without signature expected if CROSSMINT_WEBHOOK_SECRET set)
+# 6. Crossmint webhook endpoint — production must reject unsigned POSTs
+#    401 = secret SET + signature missing/invalid (happy path for launch)
+#    503 = secret UNSET (fail-close in prod; launch-blocking misconfig)
+#    200 = unsafe: either dev env leaked to prod OR fail-close regressed
 wh_http=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" -X POST https://sericia.com/api/crossmint-webhook \
   -H "Content-Type: application/json" -d '{"event":"test"}' || echo "000")
 if [ "$wh_http" = "401" ]; then
-  check "Crossmint webhook: rejects unsigned req" 1 "(401 as expected — secret configured)"
+  check "Crossmint webhook: rejects unsigned req" 1 "(401 — secret configured + signature required)"
+elif [ "$wh_http" = "503" ]; then
+  check "Crossmint webhook: LAUNCH-BLOCKER — secret unset" 0 "(503 — set CROSSMINT_WEBHOOK_SECRET in Coolify env before launch)"
 elif [ "$wh_http" = "200" ]; then
-  check "Crossmint webhook: reachable" 1 "(200 — secret may be unset, graceful mode)"
+  check "Crossmint webhook: SECURITY REGRESSION" 0 "(200 — unsigned POST accepted; fail-close broken or NODE_ENV!=production)"
 else
   check "Crossmint webhook: reachable" 0 "(HTTP $wh_http)"
 fi

@@ -28,13 +28,35 @@ export async function POST(req: NextRequest) {
   const signatureHeader = req.headers.get("x-crossmint-signature") ?? req.headers.get("svix-signature");
   const secret = process.env.CROSSMINT_WEBHOOK_SECRET;
 
-  if (secret && signatureHeader) {
+  // Launch-gate fail-close: without the HMAC secret we cannot verify the
+  // webhook sender, which lets anyone POST a valid sericia_order_id and
+  // mark orders "paid" — decrementing inventory, firing Slack/Resend
+  // confirmations, and exhausting drop capacity. In production this is
+  // a DoS+fraud vector, so we return 503 and force the operator to
+  // configure CROSSMINT_WEBHOOK_SECRET before any webhook is accepted.
+  // Crossmint retries 5xx with backoff, so legit events survive the fix.
+  // Dev still passes through (loud warn) so local curl testing works.
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[crossmint-webhook] CRITICAL: CROSSMINT_WEBHOOK_SECRET is not set — " +
+          "rejecting all webhooks. Set it in Coolify env + Crossmint dashboard, then redeploy.",
+      );
+      return NextResponse.json(
+        { error: "webhook_misconfigured", hint: "CROSSMINT_WEBHOOK_SECRET not set" },
+        { status: 503 },
+      );
+    }
+    console.warn(
+      "[crossmint-webhook] CROSSMINT_WEBHOOK_SECRET not set (dev) — passing through unsigned request",
+    );
+  } else if (signatureHeader) {
     const expected = crypto.createHmac("sha256", secret).update(raw).digest("base64");
     if (!signatureHeader.includes(expected)) {
       console.warn("[crossmint-webhook] signature mismatch");
       return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
     }
-  } else if (secret) {
+  } else {
     console.warn("[crossmint-webhook] signature header missing");
     return NextResponse.json({ error: "missing_signature" }, { status: 401 });
   }
