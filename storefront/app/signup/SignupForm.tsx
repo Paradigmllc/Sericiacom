@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const Schema = z.object({
   email: z.string().email("Valid email required"),
@@ -81,7 +82,17 @@ export default function SignupForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-7">
+    <div className="space-y-7">
+      <GoogleSignInButton redirect={redirect} label="Sign up with Google" disabled={loading} />
+
+      {/* Divider: "or" between OAuth and email/password. Google users skip name/country fields (auto-filled from profile). */}
+      <div className="flex items-center gap-4" aria-hidden="true">
+        <span className="flex-1 h-px bg-sericia-line" />
+        <span className="text-[11px] tracking-[0.2em] text-sericia-ink-mute uppercase">or</span>
+        <span className="flex-1 h-px bg-sericia-line" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-7">
       <div>
         <label className={label}>Full name</label>
         <input type="text" required value={form.full_name}
@@ -121,6 +132,7 @@ export default function SignupForm() {
           <Link href="/privacy" className="underline-link">Privacy Policy</Link>.
         </p>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

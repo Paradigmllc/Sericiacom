@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -40,7 +41,17 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-7">
+    <div className="space-y-7">
+      <GoogleSignInButton redirect={redirect} disabled={loading} />
+
+      {/* Divider: "or" between OAuth and email/password. Minimal stroke matches Sericia's editorial aesthetic. */}
+      <div className="flex items-center gap-4" aria-hidden="true">
+        <span className="flex-1 h-px bg-sericia-line" />
+        <span className="text-[11px] tracking-[0.2em] text-sericia-ink-mute uppercase">or</span>
+        <span className="flex-1 h-px bg-sericia-line" />
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-7">
       <div>
         <label className={label}>Email address</label>
         <input type="email" required value={form.email}
@@ -66,6 +77,7 @@ export default function LoginForm() {
           New to Sericia? <Link href={`/signup?redirect=${encodeURIComponent(redirect)}`} className="underline-link">Create an account</Link>
         </p>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

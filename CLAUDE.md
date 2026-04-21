@@ -18,7 +18,7 @@
 | ★★☆☆☆ | 12 | [🌐 ドメイン・商標](#s12) | sericia.com取得予定 |
 | ★☆☆☆☆ | 13 | [📚 リソース一覧](#s13) | 未整備 |
 | ★★★★☆ | 14 | [🧠 壁打ち詳細メモ](#s14) | 仕入れTier/EMS最適化/非採用/Phase戦略 |
-| ★★★★☆ | 15 | [🚧 M1-M5 実行トラッカー](#s15) | M1/M2/M3/M4a-1〜5 + Dify hotfix完了 / ストアオープン可（2026-04-21〜） |
+| ★★★★☆ | 15 | [🚧 M1-M5 実行トラッカー](#s15) | M1/M2/M3/M4a-1〜7 + Dify hotfix + OOM対策完了 / ストアオープン可（2026-04-21〜） |
 
 ⚠️ **要強化**: 6(法的) / 10(運用) / 13(リソース)
 
@@ -602,6 +602,10 @@ Ships within 14 days from Japan.
 | **M4a-3b** | Medusa subscriber `order-placed.ts` 拡張（admin UI 経由オーダー用セーフティネット）| ⏸️ 待機 | — | post-open 対応。現状 Crossmint → storefront webhook が全オーダー経路 |
 | **M4a-4** | n8n ワークフロー JSON コミット（abandoned-cart / low-stock-alert / welcome-email / post-purchase-review）| ✅ 完了 | (this commit) | `n8n-workflows/*.json` × 4 / Supabase RPC `list_abandoned_carts` + `list_review_targets` と schema columns `cart_abandoned_notified` / `review_requested` が未整備（post-open で追加）|
 | **M4a-5** | Dify knowledge base 初期シード（shipping / ingredients / refund-policy / faq）| ✅ 完了 | (this commit) | `docs/knowledge-base/*.md` × 4 / Dify の `knowledge_bases:` 配下で `dify/customer-support.yml` から参照 |
+| **M4a-6** | Supabase schema 追加（n8n marketing automation 用 RPC + columns + partial indexes）| ✅ 完了 | `376134e4` | `supabase/migrations/20260421_marketing_automation.sql`（`cart_abandoned_notified` / `review_requested` + RPC 2本 + backfill 2行 / Supabase MCP `apply_migration` 経由で appexx-studio に適用済み） |
+| **M4a-7a** | Google OAuth UI 実装（`GoogleSignInButton` + `/login` + `/signup` に配線・PKCE/`access_type:offline`・プロフィール自動生成は `sericia_handle_new_user()` トリガー活用）| ✅ 完了 | (this commit) | `storefront/components/GoogleSignInButton.tsx` 新規 / `LoginForm.tsx` + `SignupForm.tsx` に「or」区切りで配置 / `/auth/callback` は既存の `exchangeCodeForSession` がそのまま動作 |
+| **M4a-7b** | Google Cloud Console + Supabase Dashboard セットアップガイド | ✅ 完了 | (this commit) | `docs/GOOGLE_OAUTH_SETUP.md`（8章構成・Client ID 発行手順・troubleshooting・スコープ仕様）/ ユーザー作業として Google Cloud Console + Supabase Dashboard 設定が必要 |
+| **M4a-OOM hotfix** | ビルド時 OOM 対策（`NODE_OPTIONS=--max-old-space-size=3072` + `NEXT_TELEMETRY_DISABLED=1` を Coolify envs に追加 + Hetzner box に 4GB swap file + `vm.swappiness=10`）| ✅ 完了 | (this commit) | Rule WW で Hetzner API POST `/actions/reset` ハードリセット復旧後、次の storefront ビルドが 3GB ヒープキャップで成功 / 以降は swap が OOM のセーフティネットとして機能 |
 | **M4b-f** | Payload 配線 / 共通サイドバー / Aesopヒーロー・桜・赤ハート・マーケ / アラビア語RTL / PWA・SEO | ⏸️ 待機 | — | — |
 | **M5** | pSEO 量産基盤（DeepSeek Context Caching + キーワードリサーチ + 20記事サンプル） | ⏸️ 待機 | — | — |
 
