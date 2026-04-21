@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-label="Sericia">
+  <style>
+    .wordmark { font-family: "Cormorant Garamond", "Noto Serif JP", Georgia, serif; font-weight: 600; fill: #1a1a1a; letter-spacing: 0.18em; }
+    .tagline { font-family: "Inter", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.28em; fill: #8b5a2b; text-transform: uppercase; }
+    .seal-bg { fill: #b84a3e; }
+    .seal-text { font-family: "Noto Serif JP", serif; font-weight: 700; fill: #f5efe6; font-size: 28px; }
+  </style>
+  <g transform="translate(12, 30)">
+    <circle class="seal-bg" cx="30" cy="30" r="30"/>
+    <text class="seal-text" x="30" y="40" text-anchor="middle">鮮</text>
+  </g>
+  <text class="wordmark" x="90" y="62" font-size="48">SERICIA</text>
+  <text class="tagline" x="90" y="88">CRAFT FOOD, RESCUED</text>
+</svg>
