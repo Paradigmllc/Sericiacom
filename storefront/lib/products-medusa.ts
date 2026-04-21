@@ -49,35 +49,33 @@ type MedusaProduct = {
 };
 
 /**
- * TODO(user): inferCategory — pick the strategy that matches how we tagged
- * products during seed. The seed script (medusa-backend/src/scripts/seed.js)
- * created products { sencha, miso, shiitake, drop-001 } but we haven't
- * confirmed which of the three signals it populated:
+ * inferCategory — Strategy B (category handle).
  *
- *   Strategy A — metadata field:
- *     return (product.metadata?.category as Product["category"]) ?? "tea";
+ * Reads the first category handle from Medusa product.categories[] and maps it
+ * to our 4-enum. Categories are bootstrapped by:
+ *   medusa-backend/src/scripts/categorize-products.ts
+ * which creates { tea, miso, mushroom, seasoning } as top-level product_category
+ * records and attaches the 4 seed products accordingly.
  *
- *   Strategy B — category handle:
- *     const h = product.categories?.[0]?.handle;
- *     if (h === "tea" || h === "miso" || h === "mushroom" || h === "seasoning") return h;
- *     return "tea";
- *
- *   Strategy C — keyword match on handle (no admin setup required):
- *     const h = product.handle.toLowerCase();
- *     if (h.includes("sencha") || h.includes("tea") || h.includes("matcha")) return "tea";
- *     if (h.includes("miso")) return "miso";
- *     if (h.includes("shiitake") || h.includes("mushroom")) return "mushroom";
- *     return "seasoning";
- *
- * Replace the placeholder below with your chosen strategy.
- * Why this matters: category drives the listing filters (/products?category=tea),
- * the CategorySidebar grouping, and the homepage hero rail categorisation.
- * Wrong mapping = products invisible in filter UI even though cart works.
+ * Fallback to handle keyword match if categories is empty — this keeps the UI
+ * usable even if a new product is added via admin but categorization is
+ * forgotten. Final fallback is "seasoning" (catch-all / limited-drop slot).
  */
+const VALID_CATEGORIES: ReadonlySet<Product["category"]> = new Set([
+  "tea",
+  "miso",
+  "mushroom",
+  "seasoning",
+]);
+
 function inferCategory(product: MedusaProduct): Product["category"] {
-  // TODO(user): replace this placeholder with Strategy A / B / C from above.
+  const handle = product.categories?.[0]?.handle;
+  if (handle && VALID_CATEGORIES.has(handle as Product["category"])) {
+    return handle as Product["category"];
+  }
+  // Keyword fallback for uncategorized new products
   const h = product.handle.toLowerCase();
-  if (h.includes("sencha") || h.includes("tea")) return "tea";
+  if (h.includes("sencha") || h.includes("tea") || h.includes("matcha")) return "tea";
   if (h.includes("miso")) return "miso";
   if (h.includes("shiitake") || h.includes("mushroom")) return "mushroom";
   return "seasoning";
@@ -202,4 +200,5 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
   }
 }
 
-export { categoryLabel } from "./products";
+// categoryLabel lives in ./products alongside the Product type (canonical).
+// Consumers should continue importing from "@/lib/products".
