@@ -11,9 +11,11 @@ const LOCALE_COOKIE = "NEXT_LOCALE";
 
 // Paths that are NOT covered by i18n (flat, always English).
 // Admin + API + legal + utility pages do not get locale prefixes.
+// `/cms` is Payload admin + REST/GraphQL — Payload handles its own routing.
 const NON_I18N_PREFIXES = [
   "/admin",
   "/api",
+  "/cms",
   "/guides",
   "/tools",
   "/privacy",
@@ -40,6 +42,13 @@ function isNonI18nPath(path: string): boolean {
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  // --- Payload CMS bypass: /cms/admin + /cms/api + any future /cms/* ---
+  // Payload handles its own auth, API, and rendering. Skip i18n, admin gate,
+  // country cookie, and supabase session refresh entirely.
+  if (path.startsWith("/cms")) {
+    return NextResponse.next({ request: { headers: req.headers } });
+  }
 
   // --- Redirect /en or /en/* to unprefixed canonical (default locale has no prefix) ---
   if (path === "/en" || path.startsWith("/en/")) {
