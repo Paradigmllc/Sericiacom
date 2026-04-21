@@ -79,13 +79,13 @@ export default function HeaderClient() {
           href="/login"
           aria-label="Sign in"
           data-cursor="link"
-          className="hidden sm:inline-flex p-1.5 hover:text-sericia-ink transition-colors"
+          className="inline-flex p-1.5 hover:text-sericia-ink transition-colors"
         >
           <UserIcon filled={false} className="h-5 w-5" />
         </Link>
       )}
       {authed && (
-        <div className="relative hidden sm:block">
+        <div className="relative">
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}

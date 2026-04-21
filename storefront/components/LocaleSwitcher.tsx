@@ -81,20 +81,27 @@ export default function LocaleSwitcher() {
 
   return (
     <div className="relative">
+      {/*
+        Button label: flag + chevron only (no visible text locale label).
+        The selected language is still communicated via the flag (visual) and
+        the `aria-label` (screen readers). The dropdown list below renders
+        `LOCALE_LABELS[l]` next to each flag so users always know what they
+        are picking — we just drop the redundant "English" text from the
+        collapsed button to free up header width on mobile.
+      */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        aria-label="Change language"
-        className="inline-flex items-center gap-2 hover:text-sericia-ink transition uppercase tracking-wider text-[13px]"
+        aria-label={`Change language (current: ${LOCALE_LABELS[current]})`}
+        className="inline-flex items-center gap-1.5 p-1.5 hover:text-sericia-ink transition"
       >
         <span
           aria-hidden
           className={`fi fi-${FLAG_CODES[current]} inline-block`}
-          style={{ width: "18px", height: "14px", borderRadius: "1.5px", boxShadow: "0 0 0 0.5px rgba(33,35,29,0.15)" }}
+          style={{ width: "20px", height: "15px", borderRadius: "1.5px", boxShadow: "0 0 0 0.5px rgba(33,35,29,0.15)" }}
         />
-        <span>{LOCALE_LABELS[current]}</span>
         <svg
           aria-hidden
           viewBox="0 0 10 6"
