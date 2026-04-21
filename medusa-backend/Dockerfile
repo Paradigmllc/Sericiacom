@@ -13,11 +13,13 @@ RUN npx medusa build
 
 FROM base AS runtime
 ENV NODE_ENV=production
+# medusa build outputs a self-contained server tree at .medusa/server
+# that already includes compiled src/ (API routes, subscribers, jobs,
+# workflows, etc). Do NOT also COPY src/ here — duplicate subscriber
+# IDs from both the compiled + raw src cause startup crash loops.
 COPY --from=build /app/.medusa/server ./
 COPY --from=build /app/node_modules ./node_modules
 COPY package.json ./
-COPY medusa-config.ts ./
 COPY tsconfig.json ./
-COPY src ./src
 EXPOSE 9000
 CMD ["sh", "-c", "npx medusa db:migrate && npx medusa start"]
