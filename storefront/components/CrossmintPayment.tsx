@@ -56,6 +56,7 @@ export default function CrossmintPayment({ orderId, amountUSD }: Props) {
         orderId={orderId}
         payment={{
           fiat: { enabled: true, allowedMethods: { card: true, applePay: true, googlePay: true } },
+          crypto: { enabled: false },
           defaultMethod: "fiat",
         }}
         onEvent={(event: { type: string }) => {
