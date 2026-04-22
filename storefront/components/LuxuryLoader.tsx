@@ -2,238 +2,68 @@
 import { useEffect, useState } from "react";
 
 /**
- * くるくる開店 (kuru-kuru kaiten) — full-screen Japanese-luxury
- * "shop opening" overlay shown on every initial HTML render.
+ * Minimal initial-load spinner. Per user directive 2026-04-22:
+ *   「ローディングアニメーションはぐるぐるのみでロゴや背景は不要」
+ * and「この漢字ロゴは絶対✖削除して」
  *
- * Sequence:
- *   0-900ms   : 鮮 hanko seal spins 720° + settles (the "kuru-kuru")
- *   400-1200ms: SERICIA wordmark fades in, letter-spacing contracts
- *   700-1400ms: hairline rule draws from left
- *   1000-1500ms: tagline fades in
- *   1200-1900ms: noren curtain (paper-cream panels) parts down the
- *                center seam and slides out to both edges (the "kaiten")
+ * Prior versions showed a full-screen noren curtain with the 鮮 hanko +
+ * SERICIA wordmark + tagline. Removed — the loader is now just a tiny
+ * ring spinner (くるくる) on a translucent backdrop, auto-dismissing
+ * after ~600ms.
  *
- * - No sessionStorage gate — every fresh page load greets the visitor
- *   like stepping through a shop's noren. Client-side navigations use
- *   the lighter mini-seal in RouteProgress instead (see RouteProgress.tsx).
- * - Respects prefers-reduced-motion (skips entirely).
- * - Pure CSS keyframes, no framer-motion dependency.
+ * - No kanji / no wordmark / no tagline / no silk threads / no noren.
+ * - Respects prefers-reduced-motion (mounts → immediately unmounts).
+ * - Pure CSS keyframe, no framer-motion dependency.
  */
 export default function LuxuryLoader() {
-  const [phase, setPhase] = useState<"enter" | "open" | "gone">("enter");
+  const [gone, setGone] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reduced) {
-      setPhase("gone");
+      setGone(true);
       return;
     }
 
-    // Open the noren curtains after the hanko + wordmark settle
-    const openAt = 1200;
-    // Remove from DOM once panels finish pulling apart
-    const goneAt = 1900;
-
-    const t1 = window.setTimeout(() => setPhase("open"), openAt);
-    const t2 = window.setTimeout(() => setPhase("gone"), goneAt);
-
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
+    // Auto-dismiss quickly — the spinner is just a "first paint" smoother,
+    // not a ceremony. 600ms is long enough to cover hydration on slow
+    // connections but short enough to feel instant on fast ones.
+    const t = window.setTimeout(() => setGone(true), 600);
+    return () => window.clearTimeout(t);
   }, []);
 
-  if (phase === "gone") return null;
-
-  const opening = phase === "open";
+  if (gone) return null;
 
   return (
     <div
       aria-hidden
       role="presentation"
-      className="fixed inset-0 z-[200]"
-      style={{ pointerEvents: opening ? "none" : "auto" }}
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-sericia-paper/60 backdrop-blur-[1px] pointer-events-none animate-in fade-in duration-200"
     >
-      {/* Left noren panel */}
-      <div
-        className="absolute inset-y-0 left-0 w-1/2 bg-[#f5f1e8] overflow-hidden"
-        style={{
-          transform: opening ? "translateX(-100%)" : "translateX(0)",
-          transition: "transform 700ms cubic-bezier(0.65, 0, 0.35, 1)",
-        }}
-      >
-        {/* Silk-fibre strokes — same motif as the brand placeholders */}
-        <svg
-          aria-hidden
-          className="absolute inset-0 w-full h-full opacity-20"
-          viewBox="0 0 600 800"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <defs>
-            <linearGradient id="silkL" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#8b8b85" stopOpacity="0" />
-              <stop offset="50%" stopColor="#8b8b85" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#8b8b85" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <path
-              key={i}
-              d={`M -50 ${60 + i * 60} Q 200 ${40 + i * 58}, 400 ${70 + i * 62} T 700 ${55 + i * 60}`}
-              stroke="url(#silkL)"
-              strokeWidth="0.5"
-              fill="none"
-            />
-          ))}
-        </svg>
-        {/* Center seam — the shoji hairline */}
-        <div className="absolute right-0 top-0 bottom-0 w-px bg-[#21231d] opacity-[0.08]" />
-      </div>
-
-      {/* Right noren panel */}
-      <div
-        className="absolute inset-y-0 right-0 w-1/2 bg-[#f5f1e8] overflow-hidden"
-        style={{
-          transform: opening ? "translateX(100%)" : "translateX(0)",
-          transition: "transform 700ms cubic-bezier(0.65, 0, 0.35, 1)",
-        }}
-      >
-        <svg
-          aria-hidden
-          className="absolute inset-0 w-full h-full opacity-20"
-          viewBox="0 0 600 800"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <defs>
-            <linearGradient id="silkR" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#8b8b85" stopOpacity="0" />
-              <stop offset="50%" stopColor="#8b8b85" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#8b8b85" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {Array.from({ length: 12 }).map((_, i) => (
-            <path
-              key={i}
-              d={`M -100 ${60 + i * 60} Q 100 ${40 + i * 58}, 300 ${70 + i * 62} T 600 ${55 + i * 60}`}
-              stroke="url(#silkR)"
-              strokeWidth="0.5"
-              fill="none"
-            />
-          ))}
-        </svg>
-        <div className="absolute left-0 top-0 bottom-0 w-px bg-[#21231d] opacity-[0.08]" />
-      </div>
-
-      {/* Centerpiece — hanko seal + wordmark. Sits above both panels,
-          fades out just before the curtain parts so it doesn't get split. */}
-      <div
-        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-        style={{
-          opacity: opening ? 0 : 1,
-          transition: "opacity 350ms ease",
-        }}
-      >
-        {/* くるくる rotating 鮮 hanko seal — matches /logo-mark.svg */}
-        <div className="seal-kuru">
-          <svg
-            viewBox="0 0 80 80"
-            className="w-[84px] h-[84px] md:w-[104px] md:h-[104px]"
-            aria-hidden
-          >
-            <circle cx="40" cy="40" r="36" fill="#b84a3e" />
-            <circle cx="40" cy="40" r="32" fill="none" stroke="#f5efe6" strokeWidth="0.8" />
-            <text
-              x="40"
-              y="53"
-              textAnchor="middle"
-              fontFamily="'Noto Serif JP', 'Yu Mincho', serif"
-              fontWeight={700}
-              fontSize="38"
-              fill="#f5efe6"
-            >
-              鮮
-            </text>
-          </svg>
-        </div>
-
-        <div
-          className="luxury-wordmark mt-8 text-[22px] md:text-[28px] tracking-[0.5em] text-[#1a1a1a] uppercase select-none"
-          style={{
-            fontFamily:
-              "var(--font-noto-sans), ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', sans-serif",
-            fontWeight: 300,
-          }}
-        >
-          Sericia
-        </div>
-        <div className="luxury-rule mt-5 h-px bg-[#1a1a1a] origin-left" />
-        <div className="luxury-tag mt-5 text-[10px] tracking-[0.4em] uppercase text-[#8b8b85]">
-          Rescued Japanese craft food
-        </div>
-      </div>
-
+      <div className="kuru-ring" />
       <style jsx>{`
-        @keyframes seal-kuru-in {
-          0% {
-            opacity: 0;
-            transform: rotate(-720deg) scale(0.2);
+        @keyframes kuru-spin {
+          from {
+            transform: rotate(0deg);
           }
-          60% {
-            opacity: 1;
-          }
-          85% {
-            transform: rotate(18deg) scale(1.04);
-          }
-          100% {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
+          to {
+            transform: rotate(360deg);
           }
         }
-        @keyframes wordmark-in {
-          0% {
-            opacity: 0;
-            letter-spacing: 0.7em;
-          }
-          100% {
-            opacity: 1;
-            letter-spacing: 0.5em;
-          }
+        .kuru-ring {
+          width: 36px;
+          height: 36px;
+          border-radius: 9999px;
+          border: 2px solid rgba(33, 35, 29, 0.12);
+          border-top-color: #21231d;
+          animation: kuru-spin 750ms linear infinite;
         }
-        @keyframes rule-draw {
-          0% {
-            transform: scaleX(0);
-            opacity: 0;
+        @media (prefers-reduced-motion: reduce) {
+          .kuru-ring {
+            animation: none;
           }
-          60% {
-            opacity: 0.9;
-          }
-          100% {
-            transform: scaleX(1);
-            opacity: 0.9;
-          }
-        }
-        @keyframes tag-in {
-          0% {
-            opacity: 0;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-        .seal-kuru {
-          animation: seal-kuru-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-        }
-        .luxury-wordmark {
-          animation: wordmark-in 800ms ease-out 400ms both;
-        }
-        .luxury-rule {
-          width: 120px;
-          animation: rule-draw 700ms ease-out 700ms both;
-        }
-        .luxury-tag {
-          animation: tag-in 500ms ease 1000ms both;
         }
       `}</style>
     </div>

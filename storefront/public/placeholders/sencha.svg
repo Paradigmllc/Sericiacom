@@ -34,14 +34,9 @@
         font-size="28" font-weight="300" letter-spacing="14">SERICIA</text>
   <line x1="540" y1="215" x2="660" y2="215" stroke="#21231d" stroke-width="0.8"/>
 
-  <!-- Hanko seal (matches /logo-mark.svg) -->
-  <g transform="translate(1020, 160)">
-    <circle r="52" fill="#b84a3e"/>
-    <circle r="46" fill="none" stroke="#f5efe6" stroke-width="1"/>
-    <text x="0" y="18" text-anchor="middle"
-          font-family="'Noto Serif JP', 'Yu Mincho', serif"
-          font-weight="700" font-size="52" fill="#f5efe6">鮮</text>
-  </g>
+  <!-- 2026-04-22: 鮮 corner hanko removed per user directive.
+       Brand presence carried by SERICIA wordmark above. -->
+
 
   <!-- Central kanji — the dominant brand signal -->
   <text x="600" y="720" text-anchor="middle" fill="#21231d"

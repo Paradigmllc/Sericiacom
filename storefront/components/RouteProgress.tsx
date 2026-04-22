@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 /**
- * Two-layer route-change indicator that keeps the "くるくる開店"
- * shop-opening motif alive across every in-app navigation:
+ * Route-change indicator — two-layer, logo-free.
  *
- *   1. Aesop/LV-style 2px hairline progress bar at the top of the
- *      viewport (carries over from the original implementation).
- *   2. A miniature 鮮 hanko seal in the top-right corner that spins
- *      continuously while the new route resolves — matching the full
- *      LuxuryLoader's ceremony in lighter-weight form.
+ *   1. Aesop/LV-style 2px hairline progress bar at the top of the viewport.
+ *   2. A minimal くるくる ring spinner in the top-right corner while the
+ *      new route resolves.
+ *
+ * Per user directive 2026-04-22「この漢字ロゴは絶対✖削除して」the prior
+ * 鮮 hanko mini-seal was removed and replaced with a bare ring spinner —
+ * matching LuxuryLoader's stripped-down treatment.
  *
  * Triggers on pathname / searchParams change. Auto-hides after the new
  * render commits. Pure CSS transitions — no framer-motion needed.
@@ -85,7 +86,7 @@ export default function RouteProgress() {
         />
       </div>
 
-      {/* くるくる mini hanko — spins while the new route resolves */}
+      {/* くるくる ring spinner — bare, no logo */}
       <div
         aria-hidden
         className="fixed top-4 right-4 md:top-5 md:right-5 z-[99] pointer-events-none"
@@ -97,27 +98,18 @@ export default function RouteProgress() {
             : "opacity 180ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1)",
         }}
       >
-        <svg
-          viewBox="0 0 80 80"
-          className={`w-8 h-8 md:w-9 md:h-9 drop-shadow-sm ${visible && !fading ? "seal-kuru-loop" : ""}`}
-        >
-          <circle cx="40" cy="40" r="36" fill="#b84a3e" />
-          <circle cx="40" cy="40" r="32" fill="none" stroke="#f5efe6" strokeWidth="1" />
-          <text
-            x="40"
-            y="53"
-            textAnchor="middle"
-            fontFamily="'Noto Serif JP', 'Yu Mincho', serif"
-            fontWeight={700}
-            fontSize="38"
-            fill="#f5efe6"
-          >
-            鮮
-          </text>
-        </svg>
+        <div
+          className={`w-5 h-5 md:w-6 md:h-6 rounded-full ${
+            visible && !fading ? "route-kuru-loop" : ""
+          }`}
+          style={{
+            border: "2px solid rgba(33, 35, 29, 0.14)",
+            borderTopColor: "#21231d",
+          }}
+        />
 
         <style jsx>{`
-          @keyframes kuru-loop {
+          @keyframes route-kuru-spin {
             from {
               transform: rotate(0deg);
             }
@@ -125,12 +117,11 @@ export default function RouteProgress() {
               transform: rotate(360deg);
             }
           }
-          .seal-kuru-loop {
-            animation: kuru-loop 900ms linear infinite;
-            transform-origin: 50% 50%;
+          .route-kuru-loop {
+            animation: route-kuru-spin 750ms linear infinite;
           }
           @media (prefers-reduced-motion: reduce) {
-            .seal-kuru-loop {
+            .route-kuru-loop {
               animation: none;
             }
           }

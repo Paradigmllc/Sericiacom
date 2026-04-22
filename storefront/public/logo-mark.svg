@@ -1,5 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Sericia seal">
-  <circle cx="40" cy="40" r="38" fill="#b84a3e"/>
-  <circle cx="40" cy="40" r="34" fill="none" stroke="#f5efe6" stroke-width="1"/>
-  <text x="40" y="52" text-anchor="middle" font-family="Noto Serif JP, serif" font-weight="700" font-size="38" fill="#f5efe6">鮮</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Sericia">
+  <!-- Minimal wordmark-initial mark. Per directive 2026-04-22, the prior
+       鮮 kanji hanko has been removed entirely. Mark is the elegant "S"
+       serif initial on an ink-hairline square frame — reads as a seal
+       silhouette without leaning on Japanese typography. -->
+  <rect x="8" y="8" width="64" height="64" fill="none" stroke="#21231d" stroke-width="1.2"/>
+  <text
+    x="40" y="54"
+    text-anchor="middle"
+    font-family="Cormorant Garamond, Didot, 'Playfair Display', Georgia, serif"
+    font-style="italic"
+    font-weight="500"
+    font-size="44"
+    fill="#21231d"
+    letter-spacing="0.02em"
+  >S</text>
 </svg>

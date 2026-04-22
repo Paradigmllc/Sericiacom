@@ -17,8 +17,12 @@ reads as one curated collection rather than four grey boxes.
   - Chosen over line-art glyphs because single-kanji branding is the dominant
     visual cue for Japanese premium food (compare Ippodo, Rikyu tea tins).
 - **Romaji label**: product name in italic serif, centered below kanji
-- **Hanko seal**: 鮮 red circle in top-right corner, matching `logo-mark.svg`
 - **Bottom footer**: `RESCUED JAPANESE CRAFT FOOD` in letter-spaced caps
+
+> **2026-04-22 update**: the 鮮 red hanko seal in the top-right corner has been
+> removed from all four SVGs (and from `logo-mark.svg`) per user directive.
+> Brand presence is now carried entirely by the SERICIA wordmark at the top of
+> each card, in line with the Aesop / Le Labo / Lafco pure-wordmark tradition.
 
 ## Files
 

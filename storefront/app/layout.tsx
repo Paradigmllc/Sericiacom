@@ -10,6 +10,7 @@ import GlobalOverlay from "../components/GlobalOverlay";
 import RouteProgress from "../components/RouteProgress";
 import LuxuryLoader from "../components/LuxuryLoader";
 import RegionModal from "../components/RegionModal";
+import CookieConsent from "../components/CookieConsent";
 import { Suspense } from "react";
 
 const notoSans = Noto_Sans({
@@ -161,6 +162,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <GlobalOverlay />
           <RegionModal />
+          <CookieConsent />
           <Toaster position="top-right" richColors />
           <Analytics />
           <DifyChat />

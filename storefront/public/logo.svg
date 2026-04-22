@@ -1,14 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-label="Sericia">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-label="Sericia — craft food, rescued">
+  <!-- Pure wordmark. Per directive 2026-04-22, 鮮 kanji hanko removed;
+       brand identity now rests on the SERICIA wordmark alone, in the
+       spirit of Aesop / Le Labo / Lafco typographic logos. -->
   <style>
-    .wordmark { font-family: "Cormorant Garamond", "Noto Serif JP", Georgia, serif; font-weight: 600; fill: #1a1a1a; letter-spacing: 0.18em; }
-    .tagline { font-family: "Inter", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.28em; fill: #8b5a2b; text-transform: uppercase; }
-    .seal-bg { fill: #b84a3e; }
-    .seal-text { font-family: "Noto Serif JP", serif; font-weight: 700; fill: #f5efe6; font-size: 28px; }
+    .wordmark { font-family: "Cormorant Garamond", "Didot", "Playfair Display", Georgia, serif; font-weight: 500; fill: #1a1a1a; letter-spacing: 0.22em; }
+    .tagline { font-family: "Inter", "Helvetica Neue", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.32em; fill: #8b5a2b; text-transform: uppercase; }
+    .hairline { fill: none; stroke: #1a1a1a; stroke-width: 0.7; opacity: 0.6; }
   </style>
-  <g transform="translate(12, 30)">
-    <circle class="seal-bg" cx="30" cy="30" r="30"/>
-    <text class="seal-text" x="30" y="40" text-anchor="middle">鮮</text>
-  </g>
-  <text class="wordmark" x="90" y="62" font-size="48">SERICIA</text>
-  <text class="tagline" x="90" y="88">CRAFT FOOD, RESCUED</text>
+  <text class="wordmark" x="240" y="64" text-anchor="middle" font-size="54">SERICIA</text>
+  <line class="hairline" x1="90" y1="82" x2="390" y2="82" />
+  <text class="tagline" x="240" y="102" text-anchor="middle">Craft food, rescued</text>
 </svg>
