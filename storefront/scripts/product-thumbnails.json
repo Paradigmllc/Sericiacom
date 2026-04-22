@@ -1,22 +1,22 @@
 {
-  "_comment": "Sericia-branded placeholder thumbnails per Medusa product.handle. These point at /public/placeholders/*.svg (deployed with the storefront) — visual grammar matches LuxuryLoader + logo-mark for brand continuity. Replace with real photography URLs when brand photos arrive, then re-run `npm run products:upload-thumbnails` to sync Medusa.",
+  "_comment": "Sericia-branded placeholder thumbnails per Medusa product.handle. These point at /public/placeholders/*.svg (deployed with the storefront) — visual grammar matches LuxuryLoader + logo-mark for brand continuity. Replace with real photography URLs when brand photos arrive, then re-run `npm run products:upload-thumbnails` to sync Medusa. Note: brand assets are kanji-free by project rule — placeholders use Latin typography only.",
   "_usage": "npm run products:upload-thumbnails  (requires MEDUSA_ADMIN_EMAIL + MEDUSA_ADMIN_PASSWORD env). MUST run AFTER the storefront deploy so the SVG URLs return 200 before Medusa stores the reference.",
   "mappings": {
     "product-sencha": {
       "thumbnail": "https://sericia.com/placeholders/sencha.svg",
-      "attribution": "Sericia brand placeholder — 茶 Uji sencha"
+      "attribution": "Sericia brand placeholder (common, kanji-free)"
     },
     "product-miso": {
       "thumbnail": "https://sericia.com/placeholders/miso.svg",
-      "attribution": "Sericia brand placeholder — 味 shiro miso"
+      "attribution": "Sericia brand placeholder (common, kanji-free)"
     },
     "product-shiitake": {
       "thumbnail": "https://sericia.com/placeholders/shiitake.svg",
-      "attribution": "Sericia brand placeholder — 椎 donko shiitake"
+      "attribution": "Sericia brand placeholder (common, kanji-free)"
     },
     "drop-001-tea-miso-shiitake": {
       "thumbnail": "https://sericia.com/placeholders/drop-001.svg",
-      "attribution": "Sericia brand placeholder — 集 Drop No. 01 bundle"
+      "attribution": "Sericia brand placeholder \u2014 Drop No. 01 bundle variant"
     }
   }
 }

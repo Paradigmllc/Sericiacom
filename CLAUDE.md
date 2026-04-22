@@ -196,6 +196,31 @@ Drop #1 ローンチ直前のブランドグラマー統一・情報アーキテ
 
 検証済みURL（全200/404適正）: `/` `/faq` `/accessibility` `/sitemap` `/sitemap.xml` `/tokushoho` + `/nonexistent-*` → 404
 
+### ブランドアセット厳守ルール（2026-04-22 codified・永久）
+
+**🚫 漢字NG — Sericia のブランドアセットには漢字（CJK Unified Ideographs `U+4E00–U+9FFF`）を一切使わない。**
+
+対象: logo / logo-mark / favicon / OG card / 商品プレースホルダー / `public/` 配下の全 SVG・PNG・アイコン資産。鮮 hanko・中央大漢字（茶/味/椎/集）いずれも恒久的に非採用。
+
+採用するのは Latin タイポグラフィのみ:
+- **ワードマーク**: `SERICIA`（Helvetica letter-spaced 14, 300 weight）
+- **ドミナント装飾**: `Sericia` italic serif（Cormorant Garamond / Didot stack, 220pt on 1200×1200 canvas）
+- **タグライン**: `Craft food, rescued.` italic serif
+- **フッター**: `RESCUED JAPANESE CRAFT FOOD` letter-spaced caps
+- **装飾テクスチャ**: silk-fibre strokes（`#5c5d45` opacity 0.28）+ double hairline frame
+
+日本性は「紙色（`#faf6ee` sericia-paper-card）+ silk テクスチャ + 静かな間」で表現する。字形では表現しない。これは Aesop / Le Labo / Lafco の純ワードマーク伝統に則った意図的な設計選択で、越境 ECとしてグローバル普遍性を確保する。
+
+**例外（禁止ではない領域）**: pSEO brief prose・testimonials・ja-JP ロケールの editorial 本文など、ブランド識別ではなく「コンテンツ」としての日本語テキスト。UI の本文翻訳も禁止ではない（next-intl ja messages は正常運用）。
+
+**強制検証**: `grep -r '[\u4e00-\u9fff]' storefront/public/` が常に zero match であること。CI に組み込む候補（TODO: `.github/workflows/brand-asset-guard.yml`）。
+
+### 共通プレースホルダー戦略（2026-04-22）
+
+商品画像プレースホルダー（`sencha.svg` / `miso.svg` / `shiitake.svg`）は **byte-identical な共通ブランドカード**として配信。商品ごとの差別化（かつての 茶/味/椎 中央漢字）は撤廃。グリッドが「4つのグレー枠」ではなく「1つのキュレーションされたコレクション」として読めることを優先。`drop-001.svg` のみバンドル階層を示すためダーク paper（`#ebe4d4`）+ `DROP NO. 01` eyebrow で差別化（Aesop collection card と同階層）。
+
+URL 安定性の恩恵: Medusa の `product.thumbnail` レコード（URL が product row に永続保存されている）を再アップロードせずに、SVG ファイルを上書きするだけで全 PDP・カード・OG・pSEO に即時伝播する。
+
 ---
 
 ## <a id="s8"></a>8. ⚙️ 技術設計

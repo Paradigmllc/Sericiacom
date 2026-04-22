@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" role="img" aria-label="Sericia — craft food, rescued">
-  <!-- Pure wordmark. Per directive 2026-04-22, 鮮 kanji hanko removed;
-       brand identity now rests on the SERICIA wordmark alone, in the
-       spirit of Aesop / Le Labo / Lafco typographic logos. -->
+  <!-- Pure wordmark. Project rule: brand assets MUST be kanji-free.
+       Identity rests on the SERICIA wordmark alone, in the spirit of
+       Aesop / Le Labo / Lafco typographic logos. -->
   <style>
     .wordmark { font-family: "Cormorant Garamond", "Didot", "Playfair Display", Georgia, serif; font-weight: 500; fill: #1a1a1a; letter-spacing: 0.22em; }
     .tagline { font-family: "Inter", "Helvetica Neue", system-ui, sans-serif; font-size: 11px; letter-spacing: 0.32em; fill: #8b5a2b; text-transform: uppercase; }

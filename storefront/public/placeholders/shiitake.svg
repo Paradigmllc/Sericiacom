@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-label="Sericia dried shiitake placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-label="Sericia — rescued Japanese craft food">
+  <!--
+    Common brand placeholder. No kanji (project rule: brand assets MUST be
+    kanji-free). Pure typography in the Aesop / Le Labo / Lafco tradition —
+    paper card + hairline frame + wordmark + italic serif tagline. Shared
+    across all products (sencha / miso / shiitake / drop-001) so the product
+    grid reads as one curated collection before real photography lands.
+  -->
   <defs>
     <linearGradient id="silk" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#5c5d45" stop-opacity="0"/>
@@ -7,8 +14,10 @@
     </linearGradient>
   </defs>
 
+  <!-- Paper-card backdrop (sericia-paper-card token) -->
   <rect width="1200" height="1200" fill="#faf6ee"/>
 
+  <!-- Silk-fibre strokes — same motif as LuxuryLoader for visual continuity -->
   <g opacity="0.55" fill="none" stroke="url(#silk)" stroke-width="0.6">
     <path d="M -100 140 Q 300 110, 700 145 T 1300 130"/>
     <path d="M -100 240 Q 300 210, 700 245 T 1300 230"/>
@@ -22,30 +31,36 @@
     <path d="M -100 1040 Q 300 1010, 700 1045 T 1300 1030"/>
   </g>
 
+  <!-- Luxury double hairline frame -->
   <rect x="60" y="60" width="1080" height="1080" fill="none" stroke="#21231d" stroke-width="1"/>
   <rect x="72" y="72" width="1056" height="1056" fill="none" stroke="#21231d" stroke-width="0.5"/>
 
-  <text x="600" y="180" text-anchor="middle" fill="#21231d"
+  <!-- Top letterspaced wordmark -->
+  <text x="600" y="200" text-anchor="middle" fill="#21231d"
         font-family="Helvetica, 'Helvetica Neue', Arial, sans-serif"
-        font-size="28" font-weight="300" letter-spacing="14">SERICIA</text>
-  <line x1="540" y1="215" x2="660" y2="215" stroke="#21231d" stroke-width="0.8"/>
+        font-size="26" font-weight="300" letter-spacing="14">SERICIA</text>
+  <line x1="540" y1="235" x2="660" y2="235" stroke="#21231d" stroke-width="0.8"/>
 
-  <!-- 2026-04-22: 鮮 corner hanko removed per user directive.
-       Brand presence carried by SERICIA wordmark above. -->
-
-
-  <text x="600" y="720" text-anchor="middle" fill="#21231d"
-        font-family="'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif"
-        font-size="440" font-weight="300">椎</text>
-
-  <text x="600" y="880" text-anchor="middle" fill="#21231d"
-        font-family="'Cormorant Garamond', 'Playfair Display', Georgia, serif"
-        font-size="72" font-weight="300" font-style="italic">Donko Shiitake</text>
-
-  <text x="600" y="940" text-anchor="middle" fill="#7b7d73"
+  <!-- Eyebrow -->
+  <text x="600" y="410" text-anchor="middle" fill="#7b7d73"
         font-family="Helvetica, 'Helvetica Neue', Arial, sans-serif"
-        font-size="20" letter-spacing="8">OITA · OAK-LOG DRIED</text>
+        font-size="18" letter-spacing="10">QUIETLY, FROM JAPAN</text>
 
+  <!-- Dominant italic serif wordmark — the brand signal -->
+  <text x="600" y="670" text-anchor="middle" fill="#21231d"
+        font-family="'Cormorant Garamond', 'Didot', 'Playfair Display', Georgia, serif"
+        font-size="220" font-weight="400" font-style="italic"
+        letter-spacing="0.01em">Sericia</text>
+
+  <!-- Hairline under the serif wordmark -->
+  <line x1="440" y1="740" x2="760" y2="740" stroke="#21231d" stroke-width="0.6"/>
+
+  <!-- Italic tagline -->
+  <text x="600" y="830" text-anchor="middle" fill="#21231d"
+        font-family="'Cormorant Garamond', 'Didot', 'Playfair Display', Georgia, serif"
+        font-size="42" font-weight="300" font-style="italic">Craft food, rescued.</text>
+
+  <!-- Footer rule + tagline -->
   <line x1="450" y1="1030" x2="750" y2="1030" stroke="#d4cfc4" stroke-width="0.5"/>
   <text x="600" y="1080" text-anchor="middle" fill="#7b7d73"
         font-family="Helvetica, 'Helvetica Neue', Arial, sans-serif"

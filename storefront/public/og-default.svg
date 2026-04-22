@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Sericia — Rescued Japanese Craft Food">
-  <!-- OG card. Per directive 2026-04-22, 鮮 kanji hanko removed; card now
-       relies on pure wordmark + editorial copy in the Aesop/Le Labo
-       tradition: paper background, hairline rule, serif wordmark, sans
-       tagline, editorial body. -->
+  <!-- OG card. Project rule: brand assets MUST be kanji-free. Card relies
+       on pure wordmark + editorial copy in the Aesop / Le Labo tradition:
+       paper background, hairline rule, serif wordmark, sans tagline,
+       editorial body. -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f5efe6"/>
