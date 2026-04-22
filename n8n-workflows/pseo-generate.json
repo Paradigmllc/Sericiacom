@@ -1,0 +1,199 @@
+{
+  "name": "Sericia — pSEO generate (drain queue hourly)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      },
+      "id": "cron",
+      "name": "Every 1h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "notes": "Hourly drain. If queue is consistently >24 briefs deep, bump to 30m. Below that, 1h keeps DeepSeek spend predictable and cache-warm."
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            { "name": "drained", "value": 0 },
+            { "name": "max_per_run", "value": 5 }
+          ]
+        },
+        "options": {}
+      },
+      "id": "init-counter",
+      "name": "Init drain counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [460, 300],
+      "notes": "max_per_run=5 bounds the run to ~5min on a warm cache. Avoid >10 to stay under n8n's default 10-min execution ceiling."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.STOREFRONT_URL || 'https://sericia.com' }}/api/pseo/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-admin-secret", "value": "={{ $env.SERICIA_ADMIN_SECRET }}" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "{}",
+        "options": {
+          "timeout": 120000,
+          "response": { "response": { "responseFormat": "json" } }
+        }
+      },
+      "id": "call-generate",
+      "name": "Call /api/pseo/generate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "notes": "120s timeout — matches the route's 90s DeepSeek timeout + 20s buffer for Payload write. No retries here; route already retries DeepSeek internally, and stale-processing sweep recovers crashed runs."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "queue-empty",
+              "leftValue": "={{ $json.reason }}",
+              "rightValue": "queue_empty",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "id": "if-queue-empty",
+      "name": "Queue empty?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [900, 300],
+      "notes": "queue_empty → exit the drain loop quietly. Anything else → evaluate success vs failure."
+    },
+    {
+      "parameters": {},
+      "id": "exit-empty",
+      "name": "Exit: queue empty",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1140, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ok-true",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "true",
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ]
+        }
+      },
+      "id": "if-ok",
+      "name": "Success?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1140, 420],
+      "notes": "Success path: increment counter, loop if budget remains. Failure path: notify."
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "drained",
+              "value": "={{ $node['Init drain counter'].json.drained + 1 }}"
+            }
+          ],
+          "string": [
+            { "name": "last_slug", "value": "={{ $json.slug }}" },
+            { "name": "last_locale", "value": "={{ $json.locale }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bump-counter",
+      "name": "Bump drained counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [1360, 340]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "budget-remaining",
+              "leftValue": "={{ $node['Bump drained counter'].json.drained }}",
+              "rightValue": "={{ $node['Init drain counter'].json.max_per_run }}",
+              "operator": { "type": "number", "operation": "lt" }
+            }
+          ]
+        }
+      },
+      "id": "if-budget",
+      "name": "Budget remaining?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1580, 340]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "select": "channel",
+        "channelId": { "__rl": true, "mode": "id", "value": "C0A9SPSTL4X" },
+        "text": "❌ Sericia pSEO generate failed\\n• brief_id: {{ $json.brief_id }}\\n• error: {{ $json.error }}\\n• detail: {{ $json.detail }}"
+      },
+      "id": "slack-fail",
+      "name": "Slack on failure",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1360, 540],
+      "notes": "Alert only on failure. Success runs stay silent — #all-paradigm shouldn't become a pSEO status feed. Wires to credentials named 'Sericia Slack bot'."
+    }
+  ],
+  "connections": {
+    "Every 1h": { "main": [[{ "node": "Init drain counter", "type": "main", "index": 0 }]] },
+    "Init drain counter": { "main": [[{ "node": "Call /api/pseo/generate", "type": "main", "index": 0 }]] },
+    "Call /api/pseo/generate": { "main": [[{ "node": "Queue empty?", "type": "main", "index": 0 }]] },
+    "Queue empty?": {
+      "main": [
+        [{ "node": "Exit: queue empty", "type": "main", "index": 0 }],
+        [{ "node": "Success?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Success?": {
+      "main": [
+        [{ "node": "Bump drained counter", "type": "main", "index": 0 }],
+        [{ "node": "Slack on failure", "type": "main", "index": 0 }]
+      ]
+    },
+    "Bump drained counter": { "main": [[{ "node": "Budget remaining?", "type": "main", "index": 0 }]] },
+    "Budget remaining?": {
+      "main": [
+        [{ "node": "Call /api/pseo/generate", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "sericia" }, { "name": "pseo" }],
+  "pinData": {},
+  "meta": {
+    "description": "Drains the sericia_pseo_briefs queue up to max_per_run per run. Calls the admin-gated /api/pseo/generate endpoint with an empty body; that endpoint claims the oldest pending brief (or sweeps stale 'processing' rows), calls DeepSeek V3, writes the article via Payload, and marks the brief done. Failures are reported to Slack; success runs are silent. Env required: STOREFRONT_URL, SERICIA_ADMIN_SECRET."
+  }
+}
