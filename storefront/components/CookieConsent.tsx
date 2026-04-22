@@ -101,33 +101,31 @@ export default function CookieConsent() {
       aria-describedby="cookie-consent-body"
       className="fixed inset-x-0 bottom-0 z-[95] border-t border-sericia-line bg-sericia-paper animate-in fade-in slide-in-from-bottom-4 duration-300"
     >
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-5 md:py-6 flex flex-col md:flex-row md:items-start gap-5 md:gap-10">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-3 md:py-3.5 flex flex-col md:flex-row md:items-center gap-3 md:gap-8">
         <div className="flex-1 min-w-0">
           <p
             id="cookie-consent-title"
-            className="label mb-2"
+            className="sr-only"
           >
-            A quiet note
+            A quiet note on cookies
           </p>
           <p
             id="cookie-consent-body"
-            className="text-[14px] md:text-[15px] leading-relaxed text-sericia-ink-soft max-w-3xl"
+            className="text-[13px] md:text-[13.5px] leading-snug text-sericia-ink-soft max-w-4xl"
           >
-            Sericia stores a small number of cookies — the essentials to keep
-            your cart, your sign-in, and your region. Optional analytics help
-            us understand which drops readers actually open. You can decline
-            the optional ones at any time. Our{" "}
+            Essential cookies keep your cart, sign-in, and region; analytics
+            are optional — decline anytime. See our{" "}
             <Link href="/privacy" className="underline-link">
               privacy policy
-            </Link>{" "}
-            has the detail.
+            </Link>
+            .
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 md:gap-3 shrink-0">
+        <div className="flex flex-row gap-2 md:gap-3 shrink-0">
           <button
             type="button"
             onClick={() => handle("decline")}
-            className="inline-flex items-center justify-center px-6 py-3 text-[12px] tracking-[0.2em] uppercase border border-sericia-line text-sericia-ink-soft hover:border-sericia-ink hover:text-sericia-ink transition-colors"
+            className="inline-flex items-center justify-center px-4 md:px-5 py-2 text-[11px] tracking-[0.18em] uppercase border border-sericia-line text-sericia-ink-soft hover:border-sericia-ink hover:text-sericia-ink transition-colors"
           >
             Decline optional
           </button>
@@ -135,7 +133,7 @@ export default function CookieConsent() {
             type="button"
             onClick={() => handle("accept")}
             autoFocus
-            className="inline-flex items-center justify-center px-6 py-3 text-[12px] tracking-[0.2em] uppercase bg-sericia-ink text-sericia-paper hover:bg-sericia-accent transition-colors"
+            className="inline-flex items-center justify-center px-4 md:px-5 py-2 text-[11px] tracking-[0.18em] uppercase bg-sericia-ink text-sericia-paper hover:bg-sericia-accent transition-colors"
           >
             Accept all
           </button>

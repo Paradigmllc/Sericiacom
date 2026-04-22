@@ -9,6 +9,7 @@ import Analytics from "../components/Analytics";
 import DifyChat from "../components/DifyChat";
 import GlobalOverlay from "../components/GlobalOverlay";
 import RouteProgress from "../components/RouteProgress";
+import ScrollProgress from "../components/ScrollProgress";
 import LuxuryLoader from "../components/LuxuryLoader";
 import RegionModal from "../components/RegionModal";
 import CookieConsent from "../components/CookieConsent";
@@ -176,6 +177,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Suspense fallback={null}>
             <RouteProgress />
           </Suspense>
+          <ScrollProgress />
           <Suspense fallback={null}>
             <ReferralCookieSetter />
           </Suspense>

@@ -93,7 +93,7 @@ export default function ContentSidebar({
   }
 
   return (
-    <aside className="content-sidebar w-full lg:w-[280px] xl:w-[320px] lg:sticky lg:top-24 lg:self-start space-y-12 text-[13px]">
+    <aside className="content-sidebar w-full lg:w-[280px] xl:w-[320px] lg:ml-auto lg:sticky lg:top-24 lg:self-start space-y-12 text-[13px]">
       {/* Mobile accordion container */}
       <details className="lg:hidden border border-sericia-line bg-sericia-paper-card" open={false}>
         <summary className="cursor-pointer list-none px-5 py-4 flex items-center justify-between">
