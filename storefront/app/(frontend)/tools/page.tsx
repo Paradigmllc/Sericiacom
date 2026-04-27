@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, PageHero } from "@/components/ui";
@@ -63,7 +64,8 @@ const TOOLS = [
   },
 ];
 
-export default function ToolsIndex() {
+export default async function ToolsIndex() {
+  const tPage = await getTranslations("pages.tools");
   // ItemList JSON-LD for the tools collection — same schema pattern as
   // /products and /journal so Google sees Sericia's three index pages as
   // structured collections it can crawl and surface in rich results.
@@ -96,8 +98,8 @@ export default function ToolsIndex() {
       />
       <SiteHeader />
       <PageHero
-        eyebrow="Tools"
-        title="Small utilities for serious buyers."
+        eyebrow={tPage("eyebrow")}
+        title={tPage("title")}
         lede="Free, focused calculators and guides. Each tool exists because we needed it ourselves and could not find a plain, honest version online."
       />
       <Container size="wide" className="py-20 md:py-28">

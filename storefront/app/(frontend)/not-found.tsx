@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, PageHero, Rule, Button } from "@/components/ui";
@@ -70,13 +71,14 @@ const DESTINATIONS: Destination[] = [
   },
 ];
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations("pages.not_found");
   return (
     <>
       <SiteHeader />
       <PageHero
-        eyebrow="404 — Not found"
-        title="This page is no longer with us."
+        eyebrow="404"
+        title={t("title")}
         lede="Drops are finite by design, and links sometimes outlive the pages behind them. Let us point you somewhere that still is."
       />
       <Container size="wide" className="py-20 md:py-28">

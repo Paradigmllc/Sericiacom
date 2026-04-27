@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { COUNTRIES, PRODUCTS } from "@/lib/pseo-matrix";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/guides" },
 };
 
-export default function GuidesIndex() {
+export default async function GuidesIndex() {
+  const tPage = await getTranslations("pages.guides");
   // CollectionPage + ItemList JSON-LD across all 64 country×product combos.
   // Each guide is its own URL and Google should treat /guides as the index
   // for the cluster.
@@ -55,8 +57,8 @@ export default function GuidesIndex() {
       />
       <SiteHeader />
       <PageHero
-        eyebrow="Guides"
-        title="Japanese craft food, country by country."
+        eyebrow={tPage("eyebrow")}
+        title={tPage("title")}
         lede="Curated guides for buying authentic sencha, matcha, miso, shiitake, and yuzu — shipped directly from Japan. Read the destination notes before you order."
       />
       <Container size="wide" className="py-20 md:py-28">

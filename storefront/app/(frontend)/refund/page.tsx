@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/refund" },
 };
 
-export default function RefundPage() {
+export default async function RefundPage() {
+  const t = await getTranslations("pages.refund");
   const jsonLd = webPageJsonLd({
     name: "Refund & returns",
     description: "Sericia refund policy for perishable Japanese craft food drops — eligibility for full refund, store credit, and the request workflow.",
@@ -27,7 +29,7 @@ export default function RefundPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <CategoryHero eyebrow="Legal" title="Refund & returns." tone="paper" />
+      <CategoryHero eyebrow={t("eyebrow")} title={t("title")} tone="paper" />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
         <div className="mb-8">
           <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Refund & returns" }]} />

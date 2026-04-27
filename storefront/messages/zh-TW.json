@@ -212,5 +212,71 @@
     "faq_eyebrow": "常見問題",
     "faq_title": "疑問與考量。",
     "faq_cta": "閱讀完整的配送政策"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "關於我們",
+      "title": "在京都精選的日本手作食品。"
+    },
+    "shipping": {
+      "hero_eyebrow": "配送",
+      "hero_title": "從京都到您家門,48 小時內發貨。",
+      "transit_eyebrow": "運送時間",
+      "transit_title": "預計送達時間。",
+      "cost_eyebrow": "運費",
+      "cost_title": "運費已包含在限定上架價格中。",
+      "customs_eyebrow": "海關",
+      "customs_title": "關稅與進口稅。",
+      "tracking_eyebrow": "追蹤",
+      "tracking_title": "EMS 追蹤編號將透過電子郵件寄送。",
+      "country_eyebrow": "依國家",
+      "country_title": "各國配送指南。"
+    },
+    "refund": {
+      "eyebrow": "法律",
+      "title": "退款與退貨。"
+    },
+    "terms": {
+      "eyebrow": "法律",
+      "title": "服務條款。"
+    },
+    "privacy": {
+      "eyebrow": "法律",
+      "title": "隱私權政策"
+    },
+    "faq": {
+      "eyebrow": "常見問題",
+      "title": "坦率回答您的疑問。"
+    },
+    "tools": {
+      "eyebrow": "工具",
+      "title": "為認真買家準備的小工具。"
+    },
+    "journal": {
+      "eyebrow": "誌",
+      "title": "故事、技法、國家指南。"
+    },
+    "guides": {
+      "eyebrow": "指南",
+      "title": "日本手作食品,逐國介紹。"
+    },
+    "sitemap": {
+      "eyebrow": "網站地圖",
+      "title": "Sericia 的全部內容,以安靜的索引呈現。",
+      "section_shop": "商店",
+      "section_journal": "誌",
+      "section_tools": "工具",
+      "section_country_guides": "國家指南",
+      "section_company": "公司",
+      "section_account": "帳戶",
+      "section_legal": "法律"
+    },
+    "accessibility": {
+      "eyebrow": "無障礙",
+      "title": "任何人都能進入的店面。"
+    },
+    "not_found": {
+      "title": "此頁面已不存在。"
+    }
   }
 }

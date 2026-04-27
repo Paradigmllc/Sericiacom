@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
@@ -11,13 +12,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/privacy" },
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const t = await getTranslations("pages.privacy");
   return (
     <>
       <SiteHeader />
       <PageHero
-        eyebrow="Legal"
-        title="Privacy Policy"
+        eyebrow={t("eyebrow")}
+        title={t("title")}
         lede="How Sericia collects, uses, and protects your personal data. Last updated April 2026."
       />
       <Container size="wide" className="py-20 md:py-28">

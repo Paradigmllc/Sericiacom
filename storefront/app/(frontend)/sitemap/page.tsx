@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, PageHero, Rule } from "@/components/ui";
@@ -61,6 +62,7 @@ function Section({ title, links }: { title: string; links: LinkItem[] }) {
 }
 
 export default async function SitemapPage() {
+  const tPage = await getTranslations("pages.sitemap");
   // Pull Medusa catalog; fall back to empty list on failure
   let products: { slug: string; name: string }[] = [];
   try {
@@ -144,19 +146,19 @@ export default async function SitemapPage() {
     <>
       <SiteHeader />
       <PageHero
-        eyebrow="Sitemap"
-        title="Everything on Sericia, in one quiet index."
+        eyebrow={tPage("eyebrow")}
+        title={tPage("title")}
         lede="Every page, every drop, every guide — organised by function and linked in plain text. If you prefer XML, that lives at /sitemap.xml."
       />
       <Container size="wide" className="py-20 md:py-28">
         <div className="max-w-4xl">
-          <Section title="Shop" links={shop} />
-          <Section title="Journal" links={stories} />
-          <Section title="Tools" links={tools} />
-          <Section title="Country guides" links={guides} />
-          <Section title="Company" links={company} />
-          <Section title="Account" links={account} />
-          <Section title="Legal" links={legal} />
+          <Section title={tPage("section_shop")} links={shop} />
+          <Section title={tPage("section_journal")} links={stories} />
+          <Section title={tPage("section_tools")} links={tools} />
+          <Section title={tPage("section_country_guides")} links={guides} />
+          <Section title={tPage("section_company")} links={company} />
+          <Section title={tPage("section_account")} links={account} />
+          <Section title={tPage("section_legal")} links={legal} />
 
           <Rule className="my-12" />
           <p className="text-[13px] text-sericia-ink-mute">

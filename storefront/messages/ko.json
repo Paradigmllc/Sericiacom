@@ -235,5 +235,71 @@
     "faq_eyebrow": "자주 묻는 질문",
     "faq_title": "질문과 고려사항.",
     "faq_cta": "배송 정책 전문 읽기"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "회사 소개",
+      "title": "구조된 일본 공예 식품, 교토에서 큐레이션됩니다."
+    },
+    "shipping": {
+      "hero_eyebrow": "배송",
+      "hero_title": "교토에서 고객님께, 48시간 이내 발송.",
+      "transit_eyebrow": "소요 시간",
+      "transit_title": "배송에 걸리는 시간.",
+      "cost_eyebrow": "비용",
+      "cost_title": "배송비는 드롭 가격에 포함되어 있습니다.",
+      "customs_eyebrow": "통관",
+      "customs_title": "관세 및 수입세.",
+      "tracking_eyebrow": "추적",
+      "tracking_title": "EMS 추적 번호는 이메일로 발송됩니다.",
+      "country_eyebrow": "국가별",
+      "country_title": "국가별 배송 가이드."
+    },
+    "refund": {
+      "eyebrow": "법적 사항",
+      "title": "환불 및 반품."
+    },
+    "terms": {
+      "eyebrow": "법적 사항",
+      "title": "서비스 약관."
+    },
+    "privacy": {
+      "eyebrow": "법적 사항",
+      "title": "개인정보 처리방침"
+    },
+    "faq": {
+      "eyebrow": "자주 묻는 질문",
+      "title": "솔직하게 답변드립니다."
+    },
+    "tools": {
+      "eyebrow": "도구",
+      "title": "진지한 구매자를 위한 작은 도구들."
+    },
+    "journal": {
+      "eyebrow": "저널",
+      "title": "이야기, 기법, 국가별 가이드."
+    },
+    "guides": {
+      "eyebrow": "가이드",
+      "title": "일본 공예 식품, 나라별로."
+    },
+    "sitemap": {
+      "eyebrow": "사이트맵",
+      "title": "Sericia의 모든 것을 조용한 인덱스로.",
+      "section_shop": "쇼핑",
+      "section_journal": "저널",
+      "section_tools": "도구",
+      "section_country_guides": "국가별 가이드",
+      "section_company": "회사",
+      "section_account": "계정",
+      "section_legal": "법적 사항"
+    },
+    "accessibility": {
+      "eyebrow": "접근성",
+      "title": "누구나 들어올 수 있는 스토어프론트."
+    },
+    "not_found": {
+      "title": "이 페이지는 더 이상 존재하지 않습니다."
+    }
   }
 }

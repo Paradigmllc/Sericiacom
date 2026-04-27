@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
@@ -24,7 +25,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/accessibility" },
 };
 
-export default function AccessibilityPage() {
+export default async function AccessibilityPage() {
+  const t = await getTranslations("pages.accessibility");
   const jsonLd = webPageJsonLd({
     name: "Accessibility statement",
     description: "Sericia's commitment to WCAG 2.2 AA — what we do today, what we fall short on, and how to reach us if a barrier keeps you from ordering.",
@@ -38,7 +40,7 @@ export default function AccessibilityPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <CategoryHero eyebrow="Accessibility" title="A storefront anyone can enter." tone="paper" />
+      <CategoryHero eyebrow={t("eyebrow")} title={t("title")} tone="paper" />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
         <div className="mb-8">
           <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Accessibility" }]} />

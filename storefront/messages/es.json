@@ -212,5 +212,71 @@
     "faq_eyebrow": "Preguntas frecuentes",
     "faq_title": "Preguntas y consideraciones.",
     "faq_cta": "Leer la política de envío completa"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "Sobre nosotros",
+      "title": "Artesanía japonesa rescatada, curada en Kioto."
+    },
+    "shipping": {
+      "hero_eyebrow": "Envío",
+      "hero_title": "De Kioto a tu puerta, en menos de 48 horas.",
+      "transit_eyebrow": "Tiempo",
+      "transit_title": "Cuánto tarda.",
+      "cost_eyebrow": "Coste",
+      "cost_title": "El envío está incluido en el precio del drop.",
+      "customs_eyebrow": "Aduanas",
+      "customs_title": "Aranceles e impuestos de importación.",
+      "tracking_eyebrow": "Seguimiento",
+      "tracking_title": "Tu número de seguimiento EMS llega por correo.",
+      "country_eyebrow": "Por país",
+      "country_title": "Guías de envío por país."
+    },
+    "refund": {
+      "eyebrow": "Legal",
+      "title": "Reembolsos y devoluciones."
+    },
+    "terms": {
+      "eyebrow": "Legal",
+      "title": "Términos de servicio."
+    },
+    "privacy": {
+      "eyebrow": "Legal",
+      "title": "Política de privacidad"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Preguntas, respuestas claras."
+    },
+    "tools": {
+      "eyebrow": "Herramientas",
+      "title": "Pequeñas utilidades para compradores serios."
+    },
+    "journal": {
+      "eyebrow": "Diario",
+      "title": "Historias, técnicas, guías por país."
+    },
+    "guides": {
+      "eyebrow": "Guías",
+      "title": "Comida artesanal japonesa, país por país."
+    },
+    "sitemap": {
+      "eyebrow": "Mapa del sitio",
+      "title": "Todo Sericia, en un índice tranquilo.",
+      "section_shop": "Tienda",
+      "section_journal": "Diario",
+      "section_tools": "Herramientas",
+      "section_country_guides": "Guías por país",
+      "section_company": "Empresa",
+      "section_account": "Cuenta",
+      "section_legal": "Legal"
+    },
+    "accessibility": {
+      "eyebrow": "Accesibilidad",
+      "title": "Una tienda donde todos pueden entrar."
+    },
+    "not_found": {
+      "title": "Esta página ya no existe."
+    }
   }
 }

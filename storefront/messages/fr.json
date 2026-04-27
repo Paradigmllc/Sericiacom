@@ -212,5 +212,71 @@
     "faq_eyebrow": "Questions fréquentes",
     "faq_title": "Questions & considérations.",
     "faq_cta": "Lire la politique de livraison complète"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "À propos",
+      "title": "Artisanat japonais sauvé, curaté à Kyoto."
+    },
+    "shipping": {
+      "hero_eyebrow": "Livraison",
+      "hero_title": "De Kyoto à votre porte, en moins de 48 heures.",
+      "transit_eyebrow": "Délais",
+      "transit_title": "Combien de temps ça prend.",
+      "cost_eyebrow": "Coût",
+      "cost_title": "La livraison est incluse dans le prix du drop.",
+      "customs_eyebrow": "Douanes",
+      "customs_title": "Droits et taxes d'importation.",
+      "tracking_eyebrow": "Suivi",
+      "tracking_title": "Votre numéro de suivi EMS arrive par e-mail.",
+      "country_eyebrow": "Par pays",
+      "country_title": "Guides de livraison par pays."
+    },
+    "refund": {
+      "eyebrow": "Mentions légales",
+      "title": "Remboursement & retours."
+    },
+    "terms": {
+      "eyebrow": "Mentions légales",
+      "title": "Conditions d'utilisation."
+    },
+    "privacy": {
+      "eyebrow": "Mentions légales",
+      "title": "Politique de confidentialité"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Réponses claires aux questions fréquentes."
+    },
+    "tools": {
+      "eyebrow": "Outils",
+      "title": "Petits outils pour acheteurs avertis."
+    },
+    "journal": {
+      "eyebrow": "Journal",
+      "title": "Histoires, techniques, guides par pays."
+    },
+    "guides": {
+      "eyebrow": "Guides",
+      "title": "Cuisine artisanale japonaise, pays par pays."
+    },
+    "sitemap": {
+      "eyebrow": "Plan du site",
+      "title": "Tout Sericia, en un index calme.",
+      "section_shop": "Boutique",
+      "section_journal": "Journal",
+      "section_tools": "Outils",
+      "section_country_guides": "Guides par pays",
+      "section_company": "Entreprise",
+      "section_account": "Compte",
+      "section_legal": "Mentions légales"
+    },
+    "accessibility": {
+      "eyebrow": "Accessibilité",
+      "title": "Une boutique où chacun peut entrer."
+    },
+    "not_found": {
+      "title": "Cette page n'existe plus."
+    }
   }
 }

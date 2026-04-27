@@ -212,5 +212,71 @@
     "faq_eyebrow": "الأسئلة الشائعة",
     "faq_title": "أسئلة واعتبارات.",
     "faq_cta": "اقرأ سياسة الشحن الكاملة"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "من نحن",
+      "title": "حرفية يابانية مُنقذة، منسّقة في كيوتو."
+    },
+    "shipping": {
+      "hero_eyebrow": "الشحن",
+      "hero_title": "من كيوتو إلى بابك، خلال 48 ساعة.",
+      "transit_eyebrow": "المدة",
+      "transit_title": "مدة التوصيل.",
+      "cost_eyebrow": "التكلفة",
+      "cost_title": "الشحن مشمول في سعر الإصدار المحدود.",
+      "customs_eyebrow": "الجمارك",
+      "customs_title": "الرسوم وضرائب الاستيراد.",
+      "tracking_eyebrow": "التتبع",
+      "tracking_title": "رقم تتبع EMS الخاص بك يصل عبر البريد الإلكتروني.",
+      "country_eyebrow": "حسب الدولة",
+      "country_title": "أدلة الشحن لكل دولة."
+    },
+    "refund": {
+      "eyebrow": "قانوني",
+      "title": "الاسترداد والإرجاع."
+    },
+    "terms": {
+      "eyebrow": "قانوني",
+      "title": "شروط الخدمة."
+    },
+    "privacy": {
+      "eyebrow": "قانوني",
+      "title": "سياسة الخصوصية"
+    },
+    "faq": {
+      "eyebrow": "الأسئلة الشائعة",
+      "title": "أسئلة بإجابات صريحة."
+    },
+    "tools": {
+      "eyebrow": "أدوات",
+      "title": "أدوات صغيرة للمشترين الجادين."
+    },
+    "journal": {
+      "eyebrow": "المجلة",
+      "title": "قصص وتقنيات وأدلة دول."
+    },
+    "guides": {
+      "eyebrow": "أدلة",
+      "title": "الأطعمة الحرفية اليابانية، دولة دولة."
+    },
+    "sitemap": {
+      "eyebrow": "خريطة الموقع",
+      "title": "كل ما في Sericia، في فهرس هادئ.",
+      "section_shop": "المتجر",
+      "section_journal": "المجلة",
+      "section_tools": "أدوات",
+      "section_country_guides": "أدلة الدول",
+      "section_company": "الشركة",
+      "section_account": "الحساب",
+      "section_legal": "قانوني"
+    },
+    "accessibility": {
+      "eyebrow": "إمكانية الوصول",
+      "title": "متجر يستطيع أي شخص دخوله."
+    },
+    "not_found": {
+      "title": "هذه الصفحة لم تعد متوفرة."
+    }
   }
 }

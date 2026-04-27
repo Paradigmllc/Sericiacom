@@ -235,5 +235,71 @@
     "faq_eyebrow": "よくあるご質問",
     "faq_title": "ご質問と検討事項。",
     "faq_cta": "配送ポリシーの全文を読む"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "私たちについて",
+      "title": "京都でキュレーションする、救われた日本のクラフト食品。"
+    },
+    "shipping": {
+      "hero_eyebrow": "配送について",
+      "hero_title": "京都からお手元へ、48時間以内に発送。",
+      "transit_eyebrow": "配送日数",
+      "transit_title": "お届けまでの目安。",
+      "cost_eyebrow": "送料",
+      "cost_title": "送料はドロップ価格に含まれています。",
+      "customs_eyebrow": "通関",
+      "customs_title": "関税と輸入税について。",
+      "tracking_eyebrow": "追跡",
+      "tracking_title": "EMS追跡番号はメールでお送りします。",
+      "country_eyebrow": "国別ガイド",
+      "country_title": "国ごとの配送ガイド。"
+    },
+    "refund": {
+      "eyebrow": "法務",
+      "title": "返金と返品について。"
+    },
+    "terms": {
+      "eyebrow": "法務",
+      "title": "利用規約。"
+    },
+    "privacy": {
+      "eyebrow": "法務",
+      "title": "プライバシーポリシー"
+    },
+    "faq": {
+      "eyebrow": "よくある質問",
+      "title": "率直にお答えします。"
+    },
+    "tools": {
+      "eyebrow": "ツール",
+      "title": "本格的なお客様のための小さなツール。"
+    },
+    "journal": {
+      "eyebrow": "ジャーナル",
+      "title": "物語、技法、国別ガイド。"
+    },
+    "guides": {
+      "eyebrow": "ガイド",
+      "title": "日本のクラフト食品、国別に。"
+    },
+    "sitemap": {
+      "eyebrow": "サイトマップ",
+      "title": "Sericiaの全コンテンツを、静かなインデックスに。",
+      "section_shop": "ショップ",
+      "section_journal": "ジャーナル",
+      "section_tools": "ツール",
+      "section_country_guides": "国別ガイド",
+      "section_company": "会社情報",
+      "section_account": "アカウント",
+      "section_legal": "法的事項"
+    },
+    "accessibility": {
+      "eyebrow": "アクセシビリティ",
+      "title": "誰もが訪れられるストアフロントを。"
+    },
+    "not_found": {
+      "title": "このページは見つかりませんでした。"
+    }
   }
 }

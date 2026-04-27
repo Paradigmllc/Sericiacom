@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container } from "@/components/ui";
@@ -212,7 +213,8 @@ const blocks: ArticleBlock[] = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const t = await getTranslations("pages.about");
   const jsonLd = webPageJsonLd({
     variant: "AboutPage",
     name: "About Sericia",
@@ -229,8 +231,8 @@ export default function AboutPage() {
       />
       <SiteHeader />
       <CategoryHero
-        eyebrow="About"
-        title="Rescued Japanese craft, curated in Kyoto."
+        eyebrow={t("eyebrow")}
+        title={t("title")}
         tone="ink"
       />
       <Container size="default" className="py-20 md:py-28">

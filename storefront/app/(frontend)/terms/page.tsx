@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/terms" },
 };
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const t = await getTranslations("pages.terms");
   const jsonLd = webPageJsonLd({
     name: "Terms of service",
     description: "Terms governing the use of sericia.com and every drop Sericia releases — operator details, pricing, drop scheduling, refunds, and limitation of liability.",
@@ -27,7 +29,7 @@ export default function TermsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <CategoryHero eyebrow="Legal" title="Terms of service." tone="paper" />
+      <CategoryHero eyebrow={t("eyebrow")} title={t("title")} tone="paper" />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
         <div className="mb-8">
           <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Terms of service" }]} />

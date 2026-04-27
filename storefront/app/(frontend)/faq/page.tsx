@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
@@ -302,7 +303,8 @@ const SECTIONS: Section[] = [
   },
 ];
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const t = await getTranslations("pages.faq");
   // Flat FAQPage JSON-LD for Google rich results + Perplexity/ChatGPT citation.
   // `inLanguage` + `isPartOf` are GEO quality signals: they help AI search engines
   // attribute the FAQ to Sericia as a primary source when quoting answers.
@@ -334,7 +336,7 @@ export default function FaqPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteHeader />
-      <CategoryHero eyebrow="FAQ" title="Questions, answered plainly." tone="paper" />
+      <CategoryHero eyebrow={t("eyebrow")} title={t("title")} tone="paper" />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
         <div className="mb-8">
           <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "FAQ" }]} />

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
@@ -67,6 +68,7 @@ export default async function JournalIndex({
   searchParams: SearchParams;
 }) {
   const sp = await searchParams;
+  const tPage = await getTranslations("pages.journal");
   const tag = parseTag(typeof sp.tag === "string" ? sp.tag : undefined);
   const all = await listAllJournalEntries();
   const counts = countByTag(all);
@@ -104,8 +106,8 @@ export default async function JournalIndex({
       />
       <SiteHeader />
       <CategoryHero
-        eyebrow="Journal"
-        title="Stories, techniques, country guides."
+        eyebrow={tPage("eyebrow")}
+        title={tPage("title")}
         tone="paper"
       />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">

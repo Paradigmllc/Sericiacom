@@ -212,5 +212,71 @@
     "faq_eyebrow": "Domande frequenti",
     "faq_title": "Domande e considerazioni.",
     "faq_cta": "Leggi la politica di spedizione completa"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "Chi siamo",
+      "title": "Artigianato giapponese salvato, curato a Kyoto."
+    },
+    "shipping": {
+      "hero_eyebrow": "Spedizione",
+      "hero_title": "Da Kyoto alla tua porta, entro 48 ore.",
+      "transit_eyebrow": "Tempi",
+      "transit_title": "Quanto tempo ci vuole.",
+      "cost_eyebrow": "Costo",
+      "cost_title": "La spedizione è inclusa nel prezzo del drop.",
+      "customs_eyebrow": "Dogana",
+      "customs_title": "Dazi e tasse di importazione.",
+      "tracking_eyebrow": "Tracciamento",
+      "tracking_title": "Il tuo numero di tracking EMS arriva via email.",
+      "country_eyebrow": "Per paese",
+      "country_title": "Guide di spedizione per paese."
+    },
+    "refund": {
+      "eyebrow": "Note legali",
+      "title": "Rimborsi e resi."
+    },
+    "terms": {
+      "eyebrow": "Note legali",
+      "title": "Termini di servizio."
+    },
+    "privacy": {
+      "eyebrow": "Note legali",
+      "title": "Informativa sulla privacy"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Domande, risposte semplici."
+    },
+    "tools": {
+      "eyebrow": "Strumenti",
+      "title": "Piccole utilità per acquirenti seri."
+    },
+    "journal": {
+      "eyebrow": "Diario",
+      "title": "Storie, tecniche, guide per paese."
+    },
+    "guides": {
+      "eyebrow": "Guide",
+      "title": "Cibo artigianale giapponese, paese per paese."
+    },
+    "sitemap": {
+      "eyebrow": "Mappa del sito",
+      "title": "Tutto Sericia, in un indice tranquillo.",
+      "section_shop": "Shop",
+      "section_journal": "Diario",
+      "section_tools": "Strumenti",
+      "section_country_guides": "Guide per paese",
+      "section_company": "Azienda",
+      "section_account": "Account",
+      "section_legal": "Note legali"
+    },
+    "accessibility": {
+      "eyebrow": "Accessibilità",
+      "title": "Un negozio in cui chiunque può entrare."
+    },
+    "not_found": {
+      "title": "Questa pagina non esiste più."
+    }
   }
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { COUNTRIES } from "@/lib/pseo-matrix";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://sericia.com/shipping" },
 };
 
-export default function ShippingPage() {
+export default async function ShippingPage() {
+  const t = await getTranslations("pages.shipping");
   const jsonLd = webPageJsonLd({
     name: "Shipping — EMS worldwide from Kyoto",
     description: "Sericia ships every drop from Japan via EMS within 48 hours of payment. Transit windows, customs paperwork, and tracking by destination country.",
@@ -29,8 +31,8 @@ export default function ShippingPage() {
       />
       <SiteHeader />
       <CategoryHero
-        eyebrow="Shipping"
-        title="From Kyoto to your door, within 48 hours."
+        eyebrow={t("hero_eyebrow")}
+        title={t("hero_title")}
         tone="ink"
       />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
@@ -40,7 +42,7 @@ export default function ShippingPage() {
         <p className="mb-16 text-[17px] text-sericia-ink-soft max-w-prose leading-relaxed">
           Every Sericia drop is packed and dispatched from Japan Post within forty-eight hours of payment confirmation. We ship exclusively via EMS — Japan Post International Express — the fastest and most tracked option available from Japan.
         </p>
-        <SectionHeading eyebrow="Transit" title="How long it takes." />
+        <SectionHeading eyebrow={t("transit_eyebrow")} title={t("transit_title")} />
         <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
           <div>
             <p className="label mb-3">Fastest lanes — two to four business days</p>
@@ -75,8 +77,8 @@ export default function ShippingPage() {
       <section className="border-t border-sericia-line bg-sericia-paper-card">
         <Container size="wide" className="py-20 md:py-28">
           <SectionHeading
-            eyebrow="Cost"
-            title="Shipping is included in the drop price."
+            eyebrow={t("cost_eyebrow")}
+            title={t("cost_title")}
             lede="Ninety-five United States dollars, flat. No surprise fees at checkout."
           />
         </Container>
@@ -84,8 +86,8 @@ export default function ShippingPage() {
 
       <Container size="wide" className="py-20 md:py-28">
         <SectionHeading
-          eyebrow="Customs"
-          title="Duties and import taxes."
+          eyebrow={t("customs_eyebrow")}
+          title={t("customs_title")}
           lede="Your country may charge import duties, VAT, or food-import fees. These are paid by the recipient and are not included in the drop price."
         />
         <div className="grid md:grid-cols-2 gap-x-16 gap-y-8">
@@ -111,8 +113,8 @@ export default function ShippingPage() {
       <section className="border-t border-sericia-line bg-sericia-paper-card">
         <Container size="wide" className="py-20 md:py-28">
           <SectionHeading
-            eyebrow="Tracking"
-            title="Your EMS tracking number arrives by email."
+            eyebrow={t("tracking_eyebrow")}
+            title={t("tracking_title")}
             lede="Within forty-eight hours of payment. Track at trackingmore.com or your national postal service."
           />
           <p>
@@ -127,8 +129,8 @@ export default function ShippingPage() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           <div className="flex-1 min-w-0">
             <SectionHeading
-              eyebrow="By country"
-              title="Per-country shipping guides."
+              eyebrow={t("country_eyebrow")}
+              title={t("country_title")}
               lede="Detailed guides with transit times, allowed items, and producer notes for each destination we serve."
             />
             <ul className="grid md:grid-cols-3 gap-x-10 gap-y-4 max-w-3xl">

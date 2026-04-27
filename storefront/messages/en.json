@@ -235,5 +235,71 @@
     "faq_eyebrow": "Frequently asked",
     "faq_title": "Questions & considerations.",
     "faq_cta": "Read the full shipping policy"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "About",
+      "title": "Rescued Japanese craft, curated in Kyoto."
+    },
+    "shipping": {
+      "hero_eyebrow": "Shipping",
+      "hero_title": "From Kyoto to your door, within 48 hours.",
+      "transit_eyebrow": "Transit",
+      "transit_title": "How long it takes.",
+      "cost_eyebrow": "Cost",
+      "cost_title": "Shipping is included in the drop price.",
+      "customs_eyebrow": "Customs",
+      "customs_title": "Duties and import taxes.",
+      "tracking_eyebrow": "Tracking",
+      "tracking_title": "Your EMS tracking number arrives by email.",
+      "country_eyebrow": "By country",
+      "country_title": "Per-country shipping guides."
+    },
+    "refund": {
+      "eyebrow": "Legal",
+      "title": "Refund & returns."
+    },
+    "terms": {
+      "eyebrow": "Legal",
+      "title": "Terms of service."
+    },
+    "privacy": {
+      "eyebrow": "Legal",
+      "title": "Privacy Policy"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions, answered plainly."
+    },
+    "tools": {
+      "eyebrow": "Tools",
+      "title": "Small utilities for serious buyers."
+    },
+    "journal": {
+      "eyebrow": "Journal",
+      "title": "Stories, techniques, country guides."
+    },
+    "guides": {
+      "eyebrow": "Guides",
+      "title": "Japanese craft food, country by country."
+    },
+    "sitemap": {
+      "eyebrow": "Sitemap",
+      "title": "Everything on Sericia, in one quiet index.",
+      "section_shop": "Shop",
+      "section_journal": "Journal",
+      "section_tools": "Tools",
+      "section_country_guides": "Country guides",
+      "section_company": "Company",
+      "section_account": "Account",
+      "section_legal": "Legal"
+    },
+    "accessibility": {
+      "eyebrow": "Accessibility",
+      "title": "A storefront anyone can enter."
+    },
+    "not_found": {
+      "title": "This page is no longer with us."
+    }
   }
 }

@@ -235,5 +235,71 @@
     "faq_eyebrow": "Häufig gefragt",
     "faq_title": "Fragen & Überlegungen.",
     "faq_cta": "Vollständige Versandrichtlinien lesen"
+  },
+  "pages": {
+    "about": {
+      "eyebrow": "Über uns",
+      "title": "Gerettete japanische Handwerkskunst, in Kyoto kuratiert."
+    },
+    "shipping": {
+      "hero_eyebrow": "Versand",
+      "hero_title": "Von Kyoto bis zu Ihrer Tür, innerhalb von 48 Stunden.",
+      "transit_eyebrow": "Laufzeit",
+      "transit_title": "Wie lange es dauert.",
+      "cost_eyebrow": "Kosten",
+      "cost_title": "Der Versand ist im Drop-Preis enthalten.",
+      "customs_eyebrow": "Zoll",
+      "customs_title": "Zölle und Einfuhrsteuern.",
+      "tracking_eyebrow": "Sendungsverfolgung",
+      "tracking_title": "Ihre EMS-Sendungsnummer kommt per E-Mail.",
+      "country_eyebrow": "Nach Land",
+      "country_title": "Versandhinweise nach Land."
+    },
+    "refund": {
+      "eyebrow": "Rechtliches",
+      "title": "Erstattung & Rückgabe."
+    },
+    "terms": {
+      "eyebrow": "Rechtliches",
+      "title": "Nutzungsbedingungen."
+    },
+    "privacy": {
+      "eyebrow": "Rechtliches",
+      "title": "Datenschutzerklärung"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Klare Antworten."
+    },
+    "tools": {
+      "eyebrow": "Werkzeuge",
+      "title": "Kleine Hilfen für ernsthafte Käufer."
+    },
+    "journal": {
+      "eyebrow": "Journal",
+      "title": "Geschichten, Techniken, Länderführer."
+    },
+    "guides": {
+      "eyebrow": "Führer",
+      "title": "Japanische Handwerksküche, Land für Land."
+    },
+    "sitemap": {
+      "eyebrow": "Sitemap",
+      "title": "Alles bei Sericia, in einem ruhigen Index.",
+      "section_shop": "Shop",
+      "section_journal": "Journal",
+      "section_tools": "Werkzeuge",
+      "section_country_guides": "Länderführer",
+      "section_company": "Unternehmen",
+      "section_account": "Konto",
+      "section_legal": "Rechtliches"
+    },
+    "accessibility": {
+      "eyebrow": "Barrierefreiheit",
+      "title": "Ein Storefront, das jeder betreten kann."
+    },
+    "not_found": {
+      "title": "Diese Seite ist nicht mehr verfügbar."
+    }
   }
 }
