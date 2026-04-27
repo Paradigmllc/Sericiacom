@@ -3,7 +3,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
-import { Container, PageHero, Rule } from "@/components/ui";
+import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
+import { Container, Rule } from "@/components/ui";
 
 /**
  * /accessibility — Accessibility Statement.
@@ -26,12 +27,14 @@ export default function AccessibilityPage() {
   return (
     <>
       <SiteHeader />
-      <PageHero
-        eyebrow="Accessibility"
-        title="A storefront anyone can enter."
-        lede="We build Sericia so that readers, shoppers, and waitlist subscribers can use the site without barriers — whatever device, whatever input method."
-      />
-      <Container size="wide" className="py-20 md:py-28">
+      <CategoryHero eyebrow="Accessibility" title="A storefront anyone can enter." tone="paper" />
+      <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
+        <div className="mb-8">
+          <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Accessibility" }]} />
+        </div>
+        <p className="mb-12 text-[16px] text-sericia-ink-soft max-w-prose leading-relaxed">
+          We build Sericia so that readers, shoppers, and waitlist subscribers can use the site without barriers — whatever device, whatever input method.
+        </p>
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           <div className="flex-1 min-w-0 max-w-[680px] prose-aesop">
             <h2>One — What we target</h2>

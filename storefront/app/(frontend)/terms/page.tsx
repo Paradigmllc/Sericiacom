@@ -3,7 +3,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
-import { Container, PageHero, Rule } from "@/components/ui";
+import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
+import { Container, Rule } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Sericia",
@@ -15,12 +16,14 @@ export default function TermsPage() {
   return (
     <>
       <SiteHeader />
-      <PageHero
-        eyebrow="Legal"
-        title="Terms of Service"
-        lede="The terms that govern your use of sericia.com and every drop we release. Last updated April 2026."
-      />
-      <Container size="wide" className="py-20 md:py-28">
+      <CategoryHero eyebrow="Legal" title="Terms of service." tone="paper" />
+      <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
+        <div className="mb-8">
+          <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Terms of service" }]} />
+        </div>
+        <p className="mb-12 text-[16px] text-sericia-ink-soft max-w-prose leading-relaxed">
+          The terms that govern your use of sericia.com and every drop we release. Last updated April 2026.
+        </p>
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           <div className="flex-1 min-w-0 max-w-[680px] prose-aesop">
         <h2>One — Who we are</h2>

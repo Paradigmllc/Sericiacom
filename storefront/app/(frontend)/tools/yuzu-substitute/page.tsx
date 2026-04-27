@@ -1,10 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import ContentSidebar from "@/components/ContentSidebar";
-import { Container, Eyebrow, Rule } from "@/components/ui";
+import ToolPageShell from "@/components/ToolPageShell";
 
 const DISHES = [
   {
@@ -49,75 +45,28 @@ export default function YuzuSubstitute() {
   const d = DISHES.find((x) => x.val === dish)!;
 
   return (
-    <>
-      <SiteHeader />
-      <section className="border-b border-sericia-line bg-sericia-paper-card">
-        <Container size="wide" className="py-20 md:py-28">
-          <nav className="text-[12px] tracking-[0.18em] uppercase text-sericia-ink-mute mb-6">
-            <Link href="/" className="hover:text-sericia-ink">Sericia</Link>
-            <span className="mx-3">·</span>
-            <Link href="/tools" className="hover:text-sericia-ink">Tools</Link>
-            <span className="mx-3">·</span>
-            <span>Yuzu Substitute Finder</span>
-          </nav>
-          <Eyebrow>Tool eight</Eyebrow>
-          <h1 className="text-[40px] md:text-[56px] leading-[1.08] font-normal tracking-tight max-w-4xl">
-            Yuzu substitute finder.
-          </h1>
-          <p className="mt-8 text-[18px] text-sericia-ink-soft max-w-prose leading-relaxed">
-            Yuzu costs £80 per kilo outside Japan when you can find it fresh. Build the flavour from accessible citrus instead.
-          </p>
-        </Container>
-      </section>
-
-      <Container size="wide" className="py-16 md:py-20">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-          <div className="flex-1 min-w-0">
-            <div className="border border-sericia-line bg-sericia-paper-card p-8 md:p-10">
-              <label className="block">
-                <span className="label block mb-4">What are you making?</span>
-                <select
-                  value={dish}
-                  onChange={(e) => setDish(e.target.value)}
-                  className="w-full px-0 py-3 bg-transparent border-b border-sericia-line focus:border-sericia-ink focus:outline-none text-[16px] cursor-pointer"
-                >
-                  {DISHES.map((x) => <option key={x.val} value={x.val}>{x.label}</option>)}
-                </select>
-              </label>
-            </div>
-
-            <Rule className="my-12" />
-
-            <Eyebrow>Substitute</Eyebrow>
-            <p className="text-[28px] md:text-[36px] font-normal leading-tight tracking-tight mb-4">{d.substitute}</p>
-            <p className="text-[13px] tracking-[0.18em] uppercase text-sericia-ink-mute mb-8">{d.ratio}</p>
-            <p className="text-[15px] text-sericia-ink-soft leading-relaxed max-w-prose">{d.note}</p>
-
-            <Rule className="my-12" />
-            <h2 id="tldr" className="text-[22px] md:text-[26px] font-normal tracking-tight mb-4">TL;DR</h2>
-            <p className="text-[15px] text-sericia-ink-soft leading-relaxed max-w-prose">
-              Yuzu can't be perfectly replaced but it can be approximated. The universal substitute: lemon + lime + grapefruit zest.
-              For yuzu kosho, muddle lemon zest, green chilli, and salt. For ponzu, blend lemon juice with soy, mirin, and katsuobushi.
-              When you do get authentic yuzu — Sericia ships yuzu products from Kochi prefecture — use it sparingly, the punch is real.
-            </p>
-          </div>
-
-          <ContentSidebar
-            sectionTitle="In this tool"
-            sections={[{ href: "#tldr", label: "TL;DR" }]}
-            relatedTools={[
-              { href: "/tools/miso-finder", label: "Miso type finder" },
-              { href: "/tools/dashi-ratio", label: "Dashi ratio calculator" },
-              { href: "/tools/shelf-life", label: "Shelf-life checker" },
-            ]}
-            relatedGuides={[
-              { href: "/journal/yuzu-kosho-varieties", label: "Yuzu kosho: green, red, white" },
-              { href: "/journal/kochi-citrus", label: "The citrus prefectures of Japan" },
-            ]}
-          />
+    <ToolPageShell slug="yuzu-substitute">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+        <div className="border border-sericia-line bg-sericia-paper p-8 md:p-10">
+          <label className="block">
+            <span className="label block mb-4">What are you making?</span>
+            <select
+              value={dish}
+              onChange={(e) => setDish(e.target.value)}
+              className="w-full px-0 py-3 bg-transparent border-b border-sericia-line focus:border-sericia-ink focus:outline-none text-[16px] cursor-pointer"
+            >
+              {DISHES.map((x) => <option key={x.val} value={x.val}>{x.label}</option>)}
+            </select>
+          </label>
         </div>
-      </Container>
-      <SiteFooter />
-    </>
+
+        <div>
+          <p className="label mb-4">Substitute</p>
+          <p className="text-[24px] md:text-[28px] font-normal leading-tight tracking-tight mb-3 text-sericia-ink">{d.substitute}</p>
+          <p className="text-[12px] tracking-[0.18em] uppercase text-sericia-ink-mute mb-6">{d.ratio}</p>
+          <p className="text-[15px] text-sericia-ink-soft leading-relaxed">{d.note}</p>
+        </div>
+      </div>
+    </ToolPageShell>
   );
 }
