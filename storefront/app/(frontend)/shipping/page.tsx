@@ -4,7 +4,8 @@ import { COUNTRIES } from "@/lib/pseo-matrix";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
-import { Container, PageHero, SectionHeading, Rule } from "@/components/ui";
+import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
+import { Container, SectionHeading, Rule } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Shipping Information | Sericia",
@@ -16,13 +17,18 @@ export default function ShippingPage() {
   return (
     <>
       <SiteHeader />
-      <PageHero
+      <CategoryHero
         eyebrow="Shipping"
-        title="From Japan to your door, within forty-eight hours of payment."
-        lede="Every Sericia drop is packed and dispatched from Japan Post within forty-eight hours of payment confirmation. We ship exclusively via EMS — Japan Post International Express — the fastest and most tracked option available from Japan."
+        title="From Kyoto to your door, within 48 hours."
+        tone="ink"
       />
-
-      <Container size="wide" className="py-20 md:py-28">
+      <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
+        <div className="mb-8">
+          <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Shipping" }]} />
+        </div>
+        <p className="mb-16 text-[17px] text-sericia-ink-soft max-w-prose leading-relaxed">
+          Every Sericia drop is packed and dispatched from Japan Post within forty-eight hours of payment confirmation. We ship exclusively via EMS — Japan Post International Express — the fastest and most tracked option available from Japan.
+        </p>
         <SectionHeading eyebrow="Transit" title="How long it takes." />
         <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
           <div>

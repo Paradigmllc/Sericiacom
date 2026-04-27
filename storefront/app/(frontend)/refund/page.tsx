@@ -3,7 +3,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContentSidebar from "@/components/ContentSidebar";
-import { Container, PageHero, Rule } from "@/components/ui";
+import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
+import { Container, Rule } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Refund & Returns | Sericia",
@@ -15,12 +16,14 @@ export default function RefundPage() {
   return (
     <>
       <SiteHeader />
-      <PageHero
-        eyebrow="Legal"
-        title="Refund & Returns"
-        lede="Sericia drops are rescued, limited-quantity food products. Our policy is designed to be fair to both customers and producers. Last updated April 2026."
-      />
-      <Container size="wide" className="py-20 md:py-28">
+      <CategoryHero eyebrow="Legal" title="Refund & returns." tone="paper" />
+      <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
+        <div className="mb-8">
+          <Breadcrumb items={[{ label: "Home", url: "/" }, { label: "Refund & returns" }]} />
+        </div>
+        <p className="mb-12 text-[16px] text-sericia-ink-soft max-w-prose leading-relaxed">
+          Sericia drops are rescued, limited-quantity food products. Our policy is designed to be fair to both customers and producers. Last updated April 2026.
+        </p>
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           <div className="flex-1 min-w-0 max-w-[680px] prose-aesop">
         <h2>Eligible for a full refund</h2>

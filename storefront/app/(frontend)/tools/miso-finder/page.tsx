@@ -1,10 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import ContentSidebar from "@/components/ContentSidebar";
-import { Container, Eyebrow, Rule } from "@/components/ui";
+import ToolPageShell from "@/components/ToolPageShell";
 
 type MisoType = "shiro" | "aka" | "awase" | "hatcho" | "saikyo";
 
@@ -52,7 +48,7 @@ const MISO_INFO: Record<MisoType, { name: string; region: string; age: string; f
     name: "Saikyo miso — 西京味噌",
     region: "Kyoto.",
     age: "About one month.",
-    flavor: "Very sweet, creamy, pale yellow. Aka white miso&apos;s refined cousin.",
+    flavor: "Very sweet, creamy, pale yellow. Aka white miso's refined cousin.",
     tip: "The classic fish marinade — coat silver cod for two days, then grill.",
   },
 };
@@ -62,88 +58,53 @@ export default function MisoFinder() {
   const pick = DISHES.find((d) => d.val === dish)?.pick;
 
   return (
-    <>
-      <SiteHeader />
-      <section className="border-b border-sericia-line bg-sericia-paper-card">
-        <Container size="wide" className="py-20 md:py-28">
-          <nav className="text-[12px] tracking-[0.18em] uppercase text-sericia-ink-mute mb-6">
-            <Link href="/" className="hover:text-sericia-ink">Sericia</Link>
-            <span className="mx-3">·</span>
-            <Link href="/tools" className="hover:text-sericia-ink">Tools</Link>
-            <span className="mx-3">·</span>
-            <span>Miso Finder</span>
-          </nav>
-          <Eyebrow>Tool three</Eyebrow>
-          <h1 className="text-[40px] md:text-[56px] leading-[1.08] font-normal tracking-tight max-w-4xl">
-            Miso type finder.
-          </h1>
-          <p className="mt-8 text-[18px] text-sericia-ink-soft max-w-prose leading-relaxed">
-            Japan has dozens of miso varieties. Pick the dish you are making and we will match the right one.
-          </p>
-        </Container>
-      </section>
-
-      <Container size="wide" className="py-20 md:py-28">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-          <div className="flex-1 min-w-0 max-w-[720px]">
-        <p className="label mb-6">What are you making?</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-sericia-line">
-          {DISHES.map((d) => {
-            const selected = dish === d.val;
-            return (
-              <button
-                key={d.val}
-                onClick={() => setDish(d.val)}
-                className={`text-left px-6 py-5 text-[15px] transition-colors ${
-                  selected ? "bg-sericia-ink text-sericia-paper" : "bg-sericia-paper-card hover:bg-sericia-paper"
-                }`}
-              >
-                {d.label}
-              </button>
-            );
-          })}
+    <ToolPageShell slug="miso-finder">
+      <div>
+        <p className="label mb-3">Pick the dish</p>
+        <h3 className="text-[20px] font-normal mb-6 text-sericia-ink">What are you cooking?</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-sericia-line mb-10">
+          {DISHES.map((d) => (
+            <label
+              key={d.val}
+              className={`flex cursor-pointer items-center gap-4 px-6 py-4 bg-sericia-paper hover:bg-sericia-paper-deep transition-colors ${
+                dish === d.val ? "bg-sericia-paper-deep" : ""
+              }`}
+            >
+              <input
+                type="radio"
+                name="dish"
+                value={d.val}
+                checked={dish === d.val}
+                onChange={() => setDish(d.val)}
+                className="accent-sericia-ink"
+              />
+              <span className="text-[15px] text-sericia-ink">{d.label}</span>
+            </label>
+          ))}
         </div>
 
         {pick && (
-          <>
-            <Rule className="my-16" />
-            <Eyebrow>Recommended</Eyebrow>
-            <h2 className="text-[32px] md:text-[40px] font-normal tracking-tight leading-[1.15] mb-10">
+          <div className="pt-10 border-t border-sericia-line">
+            <p className="label mb-3">Reach for</p>
+            <h3 className="text-[28px] md:text-[36px] font-normal tracking-tight leading-tight mb-8 text-sericia-ink">
               {MISO_INFO[pick].name}
-            </h2>
-            <dl className="space-y-8">
+            </h3>
+            <dl className="space-y-5">
               {[
                 ["Region", MISO_INFO[pick].region],
-                ["Fermentation", MISO_INFO[pick].age],
-                ["Flavour", MISO_INFO[pick].flavor],
-                ["Pro tip", MISO_INFO[pick].tip],
+                ["Aged", MISO_INFO[pick].age],
+                ["Flavor", MISO_INFO[pick].flavor],
+                ["Cook with it", MISO_INFO[pick].tip],
               ].map(([k, v]) => (
-                <div key={k} className="grid md:grid-cols-[200px_1fr] gap-2 md:gap-6 border-b border-sericia-line pb-6">
+                <div key={k} className="grid md:grid-cols-[180px_1fr] gap-2 md:gap-6 border-b border-sericia-line pb-4">
                   <dt className="label">{k}</dt>
                   <dd className="text-[15px] text-sericia-ink-soft leading-relaxed">{v}</dd>
                 </div>
               ))}
             </dl>
-          </>
-        )}
           </div>
-          <ContentSidebar
-            relatedTools={[
-              { href: "/tools/shelf-life", label: "Shelf-life checker" },
-              { href: "/tools/matcha-grade", label: "Matcha grade decoder" },
-              { href: "/tools/tea-brewer", label: "Japanese tea brewer" },
-              { href: "/tools/ems-calculator", label: "EMS shipping calculator" },
-            ]}
-            relatedGuides={[
-              { href: "/guides/us/miso", label: "Buying miso — US guide" },
-              { href: "/guides/uk/miso", label: "Buying miso — UK guide" },
-              { href: "/guides/de/miso", label: "Buying miso — Germany" },
-              { href: "/guides/au/miso", label: "Buying miso — Australia" },
-            ]}
-          />
-        </div>
-      </Container>
-      <SiteFooter />
-    </>
+        )}
+      </div>
+    </ToolPageShell>
   );
 }
