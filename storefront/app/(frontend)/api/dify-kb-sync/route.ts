@@ -55,13 +55,17 @@ function authorise(req: NextRequest): boolean {
 
 type DocPayload = { name: string; text: string };
 
+// Wide param signature — Payload's generated `Article` type allows
+// `null` on the array fields, and the body/tldr Lexical roots are
+// also nullable. We accept `unknown[] | null | undefined` and let the
+// downstream Array.isArray check narrow.
 function buildDocFromArticle(a: {
   slug: string;
   title: string;
   body?: unknown;
   tldr?: unknown;
-  highlights?: unknown[];
-  faq?: unknown[];
+  highlights?: unknown[] | null;
+  faq?: unknown[] | null;
 }): DocPayload {
   // Flatten Lexical body into text. Lexical AST is { root: { children: [...] }};
   // pSEO articles are paragraph-only so a recursive `text` walker covers them.
