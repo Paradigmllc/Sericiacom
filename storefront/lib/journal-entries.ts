@@ -20,8 +20,13 @@
 import { JOURNAL } from "./journal";
 import { COUNTRIES, PRODUCTS } from "./pseo-matrix";
 import { getPayloadClient } from "./payload";
+import { tagLabel as _tagLabel, type JournalTag as _JournalTag } from "./journal-tags";
 
-export type JournalTag = "story" | "guide" | "country-guide" | "technique";
+// Re-export the client-safe types/helpers so server consumers get one
+// canonical entry point without needing to know which module is the
+// shared boundary.
+export type JournalTag = _JournalTag;
+export const tagLabel = _tagLabel;
 
 export type JournalEntry = {
   /** URL — already category-correct (`/journal/...`, `/articles/...`, `/guides/...`). */
@@ -39,16 +44,9 @@ export type JournalEntry = {
   eyebrow: string;
 };
 
-const TAG_LABEL: Record<JournalTag, string> = {
-  story: "Story",
-  technique: "Technique",
-  guide: "Guide",
-  "country-guide": "Country guide",
-};
-
-export function tagLabel(t: JournalTag): string {
-  return TAG_LABEL[t];
-}
+// (tagLabel + JournalTag are re-exported above from ./journal-tags so
+//  client components can import them without dragging Payload into the
+//  browser bundle.)
 
 // ── Source 1 — static editorial ──────────────────────────────────────────
 function fromStaticJournal(): JournalEntry[] {

@@ -27,6 +27,17 @@ type ProductShape = {
    * Scarcity messaging renders when 0 < stockRemaining <= LOW_STOCK_THRESHOLD.
    */
   stockRemaining: number | null;
+  // ── F12 enrichment fields (all optional / pulled from Medusa metadata) ──
+  /** Ingredient list — comma- or semicolon-separated string from product.metadata.ingredients. */
+  ingredients?: string | null;
+  /** Tasting / aroma notes from product.metadata.tasting_notes. */
+  tastingNotes?: string | null;
+  /** Brewing or preparation guidance from product.metadata.preparation. */
+  preparation?: string | null;
+  /** Allergen line (e.g. "Contains soybeans, wheat") from product.metadata.allergens. */
+  allergens?: string | null;
+  /** Best-before window note from product.metadata.shelf_life. */
+  shelfLife?: string | null;
 };
 
 // Threshold chosen carefully: high enough that the badge appears on genuinely
@@ -68,12 +79,21 @@ export default function ProductDetailShell({
     return () => io.disconnect();
   }, []);
 
+  // F12: split ingredient list on comma or semicolon so editors can type
+  // "Sencha leaves, brown rice" or "Soybeans; salt; rice koji" and the
+  // PDP renders it as a clean bulleted list (Aesop pattern). Trims whitespace
+  // and discards empty fragments to be paste-tolerant.
+  const ingredientItems = (product.ingredients ?? "")
+    .split(/[,;]/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
   const accordionItems: AccordionItem[] = [
     {
       id: "origin",
       title: "Ingredients & origin",
       body: (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p>
             <span className="label block mb-1">Category</span>
             {relatedCategoryLabel}
@@ -94,6 +114,28 @@ export default function ProductDetailShell({
             <span className="label block mb-1">Weight</span>
             {product.weight_g}g net
           </p>
+          {ingredientItems.length > 0 && (
+            <div>
+              <span className="label block mb-2">Ingredients</span>
+              <ul className="list-disc list-inside space-y-1 text-[14px] leading-relaxed">
+                {ingredientItems.map((ing, i) => (
+                  <li key={i}>{ing}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {product.allergens && (
+            <p>
+              <span className="label block mb-1">Allergens</span>
+              <span className="text-sericia-ink-soft">{product.allergens}</span>
+            </p>
+          )}
+          {product.shelfLife && (
+            <p>
+              <span className="label block mb-1">Best within</span>
+              <span className="text-sericia-ink-soft">{product.shelfLife}</span>
+            </p>
+          )}
         </div>
       ),
     },
@@ -125,11 +167,26 @@ export default function ProductDetailShell({
       id: "tasting",
       title: "Tasting notes & pairing",
       body: (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p>{product.description}</p>
-          <p className="text-sericia-ink-mute">
-            Best enjoyed unhurried — steep at 70°C for 90 seconds, savour slowly, and let the flavour bloom. Pair with a plain-glazed ceramic vessel and good company.
-          </p>
+          {product.tastingNotes && (
+            <p className="whitespace-pre-line text-[14px] leading-[1.7] text-sericia-ink-soft">
+              {product.tastingNotes}
+            </p>
+          )}
+          {product.preparation && (
+            <div>
+              <span className="label block mb-1">Preparation</span>
+              <p className="whitespace-pre-line text-[14px] leading-[1.7] text-sericia-ink-soft">
+                {product.preparation}
+              </p>
+            </div>
+          )}
+          {!product.tastingNotes && !product.preparation && (
+            <p className="text-sericia-ink-mute">
+              Best enjoyed unhurried — steep at 70°C for 90 seconds, savour slowly, and let the flavour bloom. Pair with a plain-glazed ceramic vessel and good company.
+            </p>
+          )}
         </div>
       ),
     },

@@ -16,7 +16,10 @@
  */
 
 import { useRouter, usePathname } from "next/navigation";
-import { tagLabel, type JournalTag } from "@/lib/journal-entries";
+// Import from the client-safe boundary module — never reach into
+// `journal-entries.ts` from a "use client" file or webpack will try to
+// bundle Payload + pg + Node built-ins into the browser chunk.
+import { tagLabel, type JournalTag } from "@/lib/journal-tags";
 
 type TagKey = "all" | JournalTag;
 

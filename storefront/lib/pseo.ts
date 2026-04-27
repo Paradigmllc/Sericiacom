@@ -186,7 +186,7 @@ function lexRoot(paragraphs: readonly string[]): LexicalRoot {
  * generations so a sudden cache-miss spike can be traced to a prompt edit
  * rather than an infra failure.
  */
-export const PSEO_PROMPT_VERSION = "2026-04-22.v1";
+export const PSEO_PROMPT_VERSION = "2026-04-28.v2";
 
 const PSEO_SYSTEM_PROMPT = `You are the editorial writer for Sericia, a Kyoto-based D2C that ships rescued-surplus Japanese craft food (tea, miso, shiitake, dashi, yuzu, furikake, shichimi) worldwide by EMS.
 
@@ -207,7 +207,7 @@ OUTPUT CONTRACT — return JSON matching this schema exactly:
   "title": "string, 45–75 chars, no branded 'Sericia' suffix",
   "slug": "string, lowercase, hyphen-separated, 3–8 words, ASCII only",
   "meta_title": "string, 50–65 chars, may include 'Sericia' suffix if it fits",
-  "meta_description": "string, 140–160 chars, ends with a period, no ellipsis",
+  "meta_description": "string, EXACTLY 140–160 chars (count includes spaces), ends with a period, no ellipsis. CRITICAL: a meta_description shorter than 140 chars or under 100 chars will reject the article entirely; pad with one more concrete fact (region, maker, harvest year) before stopping.",
   "tldr_paragraphs": ["string", ...],
   "body_paragraphs": ["string", ...],
   "highlights": ["string 60–120 chars", ...],
@@ -315,8 +315,20 @@ function validateDraft(d: PseoArticleDraft): void {
   if (!d.title || d.title.length < 10) problems.push("title too short");
   if (/!/.test(d.title)) problems.push("title contains exclamation");
   if (!/^[a-z0-9-]+$/.test(d.slug)) problems.push("slug not kebab-case ASCII");
-  if (!d.meta_description || d.meta_description.length < 100) {
-    problems.push("meta_description too short");
+  // Lower bound 110 chars — strict enough to ensure meta is rich for SERP
+  // snippet, generous enough that DeepSeek's 90% cache-hit doesn't waste
+  // budget on retries when the meta lands at 105-115. Two strikes from the
+  // 2026-04-27 batch were 95-99 chars; bumping prompt + threshold together
+  // (prompt asks 140-160, validator allows 110+) gives the model padding room.
+  if (!d.meta_description || d.meta_description.length < 110) {
+    problems.push(
+      `meta_description too short (${d.meta_description?.length ?? 0} chars, need ≥110)`,
+    );
+  }
+  if (d.meta_description && d.meta_description.length > 200) {
+    problems.push(
+      `meta_description too long (${d.meta_description.length} chars, need ≤200)`,
+    );
   }
   if (!Array.isArray(d.body_paragraphs) || d.body_paragraphs.length < 4) {
     problems.push("body_paragraphs < 4");

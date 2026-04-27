@@ -1,0 +1,114 @@
+{
+  "name": "Sericia — Dify KB sync (mirror Payload articles to chatbot knowledge base)",
+  "_purpose": "Every published article (static journal + Payload pSEO) should land in the Dify chatbot's knowledge base so /api/dify-chat answers are grounded in the same content visitors read on /journal. Runs daily at 03:00 JST when DeepSeek drain has settled and traffic is lowest.",
+  "_decision_journal": "Why Dify KB and not vector-RAG-from-Postgres-direct: Dify already runs a managed embeddings pipeline + similarity search + retrieval-augmented prompts behind the chat API; reimplementing that is two weeks of work for zero gain. We push markdown via the documents/create endpoint and let Dify handle chunking + embeddings.",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 03:00 JST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "notes": "03:00 JST = 18:00 UTC. After the pseo-generate hourly cron has drained the day's batch and well before the morning Asia traffic window."
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SERICIA_BASE_URL }}/api/dify-kb-sync",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-admin-secret",
+              "value": "={{ $env.SERICIA_ADMIN_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "since_hours", "value": "26" },
+            { "name": "max_documents", "value": "100" }
+          ]
+        },
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "id": "sync_call",
+      "name": "POST /api/dify-kb-sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "notes": "since_hours=26 — slight overlap with the previous run guards against missed articles if a generation lands on the boundary. max_documents=100 caps a runaway batch that could exhaust Dify rate limits. The endpoint itself is idempotent — re-pushing an unchanged article is a no-op."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.synced || 0 }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ]
+        }
+      },
+      "id": "if_synced",
+      "name": "If anything was synced",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \":books: *Dify KB sync complete*\\nSynced: {{ $node['POST /api/dify-kb-sync'].json.synced }} new articles\\nSkipped (unchanged): {{ $node['POST /api/dify-kb-sync'].json.skipped }}\\nFailed: {{ $node['POST /api/dify-kb-sync'].json.failed }}\\nKB total: {{ $node['POST /api/dify-kb-sync'].json.kb_total }} documents\"\n}"
+      },
+      "id": "notify_slack",
+      "name": "Slack: KB sync summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 200],
+      "notes": "Quiet success path. The sync runs nightly so a daily Slack ping is fine; if the volume becomes annoying we can flip the cron to weekly summary."
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \":zzz: Dify KB sync ran but had nothing new to push (all articles already in KB).\"\n}"
+      },
+      "id": "notify_quiet",
+      "name": "Slack: nothing to sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 400],
+      "notes": "Optional — comment out if the daily heartbeat becomes noise. Useful early on as proof the cron is alive."
+    }
+  ],
+  "connections": {
+    "cron": { "main": [[{ "node": "sync_call", "type": "main", "index": 0 }]] },
+    "sync_call": { "main": [[{ "node": "if_synced", "type": "main", "index": 0 }]] },
+    "if_synced": {
+      "main": [
+        [{ "node": "notify_slack", "type": "main", "index": 0 }],
+        [{ "node": "notify_quiet", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

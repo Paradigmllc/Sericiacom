@@ -137,7 +137,20 @@ function toProduct(
     producer_name: (mp.metadata?.producer_name as string | undefined) ?? null,
     created_at: mp.created_at,
     updated_at: mp.updated_at,
+    // F12 enrichment: read flat metadata strings. The Medusa Admin UI
+    // editor enters these as free-text in the product's metadata jsonb;
+    // we coerce undefined/non-string/empty to null so the PDP's optional
+    // rendering paths trigger cleanly.
+    ingredients: stringOrNull(mp.metadata?.ingredients),
+    tasting_notes: stringOrNull(mp.metadata?.tasting_notes),
+    preparation: stringOrNull(mp.metadata?.preparation),
+    allergens: stringOrNull(mp.metadata?.allergens),
+    shelf_life: stringOrNull(mp.metadata?.shelf_life),
   };
+}
+
+function stringOrNull(v: unknown): string | null {
+  return typeof v === "string" && v.trim().length > 0 ? v : null;
 }
 
 async function fetchWithRegion(): Promise<{

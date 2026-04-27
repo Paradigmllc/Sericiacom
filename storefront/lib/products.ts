@@ -28,6 +28,15 @@ export type Product = {
   producer_name: string | null;
   created_at: string;
   updated_at: string;
+  // ── F12 enrichment fields (read from Medusa product.metadata) ──────────
+  // All optional. Editors fill these via Medusa Admin UI to enrich the PDP
+  // accordion (Ingredients, Tasting notes & pairing). Empty / null means
+  // the PDP falls back to its branded default copy — no broken sections.
+  ingredients: string | null;
+  tasting_notes: string | null;
+  preparation: string | null;
+  allergens: string | null;
+  shelf_life: string | null;
 };
 
 export {
