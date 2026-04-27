@@ -149,21 +149,33 @@ export function MegaPanel({
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
           transition={{ duration: reduceMotion ? 0.1 : 0.22, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 md:py-14">
-            {/* Flex layout with explicit column min-widths so labels don't
-                word-wrap into "Drop / No. / 01" when the panel narrows.
-                Link columns: 200px min, content-driven. Featured cards:
-                280px fixed so the image actually reads as an image rather
-                than a sliver. Gap-16 keeps the editorial whitespace. */}
-            <div className="flex flex-wrap gap-12 md:gap-16">
+          {/* Wider container — Aesop's panel uses ~1600px on a 1920 desktop;
+              we step the cap up to 1600 and increase horizontal padding so
+              the cards spread far enough to breathe instead of huddling on
+              the left edge. */}
+          <div className="max-w-[1600px] mx-auto px-8 md:px-16 py-14 md:py-16">
+            {/* CSS Grid with explicit track widths. Link columns are content-
+                width (auto) so they hug their labels; featured cards take the
+                remaining space split evenly via fr units, growing wider as
+                the viewport widens — exactly the "fill the panel horizontally"
+                behaviour the user asked for. */}
+            <div
+              className="grid items-start gap-x-16 gap-y-12"
+              style={{
+                gridTemplateColumns:
+                  cards.length > 0
+                    ? `repeat(${columns.length}, minmax(180px, 220px)) repeat(${cards.length}, minmax(280px, 1fr))`
+                    : `repeat(${columns.length}, minmax(180px, 1fr))`,
+              }}
+            >
               {columns.map((col, ci) => (
-                <div key={`col-${ci}`} className="min-w-[200px]">
+                <div key={`col-${ci}`}>
                   {col.title && (
-                    <p className="label mb-5 text-sericia-ink-mute whitespace-nowrap">
+                    <p className="label mb-6 text-sericia-ink-mute whitespace-nowrap">
                       {col.title}
                     </p>
                   )}
-                  <ul className="space-y-3">
+                  <ul className="space-y-3.5">
                     {col.links.map((link, li) => (
                       <li key={`link-${ci}-${li}`}>
                         <Link
@@ -180,23 +192,20 @@ export function MegaPanel({
                 </div>
               ))}
 
-              {cards.length > 0 && (
-                // Push cards to the right edge so editorial categories live
-                // on the left and featured imagery on the right (Aesop layout).
-                <div className="ml-auto flex flex-wrap gap-8 md:gap-10">
-                  {cards.map((card, idx) => {
-                    const tone = (card.tone ?? "paper") as NonNullable<MegaCard["tone"]>;
-                    const gradient = TONE_GRADIENTS[tone];
-                    return (
-                      <Link
-                        key={`card-${idx}`}
-                        href={card.url}
-                        role="menuitem"
-                        onClick={onLinkClick}
-                        // Fixed width keeps the card recognisable as a card —
-                        // images need real estate or they read as decoration.
-                        className="group block w-[260px]"
-                      >
+              {cards.map((card, idx) => {
+                const tone = (card.tone ?? "paper") as NonNullable<MegaCard["tone"]>;
+                const gradient = TONE_GRADIENTS[tone];
+                return (
+                  <Link
+                    key={`card-${idx}`}
+                    href={card.url}
+                    role="menuitem"
+                    onClick={onLinkClick}
+                    // Card now takes its grid cell's full width (no fixed
+                    // 260px). The cell itself is `minmax(280px, 1fr)` so the
+                    // card grows with the panel.
+                    className="group block w-full"
+                  >
                         <div className="relative aspect-[4/3] overflow-hidden mb-4">
                           {card.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -232,11 +241,9 @@ export function MegaPanel({
                             {card.caption}
                           </p>
                         )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </motion.div>
