@@ -141,9 +141,15 @@ export function MegaPanel({
           role="menu"
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
-          // Sit just below the header band. The header itself is sticky
-          // with backdrop-blur; the panel uses solid paper to feel "stacked".
-          className="absolute left-0 right-0 top-full bg-sericia-paper border-t border-sericia-line shadow-[0_24px_60px_-30px_rgba(33,35,29,0.25)] z-40"
+          // Viewport-escape: the parent flex container in MegaMenuController
+          // is content-width (it hugs the visible nav links), so a plain
+          // `left-0 right-0` would constrain the panel to that narrow strip
+          // and the cards would overflow into the hero on the right (live
+          // bug verified 2026-04-28). We anchor to viewport with
+          // `width: 100vw; left: calc(50% - 50vw)` regardless of how wide
+          // the parent is. `top-full` still places us under the nav row.
+          style={{ width: "100vw", left: "calc(50% - 50vw)" }}
+          className="absolute top-full bg-sericia-paper border-t border-sericia-line shadow-[0_24px_60px_-30px_rgba(33,35,29,0.25)] z-40"
           initial={reduceMotion ? false : { opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
@@ -311,14 +317,31 @@ export default function MegaMenuController({ items }: { items: MegaMenuItem[] })
     setActiveKey(null);
   }
 
-  // Esc to close
+  // Esc OR scroll to close. The scroll handler matches Aesop / LV / Stripe
+  // — once the visitor starts scrolling the page they're done with the nav
+  // and the panel should release the viewport immediately. Without this
+  // the panel hovers stickily over the hero / product grid on every scroll.
+  // We treat any 30px+ scroll movement as intent to dismiss; small wheel
+  // jitters under 30px don't dismiss so visitors can re-orient before
+  // committing.
   useEffect(() => {
     if (!activeKey) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeNow();
     };
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - lastY) > 30) {
+        closeNow();
+      }
+      lastY = window.scrollY;
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, [activeKey]);
 
   useEffect(() => () => clearTimers(), []);
