@@ -20,6 +20,7 @@
     "seed:pseo-briefs": "tsx scripts/seed-pseo-briefs.ts",
     "pseo:expand": "tsx scripts/expand-pseo-briefs.ts",
     "pseo:drain": "tsx scripts/drain-pseo-queue.ts",
+    "warmup": "tsx scripts/warmup-isr.ts",
     "uat:magic-link": "tsx scripts/uat-magic-link.ts",
     "uat:purchase-flow": "tsx scripts/uat-purchase-flow.ts"
   },

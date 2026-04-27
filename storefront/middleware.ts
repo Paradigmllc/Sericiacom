@@ -65,8 +65,88 @@ function isNonI18nPath(path: string): boolean {
   return NON_I18N_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+// ── F16 rate limiter (in-memory, per-instance) ───────────────────────────
+// Sliding window: N requests per window per IP, scoped to /api/*. The
+// objective is NOT distributed-DDoS protection (Cloudflare WAF is the
+// right layer for that) — it's stopping a single client from hammering
+// /api/dify-chat or /api/orders/create-cart in a script and exhausting
+// the storefront's CPU. Map is per-process so a redeploy resets the
+// counters; that's acceptable for the threat model.
+const RATE_LIMIT_BUCKETS = new Map<string, { count: number; resetAt: number }>();
+const RATE_WINDOW_MS = 60_000; // 60s window
+const RATE_MAX_API = 60; // /api/* — 1 req/sec sustained per IP
+const RATE_MAX_DIFY = 20; // /api/dify-chat — chat is more expensive
+const RATE_MAX_ORDER = 30; // /api/orders/* — protect cart create
+const PROTECTED_PREFIXES = ["/api/"] as const;
+
+function clientIp(req: NextRequest): string {
+  // Cloudflare → CF-Connecting-IP, fallback to x-forwarded-for first hop,
+  // fallback to remoteAddress (always present in Next.js)
+  return (
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown"
+  );
+}
+
+function rateLimit(req: NextRequest, path: string): NextResponse | null {
+  if (!PROTECTED_PREFIXES.some((p) => path.startsWith(p))) return null;
+  // Skip the auth callback / health-style endpoints that take real bursts
+  // during legitimate flows (multiple OAuth callbacks land in <1s).
+  if (path.startsWith("/api/auth/")) return null;
+
+  const ip = clientIp(req);
+  const max = path.startsWith("/api/dify-chat")
+    ? RATE_MAX_DIFY
+    : path.startsWith("/api/orders/")
+      ? RATE_MAX_ORDER
+      : RATE_MAX_API;
+  const key = `${ip}|${path.split("/").slice(0, 3).join("/")}`; // group by /api/<route>
+  const now = Date.now();
+  const cur = RATE_LIMIT_BUCKETS.get(key);
+  if (!cur || cur.resetAt < now) {
+    RATE_LIMIT_BUCKETS.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return null;
+  }
+  cur.count += 1;
+  if (cur.count > max) {
+    const retryAfter = Math.max(1, Math.ceil((cur.resetAt - now) / 1000));
+    return new NextResponse(
+      JSON.stringify({ error: "rate_limited", retryAfter }),
+      {
+        status: 429,
+        headers: {
+          "content-type": "application/json",
+          "retry-after": String(retryAfter),
+          "x-ratelimit-limit": String(max),
+          "x-ratelimit-remaining": "0",
+          "x-ratelimit-reset": String(Math.ceil(cur.resetAt / 1000)),
+        },
+      },
+    );
+  }
+  return null;
+}
+
+// Periodic cleanup so the Map doesn't leak forever. Runs lazily —
+// every 1000th request triggers a sweep of expired buckets.
+let _cleanupTick = 0;
+function maybeCleanup() {
+  _cleanupTick = (_cleanupTick + 1) % 1000;
+  if (_cleanupTick !== 0) return;
+  const now = Date.now();
+  for (const [k, v] of RATE_LIMIT_BUCKETS) {
+    if (v.resetAt < now) RATE_LIMIT_BUCKETS.delete(k);
+  }
+}
+
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  // Rate limit gate (runs first so we never spend CPU on rejected reqs).
+  const limited = rateLimit(req, path);
+  if (limited) return limited;
+  maybeCleanup();
 
   // --- Payload CMS bypass: /cms/admin + /cms/api + any future /cms/* ---
   // Payload handles its own auth, API, and rendering. Skip i18n, admin gate,
