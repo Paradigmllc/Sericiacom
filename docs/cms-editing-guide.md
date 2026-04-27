@@ -19,6 +19,8 @@ This guide is for brand / content editors who need to update homepage copy witho
 | 7 | [Drafts vs publish](#cms-drafts) |
 | 8 | [Media uploads](#cms-media) |
 | 9 | [Troubleshooting](#cms-troubleshoot) |
+| 10 | [Site Settings — hero copy & announcement bar (NEW Phase 1)](#cms-site-settings) |
+| 11 | [Hero block — mid-page editorial hero (NEW)](#cms-hero-block) |
 
 ---
 
@@ -139,3 +141,90 @@ When attaching media to a block, the picker lets you search existing uploads or 
 
 **"I don't see the locale switcher."**
 - You need a user role that includes the locales you're editing. Ping engineering if you only see English.
+
+---
+
+## <a id="cms-site-settings"></a>10. Site Settings — hero copy & announcement bar (NEW Phase 1)
+
+> Path in admin: **Globals → Site Settings**. Everything here is site-wide and immediately reflects on every page after Save.
+
+### 10-1. Top hero section (the main "barren site fix")
+
+The big hero that takes up most of the screen on the homepage is now **fully editor-controlled**.
+
+**Background visuals (`heroVideoUrl` + `heroPosterUrl` + `heroImageUrl`)**:
+1. First, upload your video to **Collections → Media** (an `.mp4` or `.webm`, ideally <10MB and 8–15 seconds).
+2. Open the uploaded media; copy the **URL** field.
+3. Paste it into Site Settings → `heroVideoUrl`.
+4. (Optional but recommended) Upload a **poster** still image to Media, copy its URL into `heroPosterUrl`. The poster shows for ~50ms while the video buffers — eliminates the flash of empty hero.
+5. (Optional) `heroImageUrl` is the fallback if you ever want to display a still instead of a video — leave empty to keep the gradient default.
+
+**Copy (`heroCopy` group)** — every visible string is editable, with safe hardcoded brand fallbacks if you leave a field empty:
+
+| Field | Default if empty | What you'd change it to |
+|------|-----------------|----------------------|
+| `eyebrow` | `Drop No. 01 — Limited release` | `Drop No. 02 — Spring matcha` |
+| `headlineLine1` | `Rescued Japanese` | `Aged in Kyoto cellars` |
+| `headlineLine2` | `craft food,` | `for thirty years.` |
+| `body` | (Default 2-sentence sub-copy) | Your custom paragraph |
+| `typewriterStrings` | 3 strings cycling | Add lines that cycle through the typewriter effect |
+| `metaLines` | "Kyoto, Japan", "EMS worldwide", "50 units" | Drop-specific facts |
+| `primaryCtaLabel` / `primaryCtaUrl` | `Shop the drop` → `/products` | `Reserve your bottle` → `/drops/02` |
+| `secondaryCtaLabel` / `secondaryCtaUrl` | `Our story` → `/#story` | `Watch the film` → `/#film` |
+
+**Localised**: every text field is independently editable per locale (en / ja / de / fr / es / it / ko / zh-TW / ru / ar). The locale switcher at the top of the admin form picks which language you're editing.
+
+### 10-2. Announcement bar (top marquee)
+
+The black scrolling bar at the very top of every page.
+
+**Master switch (`announcementBar.enabled`)**: untick to hide the bar entirely.
+
+**Items (`announcementBar.items[]`)** — preferred way to manage announcements:
+- Click **Add item** to append a phrase.
+- Each item has `text` (required, localised per locale) and an optional `link`.
+- Drag the handle to reorder items.
+- 4–8 items is the sweet spot. Too few → repetition obvious; too many → marquee speed drops.
+
+**Legacy single text/link**: if `items[]` is empty, the admin form falls back to showing the single `text` + `link` fields (for backward compatibility with older content). Once you add anything to `items[]`, the legacy fields hide.
+
+**Visual tuning**:
+- `backgroundColor`: hex/rgb/oklch CSS color — defaults to Sericia ink (`#1a1a1a`).
+- `textColor`: defaults to Sericia paper (`#ffffff`).
+- `scrollSpeedSeconds`: full marquee cycle duration. Lower = faster. Default 40.
+
+### 10-3. What still requires a code change?
+
+Site Settings does NOT yet control:
+- Footer 5-column links / signature copy (Phase 2)
+- "Most loved" / "From the kitchen" section eyebrows on the homepage (Phase 2)
+- CouponBanner / CookieConsent text (Phase 2 — Cookie text is intentionally locked for compliance audit)
+- Tokushoho / Privacy / Terms / Refund pages (locked by design — legal text only changes via reviewed code commit)
+- Navigation items (Phase 3)
+
+These ship in subsequent phases. This guide will be updated as each phase lands.
+
+---
+
+## <a id="cms-hero-block"></a>11. Hero block — mid-page editorial hero (NEW)
+
+The Homepage Globals → blocks panel now renders the **Hero** block type (it used to be a no-op).
+
+**Use case**: drop a cinematic interlude mid-page. Example placements:
+- Between TestimonialsWall and Newsletter.
+- After the Drop section to act as a "Discover the new collection" break.
+- Between two Story blocks to break editorial rhythm.
+
+**Fields**:
+- `heading` (required, localised) — large H2-style title.
+- `subheading` (optional, localised) — sub-paragraph below.
+- `videoMedia` — pick a video from Media collection. URL ending in `.mp4`/`.webm`/`.mov` plays as bg.
+- `fallbackImage` — pick a still image. Used when `videoMedia` is missing or for static-only block.
+- `ctaLabel` + `ctaUrl` — optional button.
+- `align` — left / center / right text alignment.
+
+**Visual treatment**: 70vh tall (top hero is 92vh) so it reads as an interlude. Same layered look — video → image fallback → grain → wash → text. Auto-mutes & loops video.
+
+**Distinct from CinematicHero**: the top hero is rendered automatically on the homepage from Site Settings. The Hero **block** is for additional cinematic moments anywhere editor places them in `Globals → Homepage → blocks`.
+
+**Performance note**: each Hero block adds ~5–10MB of assets if it has a video. Use sparingly — 1 mid-page hero per ~3 page lengths.
