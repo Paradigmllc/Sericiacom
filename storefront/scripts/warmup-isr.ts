@@ -28,7 +28,7 @@
  */
 
 const SITE = process.env.SERICIA_BASE_URL ?? "https://sericia.com";
-const DELAY_MS = Number(process.env.WARMUP_DELAY_MS ?? "200");
+const WARMUP_DELAY_MS = Number(process.env.WARMUP_WARMUP_DELAY_MS ?? "200");
 const TIMEOUT_MS = 30_000;
 
 async function fetchSitemap(): Promise<string[]> {
@@ -80,7 +80,7 @@ async function main(): Promise<void> {
       slowList.push({ url, ms: r.ms });
     }
     process.stdout.write(`  ${r.status} ${r.ms.toString().padStart(5)}ms  ${url}\n`);
-    if (DELAY_MS > 0) await sleep(DELAY_MS);
+    if (WARMUP_DELAY_MS > 0) await sleep(WARMUP_DELAY_MS);
   }
 
   console.log("");
