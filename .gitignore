@@ -12,3 +12,4 @@ build/
 coverage/
 .medusa/
 *.tsbuildinfo
+.playwright-mcp/
