@@ -19,8 +19,13 @@ This guide is for brand / content editors who need to update homepage copy witho
 | 7 | [Drafts vs publish](#cms-drafts) |
 | 8 | [Media uploads](#cms-media) |
 | 9 | [Troubleshooting](#cms-troubleshoot) |
-| 10 | [Site Settings — hero copy & announcement bar (NEW Phase 1)](#cms-site-settings) |
-| 11 | [Hero block — mid-page editorial hero (NEW)](#cms-hero-block) |
+| 10 | [Site Settings — hero copy & announcement bar (Phase 1)](#cms-site-settings) |
+| 11 | [Hero block — mid-page editorial hero (Phase 1)](#cms-hero-block) |
+| 12 | [Footer (Phase 2-A) — bands, columns, signature](#cms-footer) |
+| 13 | [Coupon banner (Phase 2-C)](#cms-coupon) |
+| 14 | [Homepage section copy (Phase 2-B) — 8 sections](#cms-homepage-copy) |
+| 15 | [Header navigation (Phase 3-D)](#cms-nav) |
+| 16 | [Region banners (Phase 3-E)](#cms-region) |
 
 ---
 
@@ -228,3 +233,137 @@ The Homepage Globals → blocks panel now renders the **Hero** block type (it us
 **Distinct from CinematicHero**: the top hero is rendered automatically on the homepage from Site Settings. The Hero **block** is for additional cinematic moments anywhere editor places them in `Globals → Homepage → blocks`.
 
 **Performance note**: each Hero block adds ~5–10MB of assets if it has a video. Use sparingly — 1 mid-page hero per ~3 page lengths.
+
+---
+
+## <a id="cms-footer"></a>12. Footer (Phase 2-A) — bands, columns, signature
+
+> Path: **Globals → Site Settings → Footer copy**.
+
+The Aesop-tier footer has 5 bands, all editor-controlled:
+
+| Band | What you edit | Field |
+|------|--------------|------|
+| 1 — Editorial top | Eyebrow / Heading / Body / Subscribe privacy note | `editorialEyebrow`, `editorialHeading`, `editorialBody`, `subscribePrivacyNote` |
+| 2 — Link grid | N columns, each with title + N links | `columns[]` |
+| 3 — Studio paragraph | The "Paradigm LLC — registered..." block | `studioCopy` |
+| 4 — Legal micro-row | Copyright + tagline + locale label | `copyrightText`, `tagline`, `currentlyViewingLabel` |
+| Social icons | Override the default Instagram + email | `socialLinks[]` |
+
+### Editing columns
+
+The `columns[]` field is a drag-drop array. The grid auto-fits, so 3, 4, or 5 columns all work without breaking layout.
+
+Each column:
+- `title` (required, localised) — the eyebrow heading.
+- `links[]` — drag-drop array of:
+  - `label` (required, localised)
+  - `url` (required) — internal path `/foo` or external `https://...` or `mailto:` / `tel:`
+  - `external` (checkbox) — tick to force `target="_blank"`. Auto-detected for `https://` URLs.
+
+**If `columns[]` is empty**, the footer falls back to the coded 4-column structure (Shop / Tools / Company / Support) using next-intl translations.
+
+---
+
+## <a id="cms-coupon"></a>13. Coupon banner (Phase 2-C)
+
+> Path: **Globals → Site Settings → Coupon banner**.
+
+The launch promotion strip above the header.
+
+| Field | Default | What you'd change it to |
+|-------|--------|----------------------|
+| `enabled` | `true` | Untick to hide entirely |
+| `code` | `SERICIA10` | Must match a Medusa promotion exactly to apply at checkout |
+| `headline` (localised) | `Launch offer` | `Spring drop`, `ローンチ特典` |
+| `offerText` (localised) | `10% off your first order` | `15% off the next bundle` |
+| `withCodePrefix` (localised) | `with code` | `at checkout`, `コード:` |
+| `storageKeyVersion` | `v1` | **Bump to `v2`/`v3`/...** to force every visitor to see the bar again (new offer = new visibility) |
+
+⚠️ **Don't change `code` without first creating the matching Medusa promotion**. The link goes to `/checkout?code=NEW_CODE`; Medusa rejects unknown codes silently → bad UX.
+
+---
+
+## <a id="cms-homepage-copy"></a>14. Homepage section copy (Phase 2-B) — 8 sections
+
+> Path: **Globals → Site Settings → Homepage — section copy**.
+
+Every section eyebrow / heading / lede on the homepage is editable. Each field is **localised across 10 languages** independently.
+
+### Section reference
+
+| Section name | Fields |
+|------------|--------|
+| `currentDrop` | eyebrow, title, lede |
+| `featuredBundle` | eyebrow |
+| `mostLoved` | eyebrow, title |
+| `makers` | eyebrow, title, lede, **items[]** = `{ name, craft, region, note }` × N producers |
+| `philosophy` | eyebrow, body |
+| `waitlist` | eyebrow, title, body, footnote |
+| `howItWorks` | eyebrow, title, **steps[]** = `{ number, title, body }` × 4 typical |
+| `faq` | eyebrow, title, **items[]** = `{ q, a }` × N FAQs, ctaLabel, ctaUrl |
+
+### How fallbacks work
+
+Every field has a **hardcoded brand default** in code (e.g. `"Most loved"` / `"Return favourites from previous drops."`). When you leave a field empty, the default ships. This means:
+
+- **Per-locale partial editing**: edit only `ja` for `mostLoved.title`, leave other locales empty → JA viewers see your custom copy, EN/DE/etc. see the brand default.
+- **Per-section partial editing**: edit only `currentDrop`, leave `mostLoved` empty → only `currentDrop` changes; the rest stays brand-default.
+
+### Replacing maker cards (per drop)
+
+The 3 maker cards on the homepage default to `Yamane-en / Kurashige Jozoten / Yamagata Mori`. To swap for a new drop:
+
+1. Open `homepageCopy.makers.items` (drag-drop array).
+2. **Delete all existing items** (don't try to edit in place — easier to rebuild).
+3. Add 3 new items, each with `name`, `craft` (localised), `region` (localised), `note` (localised).
+4. Save.
+
+**If `items[]` is empty**, the coded 3-maker fallback ships.
+
+### Replacing How-it-works steps
+
+`homepageCopy.howItWorks.steps[]` — each step has `number` (e.g. `"01"`), `title` (localised), `body` (localised).
+
+### FAQ items
+
+`homepageCopy.faq.items[]` — each Q&A is independently localised. Use sparingly — too many FAQ items diminish the "Aesop quiet" feel.
+
+---
+
+## <a id="cms-nav"></a>15. Header navigation (Phase 3-D)
+
+> Path: **Globals → Site Settings → Navigation (header)**.
+
+Replace the default 5-link nav (Shop / Current drop / Guides / Our story / Shipping) with whatever you want.
+
+| Field | Notes |
+|-------|------|
+| `items[].label` | Localised. Required. |
+| `items[].url` | Required. Internal `/foo` or external `https://...`. External auto-opens new tab with `rel="noopener"`. |
+| `items[].highlighted` | Tick to render in stronger weight (CTA-style). Useful for "Drop coming soon" announcements. |
+
+**If `items[]` is empty**, the coded 5-link default ships.
+
+⚠️ The nav is desktop-only (`hidden md:flex`). Mobile users see the bag/account/search icons via HeaderClient — that's intentional and not editor-controlled.
+
+---
+
+## <a id="cms-region"></a>16. Region banners (Phase 3-E)
+
+> Path: **Globals → Site Settings → Region banners** (top-level array).
+
+Show different copy to different markets.
+
+| Field | Notes |
+|-------|------|
+| `regionCode` | Pick from JP / US / EU / GB / CA / AU / SG / HK / ME |
+| `text` | Localised. Required. e.g. `"Free shipping over $200"` for US / `"送料無料 ¥30,000〜"` for JP |
+| `url` | Optional. If empty, banner is plain text. |
+| `enabled` | Per-banner kill switch. |
+
+**Resolution logic**: visitor's `country` cookie (set by P0-D country-redirect middleware) → maps to region slug → first matching enabled banner wins. Multiple entries for the same region are allowed but only the first renders.
+
+**Distinct from CouponBanner**: regionBanner is for region facts (free shipping thresholds, compliance notes). CouponBanner is for promotions. Both can show simultaneously — they sit at different layers.
+
+**Empty array** = no region banner shows.
