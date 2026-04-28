@@ -71,13 +71,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Schema note: `sericia_order_items` does NOT have a top-level `name`
+  // column — the human-readable item name lives inside `product_snapshot`
+  // jsonb. F28 originally selected `name` here which failed silently as
+  // "items_unavailable" and masked any Crossmint Onramp activation probe.
+  // We only use items.length downstream for the Crossmint metadata count,
+  // so a minimal column set keeps the row lightweight.
   const { data: items, error: itemsErr } = await supabaseAdmin
     .from("sericia_order_items")
-    .select("product_id, name, quantity, unit_price_usd")
+    .select("product_id, quantity, unit_price_usd")
     .eq("order_id", order_id);
   if (itemsErr) {
     console.error("[pay/create] items query failed", itemsErr);
-    return NextResponse.json({ error: "items_unavailable" }, { status: 500 });
+    return NextResponse.json(
+      { error: "items_unavailable", details: itemsErr.message },
+      { status: 500 },
+    );
   }
 
   // ── Env-driven config ─────────────────────────────────────────────────
