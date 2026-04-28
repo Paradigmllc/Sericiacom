@@ -36,18 +36,23 @@ const COUNTRY_TO_LOCALE: Record<string, string> = {
 };
 
 // Paths that are NOT covered by i18n (flat, always English).
-// Admin + API + legal + utility pages do not get locale prefixes.
-// `/cms` is Payload admin + REST/GraphQL — Payload handles its own routing.
+//
+// Originally this list also included /guides /tools /privacy /terms /refund
+// /shipping — historical because those page bodies were English-only at
+// the time. F19+F24 localized all those heros via getTranslations() and
+// added /ja/refund/request which depends on the locale segment surviving
+// the middleware.
+//
+// Now only **infrastructure routes** are non-i18n:
+//   /admin  — internal admin UI
+//   /api    — JSON endpoints (locale provided via header / cookie if needed)
+//   /cms    — Payload admin + REST/GraphQL (Payload handles its own routing)
+//   /pay    — single-purpose Crossmint redirect target; no locale-specific UI
+//   /auth   — Supabase OAuth callbacks
 const NON_I18N_PREFIXES = [
   "/admin",
   "/api",
   "/cms",
-  "/guides",
-  "/tools",
-  "/privacy",
-  "/terms",
-  "/refund",
-  "/shipping",
   "/pay",
   "/auth",
 ];
