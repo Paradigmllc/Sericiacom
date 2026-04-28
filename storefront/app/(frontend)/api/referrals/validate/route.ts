@@ -21,6 +21,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { stringifyUnknownError } from "@/lib/error";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       referrerFirstName: row.referrer_first_name || null,
     });
   } catch (err) {
-    const detail = err instanceof Error ? err.message : String(err);
+    const detail = stringifyUnknownError(err);
     console.error("[api/referrals/validate] exception", detail, err);
     return NextResponse.json(
       { error: "unhandled_exception", detail },

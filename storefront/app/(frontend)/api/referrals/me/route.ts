@@ -21,6 +21,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { stringifyUnknownError } from "@/lib/error";
 import {
   buildReferralShareUrl,
   getOrCreateCodeForUser,
@@ -75,7 +76,10 @@ export async function GET() {
     };
     return NextResponse.json(body);
   } catch (err) {
-    const detail = err instanceof Error ? err.message : String(err);
+    // PostgrestError is a plain object, not an Error instance — String(err)
+    // would produce the literal "[object Object]" toast we hit in BUG-3.
+    // stringifyUnknownError unwraps message/details/hint/code defensively.
+    const detail = stringifyUnknownError(err);
     console.error("[api/referrals/me] failed", detail, err);
     return NextResponse.json(
       { error: "unhandled_exception", detail },

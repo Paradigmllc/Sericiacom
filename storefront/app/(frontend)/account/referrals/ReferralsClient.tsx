@@ -34,9 +34,14 @@ export default function ReferralsClient() {
         const res = await fetch("/api/referrals/me", { cache: "no-store" });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
+          // Belt-and-suspenders: even though /api/referrals/me now uses
+          // stringifyUnknownError on the server side (lib/error.ts),
+          // we still force `detail` to be a string before render so a future
+          // contract drift can't re-introduce the "[object Object]" toast.
+          const detail = typeof body?.detail === "string" ? body.detail : "";
           const message = body?.error === "not_authenticated"
             ? "Please sign in to view your referral code."
-            : body?.detail || "Could not load your referral code.";
+            : detail || "Could not load your referral code.";
           if (!cancelled) setState({ status: "error", message });
           return;
         }
