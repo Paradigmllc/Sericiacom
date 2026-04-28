@@ -4,22 +4,50 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 /**
  * POST /api/pay/create — initialise a Crossmint Headless Checkout order.
  *
- * Reads `sericia_orders` + `sericia_order_items` (multi-line cart era), calls
- * Crossmint's Order API with line items + customer email, persists the
- * `crossmint_order_id`, and returns either a `clientSecret` (for the Stripe
- * Payment Element shipped by Crossmint) or a `hostedUrl` (fallback).
+ * Architecture (post-F28 — token-locator pattern):
+ *   Customer pays USD on their card on Crossmint's hosted checkout page.
+ *   Crossmint converts USD → USDC under the hood and settles the USDC to
+ *   Sericia's external treasury wallet (Tria / RedotPay / similar).
+ *   Sericia then off-ramps to fiat via Visa-debit issued against the wallet.
  *
- * Env: CROSSMINT_SERVER_SK (production-tier server SK), CROSSMINT_ENV
- * (default "production"). The previous code referred to a non-existent
- * `CROSSMINT_SERVER_API_KEY` and a single-item order schema, both of which
- * silently broke after the multi-line cart migration.
+ *   Why we use `tokenLocator: "<chain>:<USDC_contract>"` instead of
+ *   `productLocator: "url:..." | "amazon:..."`:
+ *     - Crossmint's `productLocator` flow is for buying goods FROM a
+ *       marketplace (Amazon ASIN, Shopify variant, URL scrape) — Crossmint
+ *       acts as the merchant of record and ships the goods.
+ *     - Sericia is its own merchant of record; we own the catalog (Medusa)
+ *       and ship from Kyoto. We just need Crossmint to process the card and
+ *       deliver USDC.
+ *     - The `tokenLocator` flow used by memecoin checkouts is exactly this:
+ *       customer pays card → Crossmint delivers tokens to a wallet. We
+ *       point that wallet at Sericia treasury and pick USDC as the "token".
+ *     - Customer-facing wording is configured via Crossmint Console
+ *       appearance settings (logo, brand colour, "Pay $X for Sericia
+ *       order #ABCD" copy). They never see "buying USDC" — just card form.
  *
- * Failure modes:
- *   - SK missing → 503 payment_provider_unconfigured
- *   - Crossmint 403 → 502 provider_scope_missing (operator must enable
- *     orders.create scope in Crossmint Console)
- *   - Network → 502 network_error
+ * Env requirements:
+ *   - CROSSMINT_SERVER_SK            — production server SK (already set)
+ *   - SERICIA_TREASURY_WALLET_ADDRESS — Tria/RedotPay USDC receiving address
+ *   - SERICIA_TREASURY_CHAIN          — "base" (default) | "solana"
+ *   - CROSSMINT_ENV                   — "production" (default) | "staging"
+ *
+ * Crossmint Console gates (operator must enable, F28 still under gate):
+ *   - "Onramp" production access  → otherwise:
+ *       400 "Onramp is not yet enabled for production use"
+ *   - Card payments capability    → required for payment.method: "card"
+ *   - Apple Pay domain verification (already done — `verified` ✅)
+ *   - Redirect Domains whitelist (already done ✅)
  */
+
+// USDC contract addresses, indexed by Crossmint chain identifier.
+// Verified working (schema-accepted) by F28 probe; production gating only.
+const USDC_TOKEN_LOCATORS: Record<string, string> = {
+  base: "base:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  solana: "solana:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  // ethereum / arbitrum / optimism intentionally omitted — Sericia treasury
+  // settles on Base (Coinbase ecosystem, lowest gas, easiest off-ramp).
+};
+
 export async function POST(req: NextRequest) {
   const { order_id } = (await req.json().catch(() => ({}))) as {
     order_id?: unknown;
@@ -43,7 +71,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Multi-line cart support — sericia_order_items lives 1:N under orders.
   const { data: items, error: itemsErr } = await supabaseAdmin
     .from("sericia_order_items")
     .select("product_id, name, quantity, unit_price_usd")
@@ -53,24 +80,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "items_unavailable" }, { status: 500 });
   }
 
-  // Read the canonical env. Old code used the wrong name (CROSSMINT_SERVER_API_KEY)
-  // which silently fell through to undefined and hung the flow. Coolify env
-  // is `CROSSMINT_SERVER_SK` per memory/reference_api_keys.md.
+  // ── Env-driven config ─────────────────────────────────────────────────
   const apiKey = process.env.CROSSMINT_SERVER_SK?.trim();
-  const env = process.env.CROSSMINT_ENV ?? "production";
-  const base =
+  const env = (process.env.CROSSMINT_ENV ?? "production").toLowerCase();
+  const treasuryAddress = process.env.SERICIA_TREASURY_WALLET_ADDRESS?.trim();
+  const treasuryChain = (process.env.SERICIA_TREASURY_CHAIN ?? "base").toLowerCase();
+
+  const apiBase =
     env === "staging"
       ? "https://staging.crossmint.com/api/2022-06-09"
       : "https://www.crossmint.com/api/2022-06-09";
 
+  // Pre-flight env checks — surface precise errors so the UI shows the
+  // correct operator-actionable CTA, not a vague "Try again later".
   if (!apiKey) {
-    console.error(
-      "[pay/create] CROSSMINT_SERVER_SK not set — payment provider unconfigured",
+    console.error("[pay/create] CROSSMINT_SERVER_SK not set");
+    return NextResponse.json(
+      { error: "payment_provider_unconfigured", hint: "CROSSMINT_SERVER_SK missing" },
+      { status: 503 },
     );
+  }
+  if (!treasuryAddress) {
+    console.error("[pay/create] SERICIA_TREASURY_WALLET_ADDRESS not set");
     return NextResponse.json(
       {
-        error: "payment_provider_unconfigured",
-        hint: "CROSSMINT_SERVER_SK env var missing in runtime",
+        error: "treasury_wallet_unconfigured",
+        hint: "SERICIA_TREASURY_WALLET_ADDRESS env required (Tria/RedotPay USDC address)",
+      },
+      { status: 503 },
+    );
+  }
+  const tokenLocator = USDC_TOKEN_LOCATORS[treasuryChain];
+  if (!tokenLocator) {
+    console.error("[pay/create] unknown SERICIA_TREASURY_CHAIN:", treasuryChain);
+    return NextResponse.json(
+      {
+        error: "treasury_chain_unsupported",
+        hint: `SERICIA_TREASURY_CHAIN must be one of: ${Object.keys(USDC_TOKEN_LOCATORS).join(", ")}`,
       },
       { status: 503 },
     );
@@ -81,36 +127,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid_order_amount" }, { status: 422 });
   }
 
-  // Crossmint Headless Order — `payment.method: "stripe-payment-element"`
-  // returns a Stripe `clientSecret` for the embedded Payment Element. The
-  // `lineItems.callData` schema is what Crossmint expects when integrating a
-  // non-NFT, fiat-only order.
+  // ── Crossmint Headless Checkout — tokenLocator flow ───────────────────
+  // Sends customer USD → USDC on `treasuryChain` → `treasuryAddress`.
+  // Customer sees Crossmint's hosted card form with order metadata; never
+  // sees "USDC" or "memecoin" terminology (Crossmint Console controls that
+  // surface via appearance + receipt customisation).
+  //
+  // The `metadata.sericia_*` fields are echoed back to our webhook
+  // (/api/crossmint-webhook) when payment succeeds, letting us reconcile
+  // the Crossmint order to the sericia_orders row + decrement Medusa stock
+  // + send the order-confirmation email.
   const payload = {
+    lineItems: [
+      {
+        tokenLocator,
+        executionParameters: {
+          mode: "exact-in",
+          amount: totalUsd.toFixed(2),
+        },
+      },
+    ],
     payment: {
-      method: "stripe-payment-element",
-      currency: "usd",
+      method: "card",
       receiptEmail: order.email,
     },
-    lineItems: {
-      callData: {
-        totalPrice: totalUsd.toFixed(2),
-        // Crossmint requires a quantity field even on multi-line carts;
-        // sum across line items so the total reflects what we'll charge.
-        quantity: (items ?? []).reduce(
-          (sum, i) => sum + Number(i.quantity ?? 0),
-          0,
-        ) || 1,
-      },
+    recipient: {
+      walletAddress: treasuryAddress,
     },
     metadata: {
       sericia_order_id: order.id,
       sericia_email: order.email,
       sericia_item_count: (items ?? []).length,
+      sericia_locale: order.locale ?? "en",
     },
   };
 
   try {
-    const res = await fetch(`${base}/orders`, {
+    const res = await fetch(`${apiBase}/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -121,23 +174,30 @@ export async function POST(req: NextRequest) {
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
-      // 403 → SK lacks `orders.create` scope (operator must fix in console).
-      // Surface a structured error so the UI can show a precise CTA, not
-      // a vague "Try again later".
-      const errKey =
-        res.status === 403
-          ? "provider_scope_missing"
-          : res.status === 401
-            ? "provider_auth_invalid"
-            : "provider_error";
+      // Map Crossmint errors to UI-actionable codes.
+      const apiMsg = (data as { message?: string })?.message ?? "";
+      let errKey: string;
+      if (res.status === 401) {
+        errKey = "provider_auth_invalid";
+      } else if (res.status === 403) {
+        errKey = "provider_scope_missing";
+      } else if (apiMsg.includes("Onramp is not yet enabled")) {
+        // Project-level Onramp gate — operator must enable in Crossmint Console.
+        errKey = "provider_onramp_disabled";
+      } else if (apiMsg.includes("Unsupported token")) {
+        errKey = "provider_token_unsupported";
+      } else {
+        errKey = "provider_error";
+      }
       console.error("[pay/create] crossmint", res.status, JSON.stringify(data));
       return NextResponse.json(
         { error: errKey, status: res.status, details: data },
-        { status: res.status === 401 || res.status === 403 ? 502 : 502 },
+        { status: 502 },
       );
     }
 
-    // Persist the Crossmint orderId for webhook reconciliation later.
+    // Crossmint may return both top-level and nested clientSecret depending
+    // on the order phase. Normalise to a single field for the client.
     const orderObj = (data as { order?: { orderId?: string } })?.order;
     const crossmintOrderId = orderObj?.orderId ?? null;
     const clientSecret =
@@ -160,6 +220,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       clientSecret,
       crossmintOrderId,
+      // Surface chain + locator for client-side debugging / observability.
+      treasuryChain,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

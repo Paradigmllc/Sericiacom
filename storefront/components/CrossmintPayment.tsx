@@ -46,8 +46,12 @@ type ApiResponse =
       ok: false;
       error:
         | "payment_provider_unconfigured"
+        | "treasury_wallet_unconfigured"
+        | "treasury_chain_unsupported"
         | "provider_scope_missing"
         | "provider_auth_invalid"
+        | "provider_onramp_disabled"
+        | "provider_token_unsupported"
         | "provider_error"
         | "network_error"
         | "order_not_found"
@@ -56,6 +60,18 @@ type ApiResponse =
         | "invalid_order_amount";
       status?: number;
     };
+
+// Operator-side outage errors that show "we're activating payments" copy.
+// Network/transient errors get a Try-again CTA.
+const OPERATOR_OUTAGE_ERRORS = new Set([
+  "payment_provider_unconfigured",
+  "treasury_wallet_unconfigured",
+  "treasury_chain_unsupported",
+  "provider_scope_missing",
+  "provider_auth_invalid",
+  "provider_onramp_disabled",
+  "provider_token_unsupported",
+]);
 
 const HOSTED_CHECKOUT_BASE =
   process.env.NEXT_PUBLIC_CROSSMINT_ENV === "staging"
@@ -137,10 +153,7 @@ export default function CrossmintPayment({ orderId, amountUSD }: Props) {
 
   // Error state — distinguish operator-side vs visitor-side faults
   if (state.kind === "error") {
-    const isOperatorOutage =
-      state.error === "payment_provider_unconfigured" ||
-      state.error === "provider_scope_missing" ||
-      state.error === "provider_auth_invalid";
+    const isOperatorOutage = OPERATOR_OUTAGE_ERRORS.has(state.error);
     const mailto = `mailto:contact@sericia.com?subject=Order%20${orderId}%20-%20Payment%20Request&body=Hi%20Sericia%20team%2C%0A%0AI%27d%20like%20to%20complete%20my%20order.%0A%0AOrder%20ID%3A%20${orderId}%0AAmount%3A%20%24${amountUSD}%20USD%0A%0APlease%20send%20me%20a%20payment%20link.%0A%0AThanks!`;
     return (
       <div className="border border-sericia-line bg-sericia-paper-card p-8 md:p-10">
