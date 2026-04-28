@@ -12,7 +12,12 @@
     "addresses": "Indirizzi",
     "sign_out": "Esci",
     "cart": "Carrello",
-    "signed_in": "Accesso effettuato"
+    "signed_in": "Accesso effettuato",
+    "open_menu": "Apri il menù",
+    "close_menu": "Chiudi il menù",
+    "primary_navigation": "Navigazione principale",
+    "menu_eyebrow": "Menù",
+    "wishlist": "Preferiti"
   },
   "coupon_banner": {
     "region_label": "Promozione di lancio",

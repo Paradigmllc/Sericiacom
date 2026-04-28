@@ -12,7 +12,12 @@
     "addresses": "العناوين",
     "sign_out": "تسجيل الخروج",
     "cart": "السلّة",
-    "signed_in": "تم تسجيل الدخول"
+    "signed_in": "تم تسجيل الدخول",
+    "open_menu": "فتح القائمة",
+    "close_menu": "إغلاق القائمة",
+    "primary_navigation": "التنقل الرئيسي",
+    "menu_eyebrow": "القائمة",
+    "wishlist": "المفضلة"
   },
   "coupon_banner": {
     "region_label": "عرض الإطلاق",

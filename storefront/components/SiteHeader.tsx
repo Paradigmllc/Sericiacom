@@ -8,6 +8,7 @@ import AnnouncementBar from "./AnnouncementBar";
 import RegionBanner from "./RegionBanner";
 import { useSettings } from "./SettingsProvider";
 import MegaMenuController, { type MegaMenuItem } from "./MegaMenu";
+import MobileMenu from "./MobileMenu";
 
 /**
  * Site header — Phase 3-D: nav items now editor-controlled.
@@ -130,7 +131,16 @@ export default function SiteHeader() {
       <AnnouncementBar />
       <HeaderShell>
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-5 flex items-center justify-between gap-6">
-          <Logo href="/" />
+          {/*
+            Left side: hamburger (mobile only) + wordmark.
+            On md+ the hamburger is hidden via `md:hidden` inside MobileMenu,
+            so the wordmark is flush left as on the previous desktop layout.
+            On mobile the hamburger sits left of the wordmark — Aesop pattern.
+          */}
+          <div className="flex items-center gap-3 md:gap-0">
+            <MobileMenu items={items} />
+            <Logo href="/" />
+          </div>
           <nav className="hidden md:block text-[13px] text-sericia-ink-soft tracking-wider">
             <MegaMenuController items={items} />
           </nav>

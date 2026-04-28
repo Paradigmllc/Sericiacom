@@ -12,7 +12,12 @@
     "addresses": "주소",
     "sign_out": "로그아웃",
     "cart": "장바구니",
-    "signed_in": "로그인됨"
+    "signed_in": "로그인됨",
+    "open_menu": "메뉴 열기",
+    "close_menu": "메뉴 닫기",
+    "primary_navigation": "주요 내비게이션",
+    "menu_eyebrow": "메뉴",
+    "wishlist": "위시리스트"
   },
   "coupon_banner": {
     "region_label": "런칭 프로모션",

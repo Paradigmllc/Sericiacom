@@ -12,7 +12,12 @@
     "addresses": "Adressen",
     "sign_out": "Abmelden",
     "cart": "Warenkorb",
-    "signed_in": "Angemeldet"
+    "signed_in": "Angemeldet",
+    "open_menu": "Menü öffnen",
+    "close_menu": "Menü schließen",
+    "primary_navigation": "Hauptnavigation",
+    "menu_eyebrow": "Menü",
+    "wishlist": "Wunschliste"
   },
   "coupon_banner": {
     "region_label": "Launch-Aktion",

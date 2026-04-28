@@ -12,7 +12,12 @@
     "addresses": "Адреса",
     "sign_out": "Выйти",
     "cart": "Корзина",
-    "signed_in": "Вы вошли"
+    "signed_in": "Вы вошли",
+    "open_menu": "Открыть меню",
+    "close_menu": "Закрыть меню",
+    "primary_navigation": "Главное меню",
+    "menu_eyebrow": "Меню",
+    "wishlist": "Избранное"
   },
   "coupon_banner": {
     "region_label": "Промо к запуску",

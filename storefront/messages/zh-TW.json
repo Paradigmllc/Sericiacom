@@ -12,7 +12,12 @@
     "addresses": "地址",
     "sign_out": "登出",
     "cart": "購物車",
-    "signed_in": "已登入"
+    "signed_in": "已登入",
+    "open_menu": "開啟選單",
+    "close_menu": "關閉選單",
+    "primary_navigation": "主選單",
+    "menu_eyebrow": "選單",
+    "wishlist": "願望清單"
   },
   "coupon_banner": {
     "region_label": "上市優惠",

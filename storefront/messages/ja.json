@@ -12,7 +12,12 @@
     "addresses": "住所",
     "sign_out": "ログアウト",
     "cart": "カート",
-    "signed_in": "ログイン中"
+    "signed_in": "ログイン中",
+    "open_menu": "メニューを開く",
+    "close_menu": "メニューを閉じる",
+    "primary_navigation": "メインナビゲーション",
+    "menu_eyebrow": "メニュー",
+    "wishlist": "お気に入り"
   },
   "coupon_banner": {
     "region_label": "ローンチ・プロモーション",
