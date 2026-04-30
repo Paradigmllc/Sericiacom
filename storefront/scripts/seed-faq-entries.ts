@@ -121,20 +121,28 @@ function plainTextToLexicalRichText(plain: string): unknown {
 
 async function main() {
   console.log("[seed-faq] booting Payload...");
-  const payload = await getPayload({ config });
+  // Cast Payload client to any: payload-types.ts hasn't been regenerated
+  // with the new `faqEntries` collection union, so strict TS checks against
+  // `payload.find/create/delete({ collection })` fail. We cast the client
+  // and bypass type checks for this seed script. The runtime behaviour is
+  // unaffected — Payload validates against the live schema, not TS types.
+  // Phase 2 cleanup: post-deploy CI runs `payload generate:types` and we
+  // remove this cast.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payload = (await getPayload({ config })) as any;
 
   // Reset path: delete all existing entries first.
   if (RESET) {
     console.log("[seed-faq] --reset specified, deleting existing entries...");
     const existing = await payload.find({
-      collection: "faqEntries" as never,
+      collection: "faqEntries",
       limit: 1000,
       pagination: false,
     });
     await Promise.all(
       existing.docs.map((doc) =>
         payload.delete({
-          collection: "faqEntries" as never,
+          collection: "faqEntries",
           id: (doc as { id: string | number }).id,
         }).catch((e: unknown) => {
           console.error(`[seed-faq] delete failed:`, e);
@@ -149,7 +157,7 @@ async function main() {
   let skipped = 0;
   for (const entry of SEED_ENTRIES) {
     const dupe = await payload.find({
-      collection: "faqEntries" as never,
+      collection: "faqEntries",
       where: {
         and: [
           { section: { equals: entry.section } },
@@ -164,7 +172,7 @@ async function main() {
     }
 
     await payload.create({
-      collection: "faqEntries" as never,
+      collection: "faqEntries",
       data: {
         section: entry.section,
         sectionLabel: entry.sectionLabel,

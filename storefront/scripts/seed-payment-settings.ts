@@ -57,11 +57,17 @@ const DISPLAY_NAMES: CountryDisplay = {
 
 async function main() {
   console.log("[seed-payment-settings] booting Payload...");
-  const payload = await getPayload({ config });
+  // Same any-cast pattern as seed-faq-entries.ts: payload-types.ts hasn't
+  // been regenerated with the `paymentSettings` global so strict TS checks
+  // against payload.findGlobal/updateGlobal({ slug }) fail. Runtime behaviour
+  // is unaffected — Payload validates against the live schema. Phase 2:
+  // CI runs `payload generate:types` post-deploy and the cast goes away.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payload = (await getPayload({ config })) as any;
 
   console.log("[seed-payment-settings] reading current global state...");
   const current = await payload.findGlobal({
-    slug: "paymentSettings" as never,
+    slug: "paymentSettings",
     depth: 0,
   }).catch((err: unknown) => {
     console.error("[seed-payment-settings] findGlobal failed:", err);
@@ -93,7 +99,7 @@ async function main() {
   );
 
   const result = await payload.updateGlobal({
-    slug: "paymentSettings" as never,
+    slug: "paymentSettings",
     data: {
       countryMethods,
       defaultMethods: [...HARDCODED_DEFAULT_METHODS],
