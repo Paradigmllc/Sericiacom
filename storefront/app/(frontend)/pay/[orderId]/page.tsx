@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import HyperswitchPayment from "@/components/HyperswitchPayment";
 import CrossmintPayment from "@/components/CrossmintPayment";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Eyebrow, Button, Rule } from "@/components/ui";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getActiveProviders } from "@/lib/payment-providers";
 
 export const metadata: Metadata = {
   title: "Payment",
@@ -43,6 +45,14 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
     );
   }
 
+  // F54 — Provider selection.
+  // Phase 1 (now): Hyperswitch only. Stripe + PayPal cover universal cards
+  // and the major alt rails per `payment-routing.ts` country matrix.
+  // Phase 2 (when Crossmint Sales activates Onramp): set
+  // NEXT_PUBLIC_CROSSMINT_ENABLED=true → Crossmint becomes a "Pay with
+  // crypto" alternative below the primary Hyperswitch element.
+  const providers = getActiveProviders();
+
   return (
     <>
       <SiteHeader />
@@ -65,12 +75,31 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
             <p className="text-[28px] font-normal leading-none">${order.amount_usd}.00 USD</p>
           </div>
           <Rule className="mb-8" />
-          <CrossmintPayment
-            orderId={order.id}
-            amountUSD={order.amount_usd}
-            receiptEmail={order.email}
-          />
+
+          {providers.hyperswitchEnabled && (
+            <HyperswitchPayment
+              orderId={order.id}
+              amountUSD={order.amount_usd}
+              receiptEmail={order.email}
+            />
+          )}
+
+          {providers.mode === "both" && (
+            <details className="mt-12 border-t border-sericia-line pt-8">
+              <summary className="cursor-pointer text-[12px] tracking-[0.14em] uppercase text-sericia-ink-soft hover:text-sericia-ink transition-colors">
+                Pay with crypto (USDC) instead
+              </summary>
+              <div className="mt-6">
+                <CrossmintPayment
+                  orderId={order.id}
+                  amountUSD={order.amount_usd}
+                  receiptEmail={order.email}
+                />
+              </div>
+            </details>
+          )}
         </div>
+
         <p className="text-[12px] text-sericia-ink-mute text-center mt-8 tracking-wider uppercase">
           Confirmation will be sent to {order.email}
         </p>
