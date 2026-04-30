@@ -36,7 +36,17 @@
  * COUNTRIES so anywhere we have a guide page we have a payment matrix.
  */
 
-import type { CountryCode } from "@/lib/pseo-matrix";
+/**
+ * Country code = lowercase ISO 3166-1 alpha-2. We deliberately do NOT reuse
+ * `CountryCode` from `lib/pseo-matrix` — that type is constrained to the 12
+ * pSEO TARGET markets (US/UK/DE/FR/AU/SG/CA/HK/NL/AE/TW/KR), but payment
+ * routing must accept ANY country a customer can ship to (notably JP, which
+ * is Sericia's home market and therefore not in the pSEO target list).
+ *
+ * Plain string keying lets us add countries by editing the matrix below
+ * without touching type definitions.
+ */
+type Iso2 = string;
 
 /**
  * Hyperswitch payment_method_type strings per their API spec.
@@ -69,7 +79,7 @@ const DEFAULT_METHODS: readonly HyperswitchMethod[] = [
  * order in the Hyperswitch payment element (first = topmost in the list).
  * Lead with the highest-converting method per market.
  */
-const PAYMENT_MATRIX: Partial<Record<CountryCode, readonly HyperswitchMethod[]>> = {
+const PAYMENT_MATRIX: Record<Iso2, readonly HyperswitchMethod[]> = {
   // North America
   us: ["card", "apple_pay", "google_pay", "paypal"],
   ca: ["card", "apple_pay", "google_pay", "paypal"],
@@ -104,11 +114,11 @@ const PAYMENT_MATRIX: Partial<Record<CountryCode, readonly HyperswitchMethod[]>>
  */
 export function getEnabledMethods(country: string | null | undefined): readonly HyperswitchMethod[] {
   if (!country) return DEFAULT_METHODS;
-  const key = country.toLowerCase() as CountryCode;
+  const key = country.toLowerCase();
   return PAYMENT_MATRIX[key] ?? DEFAULT_METHODS;
 }
 
 /** All countries in the matrix (useful for ops dashboards / debug). */
-export function listSupportedCountries(): CountryCode[] {
-  return Object.keys(PAYMENT_MATRIX) as CountryCode[];
+export function listSupportedCountries(): string[] {
+  return Object.keys(PAYMENT_MATRIX);
 }
