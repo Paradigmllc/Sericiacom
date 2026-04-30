@@ -11,19 +11,13 @@ const nextConfig = {
     NEXT_PUBLIC_CROSSMINT_CLIENT_ID: process.env.NEXT_PUBLIC_CROSSMINT_CLIENT_ID,
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
-  // F39 perf optimisation. `optimizePackageImports` ships only the named
-  // exports a file actually uses from these packages, instead of bundling
-  // the whole library tree. framer-motion in particular is imported in
-  // 20+ components — this can shave hundreds of KB from the client
-  // bundle. Safe per Next.js docs (since 14.x stable).
-  experimental: {
-    optimizePackageImports: [
-      "framer-motion",
-      "lucide-react",
-      "@formkit/auto-animate",
-      "embla-carousel-react",
-    ],
-  },
+  // F40 hotfix: F39 attempted experimental.optimizePackageImports for
+  // framer-motion + 3 others to shave bundle weight. Three deploys in
+  // a row hit Hetzner CPX22 build-time OOM (4GB heap on 3.7GB RAM box,
+  // swap thrashing for 10+ min, eventually exit 255 with no clean
+  // error message). The bundle-size win wasn't worth the deploy
+  // instability. Re-evaluate after migrating off Hetzner CPX22 to a
+  // box with ≥8GB RAM.
   // Payload writes to the pg schema only at runtime. At build-time Payload
   // still tries to resolve some server-only modules — these aliases keep
   // them from being bundled for the edge runtime.
