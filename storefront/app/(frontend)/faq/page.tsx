@@ -7,8 +7,6 @@ import ContentSidebar from "@/components/ContentSidebar";
 import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
 import { Container, Rule } from "@/components/ui";
 
-// 1-hour ISR — page is mostly static editorial / brand copy.
-export const revalidate = 3600;
 /**
  * /faq — Frequently asked questions.
  *
