@@ -27,6 +27,7 @@ import { Tools } from "./collections/Tools";
 import { Media } from "./collections/Media";
 import { Testimonials } from "./collections/Testimonials";
 import { PressMentions } from "./collections/PressMentions";
+import { FaqEntries } from "./collections/FaqEntries";
 
 import { SiteSettings } from "./globals/SiteSettings";
 import { Homepage } from "./globals/Homepage";
@@ -77,7 +78,7 @@ export default buildConfig({
       IndentFeature(),
     ],
   }),
-  collections: [Users, Articles, Guides, Tools, Media, Testimonials, PressMentions],
+  collections: [Users, Articles, Guides, Tools, Media, Testimonials, PressMentions, FaqEntries],
   globals: [SiteSettings, Homepage, PaymentSettings],
   routes: {
     admin: "/cms/admin",
