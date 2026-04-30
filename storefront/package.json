@@ -14,6 +14,8 @@
         "payload:migrate": "payload migrate",
         "payload:migrate:create": "payload migrate:create",
         "payload:bootstrap": "tsx scripts/payload-bootstrap.ts",
+        "seed:payment-settings": "tsx scripts/seed-payment-settings.ts",
+        "seed:faq-entries": "tsx scripts/seed-faq-entries.ts",
         "products:upload-thumbnails": "tsx scripts/upload-product-thumbnails.ts",
         "seed:testimonials": "tsx scripts/seed-testimonials.ts",
         "seed:articles": "tsx scripts/seed-articles.ts",
