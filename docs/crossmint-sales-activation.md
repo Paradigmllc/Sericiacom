@@ -19,6 +19,22 @@ This is the only remaining gate between Sericia's production payment code
 The infra is correct. Crossmint Onramp production access is not yet
 turned on for our project.**
 
+---
+
+## 📅 Submission record
+
+| Event | Timestamp (JST) | Notes |
+|------|-----------------|------|
+| Form submitted to crossmint.com/contact/sales | **2026-04-30 12:50** | Business email: `tomohiro@sericia.com` (Cloudflare Email Routing → apple.info.9124@gmail.com). Form returned "Thanks for reaching out! One of our team members will be in touch soon" success state ✅ |
+| Auto-ack received at apple.info.9124@gmail.com | _(pending verification)_ | Inbound proof of email routing E2E |
+| Crossmint partnerships first reply | _(pending — expected within 24h ack window)_ | — |
+| Production Onramp activation | _(pending — 1–3 business days SLA)_ | — |
+| First production order | _(pending — within 30min of activation)_ | — |
+
+**Wall-clock window**: 2026-04-30 12:50 JST → expected approval 2026-05-03 to 2026-05-05 JST window (1–3 business days excluding weekends).
+
+---
+
 <a id="cs-1"></a>
 
 ## 1. Confirmed state — 2026-04-30 probe
