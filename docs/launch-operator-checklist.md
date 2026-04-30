@@ -2,7 +2,8 @@
 
 | # | セクション |
 |---|----------|
-| 1 | [Critical path — Crossmint Onramp activation](#op-crossmint) |
+| 0 | [Critical path — Hyperswitch (Stripe + PayPal) activation](#op-hyperswitch) |
+| 1 | [Crossmint Onramp activation (parallel rail)](#op-crossmint) |
 | 2 | [Cloudflare AI bot toggle (GEO blocker)](#op-cf-bots) |
 | 3 | [Search Console & Bing & Yandex verification](#op-search-console) |
 | 4 | [Google Indexing API service account](#op-google-indexing) |
@@ -18,8 +19,64 @@
 > Claude cannot execute. Status as of 2026-04-30. Read top to bottom on
 > launch day; do not skip §1 — everything else is parallelisable.
 
+<a id="op-hyperswitch"></a>
+## 0. Critical path — Hyperswitch (Stripe + PayPal) activation
+
+**Status**: ⏸ Awaiting operator setup. Code shipped F54; activation requires
+Hyperswitch Cloud sign-up + Stripe production account + PayPal Business
+account.
+
+**Why this is critical (Drop #1 launch)**: Crossmint's Onramp Sales review
+takes 1–3 business days. We cannot stake Drop #1 launch on a third party's
+SLA. Hyperswitch + Stripe + PayPal is the **always-available production
+rail** Sericia needs from day one.
+
+### Setup steps
+
+Full runbook: [`docs/hyperswitch-setup.md`](hyperswitch-setup.md). Summary:
+
+1. **Hyperswitch Cloud sign up** (5 min): https://app.hyperswitch.io →
+   register with `tomohiro@sericia.com` → create production profile
+2. **Connect Stripe** (15 min): Stripe `sk_live_...` into Hyperswitch
+   dashboard → enable card / Apple Pay / Google Pay → verify Apple Pay
+   domain `sericia.com`
+3. **Connect PayPal** (10 min): PayPal Business client ID + secret into
+   Hyperswitch → enable `paypal` method
+4. **Webhook** (5 min): add endpoint `https://sericia.com/api/hyperswitch/webhook`
+   in Hyperswitch dashboard → copy `whsec_...` secret
+5. **Coolify env vars** (2 min):
+   ```
+   HYPERSWITCH_API_URL=https://api.hyperswitch.io
+   HYPERSWITCH_API_KEY=<server key>
+   HYPERSWITCH_PROFILE_ID=<profile id>
+   HYPERSWITCH_WEBHOOK_SECRET=whsec_...
+   NEXT_PUBLIC_HYPERSWITCH_PUBLISHABLE_KEY=<publishable key>
+   ```
+   → Save → Redeploy
+6. **\$1 live smoke test** (10 min): see `docs/hyperswitch-setup.md` §7
+
+Expected total: **45–60 minutes** of operator + ~10 min waiting for
+Hyperswitch to verify Apple Pay domain.
+
+### Country / method matrix (already shipped in code)
+
+12 country codes pre-configured in `storefront/lib/payment-routing.ts`:
+US/CA/UK/DE/FR/NL/AU/JP/SG/HK/TW/KR/AE. Each gets a tailored allowlist
+(e.g. PayPal omitted in HK/TW/KR/AE due to weak penetration). Edit the
+matrix to tune; Hyperswitch silently filters to PSP-supported methods.
+
+### Verify post-deploy
+
+```bash
+# 401 invalid_signature = ✅ webhook handler live + HMAC enforced
+# 503 webhook_misconfigured = ⚠ env still missing
+curl -sI -X POST https://sericia.com/api/hyperswitch/webhook -d '{}'
+```
+
+---
+
 <a id="op-crossmint"></a>
-## 1. Critical path — Crossmint Onramp activation
+## 1. Crossmint Onramp activation (parallel rail)
 
 **Status**: ⏸ BLOCKED awaiting Sales Onramp approval.
 **Submitted**: 2026-04-30 12:50 JST (form ack received).
