@@ -35,7 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("[sitemap] listActiveProducts failed:", e);
   }
 
-  // pSEO guides — 8 countries × 8 products = 64 URLs
+  // pSEO guides — COUNTRIES.length × PRODUCTS.length URLs (currently 12×12=144,
+  // up from 8×8=64 in F40 expansion). hreflang alternates emit per locale so
+  // search engines can route the right country to the right surface.
   const guides = COUNTRIES.flatMap((c) =>
     PRODUCTS.map((p) => ({
       url: `${base}/guides/${c.code}/${p.slug}`,
