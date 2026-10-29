@@ -40,7 +40,8 @@ Read-only Shopify export saved outside Git with mode 0600:
 - CI covers clean npm install, security audit at high threshold, Docker build, PostgreSQL/Redis, migrations twice, health, unauthenticated admin rejection, retired callback and admin HTML.
 - CI is not a full purchase E2E or a production deployment.
 - Need isolated runtime/database, backup/restore drill, actual draft import and source-ID mapping, storefront Medusa cart/payment completion, shipping/tax/returns configuration, shared operations adapter, provider access and browser E2E.
-- Legacy order email uses incorrect v2 currency scaling and unverified shipping promises; must fix before any customer messages. Do not send live mail from preview.
+- Legacy order email currency scaling corrected to Medusa v2 major units; HTML fields escaped, unverified 48-hour EMS promise removed, provider errors rethrown for worker failure visibility, stable per-order idempotency key. Order mail remains disabled unless SERICIA_ORDER_EMAILS_ENABLED=true. Sender verification and delivery tests still required.
+- Current dependency audit: high/critical/moderate 0, low9 through deepmerge in notification dependencies; unresolved, not an audit-zero claim.
 - Existing source/supplier permissions, warehouse credentials and social account authorization remain outstanding.
 
 Official references:

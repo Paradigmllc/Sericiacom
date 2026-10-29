@@ -20,6 +20,8 @@
 - 構成: 既存 `medusa-backend/` を更新し、商品/注文/在庫はMedusa標準DB/API/Adminを利用。Stripe標準provider、R2標準S3 provider、Redisの永続イベント/ロックを使用。既存storefrontの購入経路は別途Medusa標準cartへ移行が必要。
 - UI方針: 現行の日本製品/海外向けブランドを維持、管理UIはMedusa標準を利用。旧Crossmint注文作成経路を廃止。新規DBに段階移行し既存データを上書きしない。
 - Cloudflareログイン/CLI確認済み。Workers Paidは既存契約（月額5 USD+従量）。新規プラン購入なし。
+- R2 `sericia-product-media` 作成/空を確認。Shopify商品6/variant13を非公開ファイルへ退避、JPY維持の下書き移行プランを作成。12テスト・型チェック通過。backend/admin build通過、Docker/DB CI検証中。PR4 draft。
+- 詳細: [Medusa migration](docs/knowledge/sericia/medusa-migration-20261029.md)。依存監査high/critical/moderate0、low9は残存。注文メールはプレビューで無効。
 - 共有サーバーはディスク89%/空き17GB。旧専用ホスト46.62.217.172はSSH接続timeout。ホスティング確定・DB復元/商品移行・本番切替・Shopify解約は未実施。
 - 決済申請、仕入先API権限、倉庫契約/API、SNS認証は未解決。今回の基盤変更で実務運用完了とは扱わない。
 
