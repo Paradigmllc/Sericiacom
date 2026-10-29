@@ -29,3 +29,18 @@ Do not run the legacy `seed`/bulk-import scripts: they contain obsolete product
 and business assumptions. Public launch needs a separate reviewed storefront
 cutover, R2 credentials/public media policy, Stripe tests, shipping/tax settings,
 provider access, backup restore test and browser E2E.
+
+Storefront connection preparation:
+- Run `npx medusa exec ./src/scripts/prepare-storefront-preview.js` for a read-only
+  plan. Apply with `SERICIA_PREVIEW_APPLY=true`. Repeat runs reuse the same channel,
+  JPY region and publishable API key, and reject conflicting or revoked settings.
+- Retrieve the publishable key in Medusa Admin Settings / Publishable API Keys.
+  It is scoped to the preview channel; it is not an admin token.
+- The preview region intentionally has no countries or payment providers. No
+  product is assigned to this channel and no stock is allocated by this command.
+- With the server running, execute `check-storefront-preview.js` with
+  `SERICIA_PREVIEW_CHECK_URL=http://server:9000` inside compose. It creates one empty
+  test cart and asserts missing-key rejection, hidden drafts, JPY amounts,
+  unavailable-item rejection and no payment providers. Do not run this migration
+  check after commercial configuration/publication; its empty-catalog assertions
+  are specific to this isolated preview.

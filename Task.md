@@ -13,11 +13,13 @@
 
 ---
 
-## CURRENT STATUS / Active Handoff — 2026-10-29 Store API接続検証中
+## CURRENT STATUS / Active Handoff — 2026-10-29 Store API検証・反映済み
 
-- Owner: Codex。既存Medusa標準workflowでプレビュー販売チャネル/JPY region/公開APIキーを冪等作成。国/決済provider/在庫/公開商品は追加しない。
-- 対象: backend scripts、CI、既存Adminで設定確認。Store APIで下書き非公開・カート通貨・商品追加拒否・決済providerなしを実DB検証してから非公開環境へ適用する。
-- storefront移行/Cloudflare公開/Shopify解約は未完了。
+- Owner: Codex。PR4 runtime8630c832を非公開環境へ配置。CI40839700759成功、配布ZIP digest照合、更新前DB backup、標準workflowによるpreview channel/JPY region/公開APIキー設定を2回実行して重複なし。
+- 実環境Store API検証成功: APIキー必須、下書き非公開、JPY cart、channel範囲、決済providerなし、未割当商品追加拒否、失敗後cart itemなし。空の検証cartを1件作成、注文/決済なし。
+- 管理者を初回作成し認証200/Admin商品取得200、6下書きを確認。ランダムpasswordはmacOS Keychain `Sericia-Medusa-Preview-Admin` にのみ保管。既存ログイン情報は変更なし。ブラウザ認証後のE2Eは未実施。
+- server healthy / worker running / localhost19000 health200。新イメージ8bdbcba3dc88、runtime script SHAとアーカイブSHAは詳細資料参照。6draft/在庫level0を維持。
+- 次: 旧storefrontの価格単位/通貨と独自注文経路を修正・移行、現行ブランドUIを接続、運用OS adapter、R2画像、仕入先/倉庫/SNS実接続、Cloudflare公開切替。公開はShopifyのまま、解約未実施。root90%の容量制約も残る。
 
 ## CURRENT STATUS / Active Handoff — 2026-10-29 Medusa非公開プレビュー稼働
 
