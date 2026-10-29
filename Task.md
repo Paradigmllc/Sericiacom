@@ -13,12 +13,13 @@
 
 ---
 
-## CURRENT STATUS / Active Handoff — 2026-10-29 Storefront価格/依存移行検証中
+## CURRENT STATUS / Active Handoff — 2026-10-29 Storefront非公開配備・実画面検証済み
 
 - Owner: Codex。作業先は引き続きmedusa migration worktree / PR4。商品一覧・詳細・検索・お気に入り・閲覧履歴・cartでprice+currencyへ統一。Medusa v2金額の100分の1変換を削除し、regionの実通貨・calculated_priceを使用。
 - 非公開Medusaに一時検証商品を作成し、実Store APIでJPY1200/在庫0を確認後削除。既存6下書きの公開変更なし。旧USD注文経路は非USDを503で拒否、UIも非USD決済を無効化。
 - Crossmint UI/SDKを除去、旧create/webhookは410で無副作用。履歴DBは変更なし。
-- Next16.4.3 / Payload3.92.1 / Node24.22.1以上へ更新。StripeSDKは22.1.1固定でAPI契約を維持。ローカル4テスト・型チェック・本番build通過。監査high/critical0、moderate5/low12残存。Playwright desktop/mobile6件通過、CI/非公開デプロイ準備中。
+- Next16.4.3 / Payload3.92.1 / Node24.22.1以上へ更新。StripeSDKは22.1.1固定でAPI契約を維持。ローカル4テスト・型チェック・本番build通過。監査high/critical0、moderate5/low12残存。Playwright desktop/mobile6件がローカル・CI・配備先で通過。CI40871577555/40871577480成功。storefront73fb662fをlocalhost18000へ配備しhealthy、実配信JS SHA一致を確認。
+- 配備後root93%/空き12GiB、専用volume空き18GiB。容量の余力は限定的。公開Shopify、実商品6下書き、実注文/決済なしを維持。ローカルSSHトンネル http://127.0.0.1:18000 で確認可能（接続中のみ）。
 - 詳細: [Storefront migration](docs/knowledge/sericia/storefront-migration-20261029.md)。公開Shopify切替/解約はまだ行っていない。
 
 ## CURRENT STATUS / Active Handoff — 2026-10-29 Store API検証・反映済み
