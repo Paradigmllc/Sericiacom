@@ -68,6 +68,10 @@ jobs:
           done
           docker run --rm --network host "${env_args[@]}" -e SERICIA_MIGRATION_CI=true \
             sericia-medusa:ci npx medusa exec ./src/scripts/check-migration-fixture.js
+          for attempt in 1 2; do
+            docker run --rm --network host "${env_args[@]}" -e SERICIA_PREVIEW_APPLY=true \
+              sericia-medusa:ci npx medusa exec ./src/scripts/prepare-storefront-preview.js
+          done
           docker run -d --name medusa-ci --network host "${env_args[@]}" sericia-medusa:ci
           for attempt in $(seq 1 60); do
             if curl --fail --silent http://127.0.0.1:9000/health; then break; fi
@@ -78,6 +82,8 @@ jobs:
           test "$(curl --silent -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:9000/webhooks/crossmint)" = 410
           curl --fail --silent http://127.0.0.1:9000/app/login > /tmp/medusa-admin.html
           test -s /tmp/medusa-admin.html
+          docker run --rm --network host "${env_args[@]}" -e SERICIA_PREVIEW_CHECK_URL=http://127.0.0.1:9000 \
+            sericia-medusa:ci npx medusa exec ./src/scripts/check-storefront-preview.js
       - name: Runtime diagnostics
         if: failure()
         run: docker logs medusa-ci 2>&1 | tail -100

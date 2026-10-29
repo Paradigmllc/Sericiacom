@@ -13,6 +13,12 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-29 Store API接続検証中
+
+- Owner: Codex。既存Medusa標準workflowでプレビュー販売チャネル/JPY region/公開APIキーを冪等作成。国/決済provider/在庫/公開商品は追加しない。
+- 対象: backend scripts、CI、既存Adminで設定確認。Store APIで下書き非公開・カート通貨・商品追加拒否・決済providerなしを実DB検証してから非公開環境へ適用する。
+- storefront移行/Cloudflare公開/Shopify解約は未完了。
+
 ## CURRENT STATUS / Active Handoff — 2026-10-29 Medusa非公開プレビュー稼働
 
 - PR4 draft: https://github.com/Paradigmllc/Sericiacom/pull/4 。runtime1ae48492、compose50f4ff62。新しい20GB volume107303029上に独立PostgreSQL/Redis/データを配置し、Medusa server/workerをlocalhost19000で稼働。公開サイトはShopifyのまま。
