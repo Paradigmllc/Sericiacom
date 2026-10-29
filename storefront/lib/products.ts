@@ -18,7 +18,8 @@ export type Product = {
   name: string;
   description: string;
   story: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   stock: number;
   category: "tea" | "miso" | "mushroom" | "seasoning";

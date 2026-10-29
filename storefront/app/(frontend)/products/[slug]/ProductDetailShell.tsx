@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,7 +16,8 @@ type ProductShape = {
   name: string;
   description: string;
   story: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   category: string;
   images: string[];
@@ -209,7 +211,7 @@ export default function ProductDetailShell({
           </h1>
           <p className="text-[17px] text-sericia-ink-soft leading-relaxed mb-8">{product.description}</p>
           <div className="flex items-baseline gap-6 mb-8">
-            <span className="text-[28px] font-normal">${product.price_usd}</span>
+            <span className="text-[28px] font-normal">{formatMoney(product.price, product.currency)}</span>
             <span className="text-[12px] tracking-[0.18em] uppercase text-sericia-ink-mute">
               USD · {product.weight_g}g
             </span>
@@ -238,7 +240,7 @@ export default function ProductDetailShell({
               productId={product.id}
               name={product.name}
               slug={product.slug}
-              priceUsd={product.price_usd}
+              priceAmount={product.price} currency={product.currency}
               outOfStock={product.outOfStock}
               category={product.category}
               onNotifyClick={() => setNotifyOpen(true)}
@@ -279,7 +281,7 @@ export default function ProductDetailShell({
                 <p className="text-[12px] tracking-[0.12em] uppercase text-sericia-ink-mute truncate">
                   {product.name}
                 </p>
-                <p className="text-[14px] text-sericia-ink">${product.price_usd} USD</p>
+                <p className="text-[14px] text-sericia-ink">{formatMoney(product.price, product.currency)}</p>
               </div>
               {product.outOfStock ? (
                 <button

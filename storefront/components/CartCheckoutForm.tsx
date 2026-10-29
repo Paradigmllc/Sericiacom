@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,8 +83,9 @@ export default function CartCheckoutForm({
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const subtotal = items.reduce((s, i) => s + i.price_usd * i.quantity, 0);
-  const referralDiscount = referral?.discountAmountUsd ?? 0;
+  const currency = items[0]?.currency ?? "USD";
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const referralDiscount = currency.toLowerCase() === "usd" ? referral?.discountAmountUsd ?? 0 : 0;
   const total = Math.max(0, subtotal - referralDiscount);
 
   async function onSubmit(e: React.FormEvent) {
@@ -93,6 +95,10 @@ export default function CartCheckoutForm({
         description: t("empty_cart_lede"),
       });
       router.push("/products");
+      return;
+    }
+    if (currency.toLowerCase() !== "usd") {
+      toast.error("Checkout is being migrated. This currency is not available for payment yet.");
       return;
     }
     const parsed = Schema.safeParse(form);
@@ -228,14 +234,15 @@ export default function CartCheckoutForm({
             <input type="tel" value={form.phone} onChange={update("phone")} className={inputCls} autoComplete="tel" />
           </div>
           <div className="pt-2">
-            <ReferralCodeField onApplied={setReferral} />
+            {currency.toLowerCase() === "usd" && <ReferralCodeField onApplied={setReferral} />}
           </div>
           <div className="pt-6">
-            <button type="submit" disabled={loading} className="w-full bg-sericia-ink text-sericia-paper py-5 text-[14px] tracking-wider hover:bg-sericia-accent transition-colors disabled:opacity-40">
-              {loading ? t("submit_reserving") : `${t("submit_reserve")} — $${total}`}
+            {currency.toLowerCase() !== "usd" && <p role="status" className="mb-4 text-sm">Checkout is not yet available for this currency.</p>}
+            <button type="submit" disabled={loading || currency.toLowerCase() !== "usd"} className="w-full bg-sericia-ink text-sericia-paper py-5 text-[14px] tracking-wider hover:bg-sericia-accent transition-colors disabled:opacity-40">
+              {loading ? t("submit_reserving") : `${t("submit_reserve")} — ${formatMoney(total, currency)}`}
             </button>
             <p className="text-[12px] text-sericia-ink-mute text-center mt-5 leading-relaxed">
-              EMS worldwide · By continuing you agree to our{" "}
+              By continuing you agree to our{" "}
               <a href="/terms" className="underline-link">Terms</a> and{" "}
               <a href="/privacy" className="underline-link">Privacy Policy</a>.
             </p>
@@ -253,21 +260,21 @@ export default function CartCheckoutForm({
                   <div>{it.name}</div>
                   <div className="text-[12px] text-sericia-ink-mute mt-0.5">Qty {it.quantity}</div>
                 </div>
-                <div>${it.price_usd * it.quantity}</div>
+                <div>{formatMoney(it.price * it.quantity, it.currency)}</div>
               </div>
             ))}
           </div>
           <Rule />
           <div className="flex justify-between py-4 text-[14px]">
             <span className="text-sericia-ink-soft">Subtotal</span>
-            <span>${subtotal}</span>
+            <span>{formatMoney(subtotal, currency)}</span>
           </div>
           <Rule />
           <div className="flex justify-between py-4 text-[14px]">
-            <span className="text-sericia-ink-soft">Shipping (EMS worldwide)</span>
-            <span>Included</span>
+            <span className="text-sericia-ink-soft">Shipping</span>
+            <span>Calculated at checkout</span>
           </div>
-          {referral && (
+          {referral && currency.toLowerCase() === "usd" && (
             <>
               <Rule />
               <div className="flex justify-between py-4 text-[14px]">
@@ -282,7 +289,7 @@ export default function CartCheckoutForm({
           <Rule />
           <div className="flex justify-between py-5 text-[16px] font-medium">
             <span>Total</span>
-            <span>${total} USD</span>
+            <span>{formatMoney(total, currency)}</span>
           </div>
           <Rule />
           <p className="text-[12px] text-sericia-ink-mute mt-5 leading-relaxed">

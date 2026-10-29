@@ -15,6 +15,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useSettings } from "./SettingsProvider";
 
@@ -34,7 +35,7 @@ export default function CouponBanner() {
   const t = useTranslations("coupon_banner");
 
   // Three-tier resolution: CMS (editor) → next-intl (locale) → emergency literal.
-  const enabled = cb?.enabled ?? true;
+  const enabled = cb?.enabled === true && Boolean(cb.code?.trim() && cb.offerText?.trim());
   const code = (cb?.code?.trim() || LAUNCH_COUPON_CODE).toUpperCase();
   // `prefix` already contains the trailing em-dash in messages files,
   // so we strip it to keep the rendered "{headline} —" pattern symmetric.
@@ -53,8 +54,10 @@ export default function CouponBanner() {
       if (typeof window === "undefined") return;
       const dismissed = window.localStorage.getItem(STORAGE_KEY);
       if (!dismissed) setVisible(true);
-    } catch {
-      // localStorage can throw in privacy modes — surface banner anyway
+    } catch (error) {
+      console.error("[coupon] Could not read dismissal preference", error);
+      toast.error("Your display preference could not be loaded.");
+      // Keep the configured banner usable in private browsing.
       setVisible(true);
     }
   }, [STORAGE_KEY]);
@@ -62,8 +65,9 @@ export default function CouponBanner() {
   function handleDismiss() {
     try {
       window.localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // Non-fatal: banner will just re-show next reload in privacy mode
+    } catch (error) {
+      console.error("[coupon] Could not save dismissal preference", error);
+      toast.error("Your display preference could not be saved.");
     }
     setVisible(false);
   }

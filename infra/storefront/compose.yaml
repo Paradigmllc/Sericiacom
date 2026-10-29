@@ -1,0 +1,26 @@
+name: sericia-storefront-preview
+services:
+  storefront:
+    image: ${SERICIA_STOREFRONT_IMAGE:?Set verified storefront image}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: '1'
+    command: [npm, run, start]
+    ports: ['127.0.0.1:18000:8000']
+    networks: [commerce]
+    mem_limit: 768m
+    cpus: 0.75
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: [CMD, node, -e, 'fetch("http://127.0.0.1:8000/api/pay/create",{method:"POST"}).then(r=>process.exit(r.status===410?0:1)).catch(()=>process.exit(1))']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+networks:
+  commerce:
+    external: true
+    name: sericia-medusa-preview_commerce

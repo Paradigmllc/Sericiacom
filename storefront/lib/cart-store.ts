@@ -6,7 +6,8 @@ export type CartItem = {
   productId: string;
   name: string;
   slug: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   quantity: number;
   image: string | null;
 };
@@ -27,12 +28,13 @@ export const useCart = create<CartState>()(
       items: [],
       add: (item) =>
         set((state) => {
+          if (state.items.some(i => i.currency.toLowerCase() !== item.currency.toLowerCase())) throw new Error("Items in different currencies cannot share a cart");
           const existing = state.items.find((i) => i.productId === item.productId);
           if (existing) {
             return {
               items: state.items.map((i) =>
                 i.productId === item.productId
-                  ? { ...i, quantity: Math.min(99, i.quantity + item.quantity) }
+                  ? { ...i, price: item.price, quantity: Math.min(99, i.quantity + item.quantity) }
                   : i,
               ),
             };
@@ -51,8 +53,8 @@ export const useCart = create<CartState>()(
         })),
       clear: () => set({ items: [] }),
       count: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
-      subtotal: () => get().items.reduce((sum, i) => sum + i.price_usd * i.quantity, 0),
+      subtotal: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
-    { name: "sericia-cart" },
+    { name: "sericia-cart", version: 2 },
   ),
 );

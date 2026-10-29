@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Drawer } from "vaul";
@@ -30,7 +31,8 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
     if (listRef.current) autoAnimate(listRef.current);
   }, [mounted]);
 
-  const subtotal = items.reduce((s, i) => s + i.price_usd * i.quantity, 0);
+  const currency = items[0]?.currency ?? "USD";
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
   function handleRemove(productId: string, name: string) {
@@ -78,7 +80,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
           {/* Progress / shipping strip */}
           <div className="border-b border-sericia-line bg-sericia-paper-card px-6 py-3">
             <p className="text-[11px] tracking-[0.18em] uppercase text-sericia-ink-soft">
-              Ships EMS worldwide · tracked · hand-packed in Kyoto within 48h
+              Shipping options and costs will be confirmed at checkout.
             </p>
             <div className="mt-2 h-px w-full bg-sericia-line overflow-hidden">
               <div className="h-full bg-sericia-ink w-full" />
@@ -134,11 +136,11 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                           </h3>
                         </Link>
                         <span className="text-[13px] tabular-nums shrink-0">
-                          ${item.price_usd * item.quantity}
+                          {formatMoney(item.price * item.quantity, item.currency)}
                         </span>
                       </div>
                       <p className="text-[11px] text-sericia-ink-mute mt-1">
-                        ${item.price_usd} each
+                        {formatMoney(item.price, item.currency)} each
                       </p>
                       <div className="mt-3 flex items-center justify-between">
                         <div className="flex items-center border border-sericia-line">
@@ -181,17 +183,11 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             <div className="border-t border-sericia-line bg-sericia-paper-card px-6 py-5 space-y-4">
               <div className="flex items-center justify-between text-[13px]">
                 <span className="text-sericia-ink-soft">Subtotal</span>
-                <span className="tabular-nums">${subtotal} USD</span>
+                <span className="tabular-nums">{formatMoney(subtotal, currency)}</span>
               </div>
-              {/* Shipping line is conditional. Medusa shipping option
-                  `EMS Free Shipping over $100 - <country>` triggers at
-                  item_total ≥ $100; otherwise the per-region EMS standard
-                  rate is computed at checkout. The previous "Included
-                  worldwide" was an unconditional claim that the live
-                  config doesn't honour. */}
               <div className="flex items-center justify-between text-[11px] tracking-[0.18em] uppercase text-sericia-ink-soft">
                 <span>Shipping</span>
-                <span>{subtotal >= 100 ? "Free EMS over $100" : "EMS at checkout"}</span>
+                <span>Calculated at checkout</span>
               </div>
               {/* Duties disclosure — Sericia ships DDU from Japan; the
                   customer is the importer of record. Surface this once at

@@ -31,20 +31,8 @@ export default function AnnouncementBar() {
   const bar = settings?.announcementBar;
   const t = useTranslations("announcement");
 
-  // Three-tier resolution: CMS items[] → CMS legacy text/link →
-  // next-intl 6-item brand baseline (each in active locale).
-  const DEFAULT_ITEMS: { text: string; link?: string }[] = [
-    { text: t("free_ems") },
-    { text: t("hand_packed") },
-    { text: t("ships_48h") },
-    { text: t("small_batch") },
-    { text: t("countries_23") },
-    { text: t("tracked") },
-  ];
-
-  // Master kill switch from CMS: editor unticks `enabled` → bar disappears.
-  // Default behaviour when settings null: stay visible (assume editor wants it).
-  if (bar && bar.enabled === false) return null;
+  // Promotional claims require explicit CMS configuration.
+  if (bar?.enabled !== true) return null;
 
   // Resolve items: prefer items[], fall back to legacy single text/link,
   // fall back to hardcoded defaults if both are empty.
@@ -58,7 +46,7 @@ export default function AnnouncementBar() {
   } else if (bar?.text && bar.text.trim().length > 0) {
     items = [{ text: bar.text, link: bar.link ?? undefined }];
   } else {
-    items = DEFAULT_ITEMS;
+    return null;
   }
 
   // Defensive: empty after filtering → render nothing rather than empty bar

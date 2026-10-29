@@ -12,8 +12,8 @@
  * Mapping rules:
  *  - product.id        → Product.id (keep Medusa prod_* id — needed for cart)
  *  - product.handle    → Product.slug
- *  - variants[0].prices[currency=region.currency_code].amount / 100
- *                      → Product.price_usd   (Medusa stores cents)
+ *  - variants[].calculated_price.calculated_amount
+ *                      → Product.price   (Medusa v2 major units)
  *  - product.images[].url → Product.images (thumbnail first, then gallery)
  *  - product.weight    → Product.weight_g   (Medusa stores grams)
  *  - inventory_quantity sum across variants → Product.stock
@@ -21,7 +21,8 @@
  */
 
 import { unstable_cache } from "next/cache";
-import { medusa, DEFAULT_REGION_SLUG, getRegionId } from "./medusa";
+import { medusa, DEFAULT_REGION_SLUG, getRegion } from "./medusa";
+import { lowestCalculatedPrice } from "./money";
 import type { Product } from "./products";
 
 /**
@@ -99,17 +100,7 @@ function toProduct(
   mp: MedusaProduct,
   currency: string,
 ): Product {
-  // Pick the cheapest variant's price as the display price (matches how we
-  // showed price_usd flat before — upgrade to variant picker later).
-  const cheapest = (mp.variants ?? [])
-    .map((v) => {
-      const byCurrency = v.prices?.find((p) => p.currency_code === currency);
-      return byCurrency?.amount ?? v.calculated_price?.calculated_amount ?? null;
-    })
-    .filter((a): a is number => a !== null)
-    .sort((a, b) => a - b)[0];
-
-  const priceUsd = cheapest != null ? cheapest / 100 : 0;
+  const priceAmount = lowestCalculatedPrice(mp.variants ?? [], currency);
 
   const stock = (mp.variants ?? []).reduce(
     (sum, v) => sum + (v.inventory_quantity ?? 0),
@@ -127,7 +118,7 @@ function toProduct(
     name: mp.title,
     description: mp.description ?? "",
     story: (mp.metadata?.story as string | undefined) ?? "",
-    price_usd: priceUsd,
+    price: priceAmount, currency,
     weight_g: mp.weight ?? 0,
     stock,
     category: inferCategory(mp),
@@ -153,16 +144,8 @@ function stringOrNull(v: unknown): string | null {
   return typeof v === "string" && v.trim().length > 0 ? v : null;
 }
 
-async function fetchWithRegion(): Promise<{
-  regionId: string | null;
-  currency: string;
-}> {
-  const regionId = await getRegionId(DEFAULT_REGION_SLUG);
-  // Fallback currency if region lookup fails — jp uses jpy, most EU/US uses usd.
-  // We only use this to pick the right price from variant.prices[], so the
-  // worst case of a wrong guess is price=0 (surfaced in UI, not silent).
-  const currency = DEFAULT_REGION_SLUG === "jp" ? "jpy" : "usd";
-  return { regionId, currency };
+async function fetchWithRegion() {
+  return getRegion(DEFAULT_REGION_SLUG);
 }
 
 // ── Uncached fetchers (raw work) ───────────────────────────────────────────
@@ -177,7 +160,7 @@ async function listActiveProductsRaw(): Promise<Product[]> {
     const { products } = await medusa.store.product.list({
       limit: 100,
       fields:
-        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.prices.amount,variants.prices.currency_code,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
+        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
       ...(regionId ? { region_id: regionId } : {}),
     });
     return (products as unknown as MedusaProduct[])
@@ -185,11 +168,11 @@ async function listActiveProductsRaw(): Promise<Product[]> {
       .filter((p) => p.status === "active")
       .sort(
         (a, b) =>
-          a.category.localeCompare(b.category) || a.price_usd - b.price_usd,
+          a.category.localeCompare(b.category) || a.price - b.price,
       );
   } catch (err) {
     console.error("[products-medusa] listActive failed", err);
-    return [];
+    throw err;
   }
 }
 
@@ -200,7 +183,7 @@ async function getProductBySlugRaw(slug: string): Promise<Product | null> {
       handle: slug,
       limit: 1,
       fields:
-        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.prices.amount,variants.prices.currency_code,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
+        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
       ...(regionId ? { region_id: regionId } : {}),
     });
     const mp = (products as unknown as MedusaProduct[])[0];
@@ -209,7 +192,7 @@ async function getProductBySlugRaw(slug: string): Promise<Product | null> {
     return p.status === "active" ? p : null;
   } catch (err) {
     console.error("[products-medusa] getBySlug failed", err);
-    return null;
+    throw err;
   }
 }
 
@@ -221,7 +204,7 @@ async function getProductsByIdsRaw(ids: string[]): Promise<Product[]> {
       id: ids,
       limit: ids.length,
       fields:
-        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.prices.amount,variants.prices.currency_code,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
+        "id,title,handle,description,thumbnail,images.url,weight,status,metadata,categories.handle,categories.name,variants.id,variants.title,variants.manage_inventory,variants.allow_backorder,variants.inventory_quantity,variants.calculated_price,created_at,updated_at",
       ...(regionId ? { region_id: regionId } : {}),
     });
     return (products as unknown as MedusaProduct[]).map((p) =>
@@ -229,7 +212,7 @@ async function getProductsByIdsRaw(ids: string[]): Promise<Product[]> {
     );
   } catch (err) {
     console.error("[products-medusa] getByIds failed", err);
-    return [];
+    throw err;
   }
 }
 

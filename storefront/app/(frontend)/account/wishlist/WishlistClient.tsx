@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -70,7 +71,8 @@ export default function WishlistClient() {
           productId: it.productId,
           name: it.name,
           slug: it.slug,
-          price_usd: it.price_usd,
+          price: it.price,
+          currency: it.currency,
           quantity: 1,
           image: null,
         });
@@ -94,7 +96,8 @@ export default function WishlistClient() {
         productId: it.productId,
         name: it.name,
         slug: it.slug,
-        price_usd: it.price_usd,
+        price: it.price,
+        currency: it.currency,
         quantity: 1,
         image: null,
       });
@@ -228,7 +231,7 @@ export default function WishlistClient() {
                 <p className="text-[12px] text-sericia-ink-mute mb-4">
                   {t("saved_at_fmt", { date: formatDate(it.addedAt, locale) })}
                 </p>
-                <p className="text-[14px] tabular-nums">${it.price_usd} USD</p>
+                <p className="text-[14px] tabular-nums">{formatMoney(it.price, it.currency)}</p>
               </Link>
               <button
                 type="button"

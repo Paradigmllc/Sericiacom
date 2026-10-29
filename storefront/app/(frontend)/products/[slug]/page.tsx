@@ -76,24 +76,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
     offers: {
       "@type": "Offer",
       url: productUrl,
-      priceCurrency: "USD",
-      price: p.price_usd,
+      priceCurrency: p.currency.toUpperCase(),
+      price: p.price,
       availability: outOfStock
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "Sericia" },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "USD" },
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: ["US", "GB", "DE", "FR", "AU", "SG", "CA", "HK", "JP"],
-        },
-        deliveryTime: {
-          "@type": "ShippingDeliveryTime",
-          transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 7, unitCode: "DAY" },
-        },
-      },
     },
   };
 
@@ -128,7 +116,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
             name: p.name,
             description: p.description,
             story: p.story,
-            price_usd: p.price_usd,
+            price: p.price,
+            currency: p.currency,
             weight_g: p.weight_g,
             category: p.category,
             images: p.images ?? [],
@@ -176,7 +165,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
           slug: p.slug,
           name: p.name,
           category: p.category,
-          price_usd: p.price_usd,
+          price: p.price,
+          currency: p.currency,
           weight_g: p.weight_g,
           origin_region: p.origin_region,
           thumbnail: (p.images?.[0] as string | undefined) ?? null,

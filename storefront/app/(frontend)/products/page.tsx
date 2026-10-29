@@ -53,9 +53,9 @@ function sortProducts(products: Product[], sort: SortKey): Product[] {
   // upstream (Medusa) ordering intact, which is the curator's intent.
   switch (sort) {
     case "price-asc":
-      return [...products].sort((a, b) => a.price_usd - b.price_usd);
+      return [...products].sort((a, b) => a.price - b.price);
     case "price-desc":
-      return [...products].sort((a, b) => b.price_usd - a.price_usd);
+      return [...products].sort((a, b) => b.price - a.price);
     case "name":
       return [...products].sort((a, b) => a.name.localeCompare(b.name));
     case "featured":

@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -10,7 +11,8 @@ type Product = {
   slug: string;
   name: string;
   description: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   category: string;
   origin_region: string | null;
@@ -57,7 +59,8 @@ export default function ProductCard({
         productId: product.id,
         slug: product.slug,
         name: product.name,
-        price_usd: product.price_usd,
+        price: product.price,
+        currency: product.currency,
         category: product.category,
       });
       toast.success(added ? `Saved — ${product.name}` : `Removed — ${product.name}`);
@@ -138,7 +141,7 @@ export default function ProductCard({
         {product.description}
       </p>
       <div className="flex items-baseline justify-between pt-4 border-t border-sericia-line">
-        <span className="text-[15px] tabular-nums">${product.price_usd} USD</span>
+        <span className="text-[15px] tabular-nums">{formatMoney(product.price, product.currency)}</span>
         <span className="text-[11px] tracking-[0.18em] uppercase text-sericia-ink-mute">
           {product.weight_g}g
         </span>

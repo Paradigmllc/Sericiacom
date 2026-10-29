@@ -68,6 +68,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "product_not_found", product_id: missing ?? null }, { status: 404 });
     }
 
+    if (products.some(product => product.currency.toLowerCase() !== "usd")) {
+      return NextResponse.json({ error: "currency_checkout_unavailable" }, { status: 503 });
+    }
+
     // Validate stock and compute total
     let totalUsd = 0;
     const itemsPayload: Array<{
@@ -92,11 +96,11 @@ export async function POST(req: NextRequest) {
           available: product.stock,
         }, { status: 409 });
       }
-      totalUsd += product.price_usd * line.quantity;
+      totalUsd += product.price * line.quantity;
       itemsPayload.push({
         product_id: product.id,
         quantity: line.quantity,
-        unit_price_usd: product.price_usd,
+        unit_price_usd: product.price,
         product_snapshot: {
           id: product.id,
           slug: product.slug,

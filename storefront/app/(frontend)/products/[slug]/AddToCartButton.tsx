@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -12,7 +13,8 @@ export default function AddToCartButton({
   productId,
   name,
   slug,
-  priceUsd,
+  priceAmount,
+  currency,
   outOfStock,
   category,
   onNotifyClick,
@@ -20,7 +22,8 @@ export default function AddToCartButton({
   productId: string;
   name: string;
   slug: string;
-  priceUsd: number;
+  priceAmount: number;
+  currency: string;
   outOfStock: boolean;
   category: string;
   onNotifyClick?: () => void;
@@ -34,7 +37,7 @@ export default function AddToCartButton({
 
   function handleAdd() {
     try {
-      add({ productId, name, slug, price_usd: priceUsd, quantity: qty, image: null });
+      add({ productId, name, slug, price: priceAmount, currency, quantity: qty, image: null });
       toast.success(`Added to cart — ${name}`);
       // Brief delay so the toast is perceivable before drawer opens
       setTimeout(() => openCart(), 120);
@@ -47,7 +50,7 @@ export default function AddToCartButton({
 
   function handleWish() {
     try {
-      const added = toggleWish({ productId, slug, name, price_usd: priceUsd, category });
+      const added = toggleWish({ productId, slug, name, price: priceAmount, currency, category });
       toast.success(added ? `Saved — ${name}` : `Removed — ${name}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -110,7 +113,7 @@ export default function AddToCartButton({
           data-pdp-add-to-cart
           className="bg-sericia-ink text-sericia-paper py-5 text-[14px] tracking-[0.18em] uppercase hover:bg-sericia-accent transition-colors"
         >
-          Add to cart — ${(priceUsd * qty).toFixed(2)}
+          Add to cart — {formatMoney(priceAmount * qty, currency)}
         </button>
         <button
           type="button"
