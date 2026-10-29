@@ -1,24 +1,26 @@
-type Snapshot = {
-  shop: { currencyCode: string };
-  products: {
-    pageInfo: { hasNextPage: boolean };
-    nodes: Array<{
-      id: string; title: string; handle: string; descriptionHtml: string;
-      options: Array<{ name: string; values: string[] }>;
-      images: { pageInfo: { hasNextPage: boolean }; nodes: Array<{ url: string }> };
-      variants: {
-        pageInfo: { hasNextPage: boolean };
-        nodes: Array<{
-          id: string; title: string; sku: string | null; price: string;
-          selectedOptions: Array<{ name: string; value: string }>;
-        }>;
-      };
-    }>;
-  };
-};
+import { z } from "@medusajs/framework/zod";
+
+const pageInfo = z.object({ hasNextPage: z.boolean() });
+const snapshotSchema = z.object({
+  shop: z.object({ currencyCode: z.string().regex(/^[A-Z]{3}$/, "Invalid source currency") }),
+  products: z.object({
+    pageInfo,
+    nodes: z.array(z.object({
+      id: z.string().min(1), title: z.string().min(1), handle: z.string().min(1),
+      descriptionHtml: z.string(),
+      options: z.array(z.object({name: z.string().min(1), values: z.array(z.string()).min(1)})).min(1),
+      images: z.object({pageInfo, nodes: z.array(z.object({url: z.string().url()}))}),
+      variants: z.object({pageInfo, nodes: z.array(z.object({
+        id: z.string().min(1), title: z.string(), sku: z.string().nullable(), price: z.string(),
+        selectedOptions: z.array(z.object({name: z.string(), value: z.string()})),
+      })).min(1)}),
+    })).max(100),
+  }),
+});
 
 // Produce draft-only inputs. Stock and image rights require separate verification.
-export function planCatalogMigration(snapshot: Snapshot) {
+export function planCatalogMigration(input: unknown) {
+  const snapshot = snapshotSchema.parse(input);
   if (!/^[A-Z]{3}$/.test(snapshot.shop.currencyCode)) throw new Error("Invalid source currency");
   if (snapshot.products.pageInfo.hasNextPage) throw new Error("Incomplete product export");
   const handles = new Set<string>();

@@ -59,6 +59,15 @@ jobs:
           env_args=(-e NODE_ENV -e DATABASE_URL -e REDIS_URL -e JWT_SECRET -e COOKIE_SECRET -e STORE_CORS -e ADMIN_CORS -e AUTH_CORS -e MEDUSA_WORKER_MODE -e STRIPE_ENABLED -e MEDUSA_DISABLE_TELEMETRY)
           docker run --rm --network host "${env_args[@]}" sericia-medusa:ci npm run predeploy
           docker run --rm --network host "${env_args[@]}" sericia-medusa:ci npm run predeploy
+          for attempt in 1 2; do
+            docker run --rm --network host "${env_args[@]}" \
+              -v "$PWD/config/fixtures:/fixtures:ro" \
+              -e SERICIA_CATALOG_SNAPSHOT=/fixtures/shopify-catalog.json \
+              -e SERICIA_CATALOG_APPLY=true sericia-medusa:ci \
+              npx medusa exec ./src/scripts/import-shopify-catalog.js
+          done
+          docker run --rm --network host "${env_args[@]}" -e SERICIA_MIGRATION_CI=true \
+            sericia-medusa:ci npx medusa exec ./src/scripts/check-migration-fixture.js
           docker run -d --name medusa-ci --network host "${env_args[@]}" sericia-medusa:ci
           for attempt in $(seq 1 60); do
             if curl --fail --silent http://127.0.0.1:9000/health; then break; fi
@@ -72,3 +81,11 @@ jobs:
       - name: Runtime diagnostics
         if: failure()
         run: docker logs medusa-ci 2>&1 | tail -100
+      - name: Export verified image
+        run: docker save sericia-medusa:ci | gzip > /tmp/sericia-medusa.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sericia-medusa-image
+          path: /tmp/sericia-medusa.tar.gz
+          compression-level: 0
+          retention-days: 1
