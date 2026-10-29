@@ -1,8 +1,7 @@
 node_modules
 .medusa
 .env
-.env.local
-dist
+.env.*
 *.log
-.git
-.DS_Store
+coverage
+config/*.test.mjs

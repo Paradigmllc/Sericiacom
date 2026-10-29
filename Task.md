@@ -13,6 +13,17 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-29 Medusa移行着手
+
+- ユーザーがShopify月額予算不可のためMedusa + Stripe + Cloudflareへの移行を承認。Cloudflare課金を許可。有料プラグインは採用しない。
+- Owner: Codex。作業先 `/Users/apple/dev/sericia-medusa-migration`、branch `codex/sericia-medusa-migration`。元worktreeのTask.md変更/GEMINI.md/opencode.jsonは保持。
+- 構成: 既存 `medusa-backend/` を更新し、商品/注文/在庫はMedusa標準DB/API/Adminを利用。Stripe標準provider、R2標準S3 provider、Redisの永続イベント/ロックを使用。既存storefrontの購入経路は別途Medusa標準cartへ移行が必要。
+- UI方針: 現行の日本製品/海外向けブランドを維持、管理UIはMedusa標準を利用。旧Crossmint注文作成経路を廃止。新規DBに段階移行し既存データを上書きしない。
+- Cloudflareログイン/CLI確認済み。Workers Paidは既存契約（月額5 USD+従量）。新規プラン購入なし。
+- 共有サーバーはディスク89%/空き17GB。旧専用ホスト46.62.217.172はSSH接続timeout。ホスティング確定・DB復元/商品移行・本番切替・Shopify解約は未実施。
+- 決済申請、仕入先API権限、倉庫契約/API、SNS認証は未解決。今回の基盤変更で実務運用完了とは扱わない。
+
+
 ## 🔄 進行中 (multi-agent ロック付き)
 
 | Status | Owner | Lock-since | Branch | Task | Notes |

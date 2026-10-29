@@ -1,0 +1,74 @@
+name: Medusa migration checks
+on:
+  pull_request:
+    paths: ['medusa-backend/**', '.github/workflows/medusa-migration.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: medusa
+          POSTGRES_PASSWORD: ci_only
+          POSTGRES_DB: sericia_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U medusa -d sericia_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NODE_ENV: production
+      DATABASE_URL: postgres://medusa:ci_only@127.0.0.1:5432/sericia_ci
+      REDIS_URL: redis://127.0.0.1:6379/0
+      JWT_SECRET: ci-only-signing-secret-not-used-in-production-0000
+      COOKIE_SECRET: ci-only-cookie-secret-not-used-in-production-1111
+      STORE_CORS: https://sericia.com
+      ADMIN_CORS: https://api.sericia.com
+      AUTH_CORS: https://sericia.com,https://api.sericia.com
+      MEDUSA_WORKER_MODE: shared
+      STRIPE_ENABLED: 'false'
+      MEDUSA_DISABLE_TELEMETRY: 'true'
+    defaults:
+      run:
+        working-directory: medusa-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: medusa-backend/package-lock.json
+      - run: npm ci --include=dev
+      - run: npm test
+      - run: npx --no-install tsc --noEmit
+      - run: npm audit --audit-level=high
+      - name: Build release image
+        run: docker build -t sericia-medusa:ci .
+      - name: Check database migrations and runtime
+        run: |
+          env_args=(-e NODE_ENV -e DATABASE_URL -e REDIS_URL -e JWT_SECRET -e COOKIE_SECRET -e STORE_CORS -e ADMIN_CORS -e AUTH_CORS -e MEDUSA_WORKER_MODE -e STRIPE_ENABLED -e MEDUSA_DISABLE_TELEMETRY)
+          docker run --rm --network host "${env_args[@]}" sericia-medusa:ci npm run predeploy
+          docker run --rm --network host "${env_args[@]}" sericia-medusa:ci npm run predeploy
+          docker run -d --name medusa-ci --network host "${env_args[@]}" sericia-medusa:ci
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:9000/health; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:9000/health
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:9000/admin/orders)" = 401
+          test "$(curl --silent -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:9000/webhooks/crossmint)" = 410
+          curl --fail --silent http://127.0.0.1:9000/app/login > /tmp/medusa-admin.html
+          test -s /tmp/medusa-admin.html
+      - name: Runtime diagnostics
+        if: failure()
+        run: docker logs medusa-ci 2>&1 | tail -100
