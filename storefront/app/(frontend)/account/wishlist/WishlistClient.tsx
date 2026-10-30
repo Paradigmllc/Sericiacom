@@ -7,8 +7,8 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist-store";
-import { useCart } from "@/lib/cart-store";
-import { useUi } from "@/lib/ui-store";
+import { useRouter } from "next/navigation";
+
 import { HeartIcon, CloseIcon, BagIcon } from "@/components/Icons";
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -38,8 +38,10 @@ function formatDate(ts: number, locale: string) {
       day: "numeric",
       year: "numeric",
     });
-  } catch {
-    return "";
+  } catch (error) {
+    console.error("[wishlist] Invalid date", error);
+    toast.error("Saved date unavailable");
+    return "—";
   }
 }
 
@@ -51,8 +53,7 @@ export default function WishlistClient() {
   const items = useWishlist((s) => s.items);
   const remove = useWishlist((s) => s.remove);
   const clear = useWishlist((s) => s.clear);
-  const addToCart = useCart((s) => s.add);
-  const openCart = useUi((s) => s.openCart);
+  const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
   const [listRef] = useAutoAnimate<HTMLDivElement>();
@@ -64,50 +65,11 @@ export default function WishlistClient() {
   }, []);
 
   function handleAddAll() {
-    if (items.length === 0) return;
-    try {
-      for (const it of items) {
-        addToCart({
-          productId: it.productId,
-          name: it.name,
-          slug: it.slug,
-          price: it.price,
-          currency: it.currency,
-          quantity: 1,
-          image: null,
-        });
-      }
-      toast.success(
-        items.length === 1
-          ? t("toast_added_all_singular")
-          : t("toast_added_all_plural_fmt", { count: items.length }),
-      );
-      setTimeout(() => openCart(), 150);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[wishlist] add all", err);
-      toast.error(msg);
-    }
+    toast.info("Choose an option on each product page before adding it to your cart.");
   }
 
   function handleAddOne(it: WishlistItem) {
-    try {
-      addToCart({
-        productId: it.productId,
-        name: it.name,
-        slug: it.slug,
-        price: it.price,
-        currency: it.currency,
-        quantity: 1,
-        image: null,
-      });
-      toast.success(t("toast_added_to_cart_fmt", { name: it.name }));
-      setTimeout(() => openCart(), 150);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[wishlist] add one", err);
-      toast.error(msg);
-    }
+    router.push(`/products/${encodeURIComponent(it.slug)}`);
   }
 
   function handleRemove(it: WishlistItem) {
@@ -123,10 +85,10 @@ export default function WishlistClient() {
 
   function handleClear() {
     if (items.length === 0) return;
-    if (!confirm(t("confirm_clear"))) return;
+
     try {
       clear();
-      toast.success(t("toast_cleared"));
+      toast.success(t("toast_cleared"), { action: { label: "Undo", onClick: () => useWishlist.setState({ items }) } });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("[wishlist] clear", err);
@@ -238,7 +200,7 @@ export default function WishlistClient() {
                 onClick={() => handleAddOne(it)}
                 className="mt-5 w-full border border-sericia-ink py-3 text-[12px] tracking-[0.18em] uppercase hover:bg-sericia-ink hover:text-sericia-paper transition-colors"
               >
-                {t("add_to_cart_button")}
+                Choose option
               </button>
             </motion.div>
           );

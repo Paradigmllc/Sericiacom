@@ -13,6 +13,13 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout移行中
+
+- Owner: Codex。商品optionをvariant IDで選択・カート保持。ブラウザcart version3で旧商品単位の曖昧なキャッシュを破棄（サーバーの注文/商品は変更なし）。wishlistからは商品ページでoption選択。
+- checkoutはMedusa標準cart/address/shippingへ接続。価格はサーバー計算、cookie HttpOnlyでcart IDを保持、数量/在庫/対象国/配送method/同一originを検証。支払/注文完了は未接続のまま。契約先未設定の配送を捏造しない。
+- ローカル型チェック・7 unit tests・変更したcheckout主要ファイルlint通過。ローカル容量273MiBのためbuildを停止、当タスクの.next/cacheのみ削除。CIでproduction buildとdesktop/mobile追加E2Eを実行予定。現行プレビューは73fb662f、公開Shopify未変更。
+- 詳細: [Checkout migration](docs/knowledge/sericia/checkout-migration-20261030.md)。外部provider、最終ブランドUI、運用adapter、公開切替は残る。
+
 ## CURRENT STATUS / Active Handoff — 2026-10-29 Storefront非公開配備・実画面検証済み
 
 - Owner: Codex。作業先は引き続きmedusa migration worktree / PR4。商品一覧・詳細・検索・お気に入り・閲覧履歴・cartでprice+currencyへ統一。Medusa v2金額の100分の1変換を削除し、regionの実通貨・calculated_priceを使用。

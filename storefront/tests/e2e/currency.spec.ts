@@ -5,8 +5,8 @@ test("JPY cart quantity changes preserve currency and major units", async ({ pag
   page.on("console", message => { if (message.type() === "error") console.error(message.text()); });
   await page.addInitScript(() => {
     if (localStorage.getItem("sericia-cart")) return;
-    localStorage.setItem("sericia-cart", JSON.stringify({version: 2, state: {items: [{
-      productId: "preview-fixture", slug: "preview-fixture", name: "Preview fixture", price: 1200,
+    localStorage.setItem("sericia-cart", JSON.stringify({version: 3, state: {items: [{
+      productId: "preview-fixture", variantId: "variant_preview", slug: "preview-fixture", name: "Preview fixture", price: 1200,
       currency: "jpy", quantity: 1, image: null,
     }]}}));
   });

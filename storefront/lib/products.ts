@@ -12,7 +12,10 @@
  * Medusa v2 came online (M3 / 2026-04-21). History preserved in git.
  */
 
+export type ProductVariant = { id: string; title: string; price: number; currency: string; stock: number };
+
 export type Product = {
+  variants: ProductVariant[];
   id: string;
   slug: string;
   name: string;

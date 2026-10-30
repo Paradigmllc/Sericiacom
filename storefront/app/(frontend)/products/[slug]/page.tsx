@@ -126,6 +126,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
             outOfStock,
             // Medusa variant.inventory_quantity, fetched live per request
             // (page has `export const dynamic = "force-dynamic"`).
+            variants: p.variants,
             stockRemaining: typeof p.stock === "number" ? p.stock : null,
             // F12 metadata fields surfaced in the accordion when present.
             ingredients: p.ingredients,

@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 
 export type CartItem = {
   productId: string;
+  variantId: string;
   name: string;
   slug: string;
   price: number;
@@ -15,8 +16,8 @@ export type CartItem = {
 type CartState = {
   items: CartItem[];
   add: (item: CartItem) => void;
-  remove: (productId: string) => void;
-  setQty: (productId: string, quantity: number) => void;
+  remove: (variantId: string) => void;
+  setQty: (variantId: string, quantity: number) => void;
   clear: () => void;
   count: () => number;
   subtotal: () => number;
@@ -28,12 +29,13 @@ export const useCart = create<CartState>()(
       items: [],
       add: (item) =>
         set((state) => {
+          if (!item.variantId || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) throw new Error("Select a valid product option and quantity");
           if (state.items.some(i => i.currency.toLowerCase() !== item.currency.toLowerCase())) throw new Error("Items in different currencies cannot share a cart");
-          const existing = state.items.find((i) => i.productId === item.productId);
+          const existing = state.items.find((i) => i.variantId === item.variantId);
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId
+                i.variantId === item.variantId
                   ? { ...i, price: item.price, quantity: Math.min(99, i.quantity + item.quantity) }
                   : i,
               ),
@@ -41,13 +43,13 @@ export const useCart = create<CartState>()(
           }
           return { items: [...state.items, item] };
         }),
-      remove: (productId) =>
-        set((state) => ({ items: state.items.filter((i) => i.productId !== productId) })),
-      setQty: (productId, quantity) =>
+      remove: (variantId) =>
+        set((state) => ({ items: state.items.filter((i) => i.variantId !== variantId) })),
+      setQty: (variantId, quantity) =>
         set((state) => ({
           items: state.items
             .map((i) =>
-              i.productId === productId ? { ...i, quantity: Math.max(1, Math.min(99, quantity)) } : i,
+              i.variantId === variantId ? { ...i, quantity: Math.max(1, Math.min(99, quantity)) } : i,
             )
             .filter((i) => i.quantity > 0),
         })),
@@ -55,6 +57,6 @@ export const useCart = create<CartState>()(
       count: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
       subtotal: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
-    { name: "sericia-cart", version: 2 },
+    { name: "sericia-cart", version: 3 },
   ),
 );

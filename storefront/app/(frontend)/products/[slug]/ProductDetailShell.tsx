@@ -11,6 +11,7 @@ import NotifyMeModal from "@/components/NotifyMeModal";
 import { Rule } from "@/components/ui";
 
 type ProductShape = {
+  variants: import("@/lib/products").ProductVariant[];
   id: string;
   slug: string;
   name: string;
@@ -237,6 +238,7 @@ export default function ProductDetailShell({
             )}
           <div ref={mainCtaRef}>
             <AddToCartButton
+              variants={product.variants}
               productId={product.id}
               name={product.name}
               slug={product.slug}
@@ -249,7 +251,7 @@ export default function ProductDetailShell({
           <p className="text-[12px] text-sericia-ink-mute mt-6 leading-relaxed">
             {product.outOfStock
               ? "This item is currently sold out. Join the waitlist to be notified of restocks."
-              : "Ships within 48 hours from Kyoto · EMS worldwide · tracking included"}
+              : "Available delivery methods and costs are confirmed at checkout."}
           </p>
 
           <Rule className="my-10" />

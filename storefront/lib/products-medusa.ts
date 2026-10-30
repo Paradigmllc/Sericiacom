@@ -113,6 +113,10 @@ function toProduct(
   ];
 
   return {
+    variants: (mp.variants ?? []).map(v => ({
+      id: v.id, title: v.title, price: lowestCalculatedPrice([v], currency), currency,
+      stock: Math.max(0, v.inventory_quantity ?? 0),
+    })),
     id: mp.id,
     slug: mp.handle,
     name: mp.title,

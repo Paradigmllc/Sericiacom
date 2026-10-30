@@ -117,7 +117,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             ) : (
               <ul ref={listRef} className="space-y-5">
                 {items.map((item) => (
-                  <li key={item.productId} className="flex gap-4">
+                  <li key={item.variantId} className="flex gap-4">
                     <Link
                       href={`/products/${item.slug}`}
                       onClick={() => onOpenChange(false)}
@@ -146,7 +146,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                         <div className="flex items-center border border-sericia-line">
                           <button
                             type="button"
-                            onClick={() => setQty(item.productId, item.quantity - 1)}
+                            onClick={() => setQty(item.variantId, item.quantity - 1)}
                             aria-label={tA11y("decrease")}
                             className="p-2 text-sericia-ink hover:bg-sericia-paper-card"
                           >
@@ -157,7 +157,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                           </span>
                           <button
                             type="button"
-                            onClick={() => setQty(item.productId, item.quantity + 1)}
+                            onClick={() => setQty(item.variantId, item.quantity + 1)}
                             aria-label={tA11y("increase")}
                             className="p-2 text-sericia-ink hover:bg-sericia-paper-card"
                           >
@@ -166,7 +166,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleRemove(item.productId, item.name)}
+                          onClick={() => handleRemove(item.variantId, item.name)}
                           className="text-[11px] tracking-wider uppercase text-sericia-ink-mute hover:text-sericia-ink transition"
                         >
                           Remove
