@@ -9,7 +9,7 @@ type Cart = {
 };
 type ShippingOption = { id: string; name: string; price_type: string; amount?: number };
 export class CheckoutError extends Error {
-  constructor(public status: number, message: string) { super(message); }
+  constructor(public status: number, message: string, public resetSession = false) { super(message); }
 }
 export async function checkoutCountries() {
   const { regionId } = await getRegion(DEFAULT_REGION_SLUG);
@@ -17,7 +17,7 @@ export async function checkoutCountries() {
   return { regionId, countries: ((region.countries ?? []) as { iso_2: string; display_name: string }[]).map(c => ({ code: c.iso_2, name: c.display_name })) };
 }
 function active(cart: Cart, regionId: string) {
-  if (cart.completed_at || cart.region_id !== regionId) throw new CheckoutError(409, "Please start a new checkout from your cart.");
+  if (cart.completed_at || cart.region_id !== regionId) throw new CheckoutError(409, "Please start a new checkout from your cart.", true);
 }
 export async function prepareCheckout(input: z.infer<typeof checkoutInput>, cartId?: string) {
   const { regionId, countries } = await checkoutCountries();

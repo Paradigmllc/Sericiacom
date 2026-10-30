@@ -44,4 +44,6 @@ test("checkout API rejects cross-site writes and tampered fields before backend 
   expect(badOrigin.status()).toBe(403);
   const invalid = await request.post("/api/commerce/checkout", {headers:{Origin:baseURL!},data:{action:"shipping",option_id:"so_fixture",items:[{variant_id:"variant_fixture",quantity:1,price:1}]}});
   expect(invalid.status()).toBe(400);
+  const oversized = await request.post("/api/commerce/checkout", {headers:{Origin:baseURL!},data:{text:"x".repeat(21000)}});
+  expect(oversized.status()).toBe(413);
 });

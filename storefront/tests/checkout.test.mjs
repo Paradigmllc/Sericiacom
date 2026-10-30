@@ -36,8 +36,8 @@ test('checkout persists authoritative cart, reuses it, rejects foreign/completed
   await assert.rejects(()=>prepareCheckout({action:'shipping',option_id:'so_fixture',items:[{variant_id:'variant_tea',quantity:3}]},cart.id),/cart changed/);
   medusa.store.product.list=async()=>({products:[{variants:[{id:'variant_tea',inventory_quantity:1}]}]});
   await assert.rejects(()=>prepareCheckout(input,cart.id),/no longer available in this quantity/);
-  cart={...cart,completed_at:'2026-10-30'};await assert.rejects(()=>prepareCheckout(input,cart.id),/new checkout/);
-  cart={...cart,completed_at:null,region_id:'reg_other'};await assert.rejects(()=>prepareCheckout(input,cart.id),/new checkout/);
+  cart={...cart,completed_at:'2026-10-30'};await assert.rejects(()=>prepareCheckout(input,cart.id),error => error.resetSession === true);
+  cart={...cart,completed_at:null,region_id:'reg_other'};await assert.rejects(()=>prepareCheckout(input,cart.id),error => error.resetSession === true);
   await assert.rejects(()=>checkoutQuote({...created,total:NaN}),/totals are unavailable/);
   medusa.store.fulfillment.listCartOptions=async()=>({shipping_options:[{id:'so_bad',name:'Bad quote',price_type:'flat'}]});
   await assert.rejects(()=>checkoutQuote(created),/quote is unavailable/);

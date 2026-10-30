@@ -22,8 +22,19 @@ export async function POST(request: NextRequest) {
   if (!sameOrigin(request.headers.get("origin"), request.headers.get("host"))) return json({ error: "Invalid request origin" }, 403);
   let body: unknown;
   try {
-    const raw = await request.text();
-    if (raw.length > 20_000) return json({ error: "Request too large" }, 413);
+    const reader = request.body?.getReader();
+    const decoder = new TextDecoder();
+    let raw = ""; let size = 0;
+    if (reader) {
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        size += chunk.value.byteLength;
+        if (size > 20_000) { await reader.cancel(); return json({ error: "Request too large" }, 413); }
+        raw += decoder.decode(chunk.value, { stream: true });
+      }
+      raw += decoder.decode();
+    }
     body = JSON.parse(raw);
   } catch (error) {
     console.warn("[checkout] Invalid JSON", { type: error instanceof Error ? error.name : "unknown" });
@@ -38,5 +49,8 @@ export async function POST(request: NextRequest) {
     const quote = await checkoutQuote(cart);
     if (parsed.data.action === "prepare") quote.shippingSelected = false;
     return json({ quote });
-  } catch (error) { return failure(error); }
+  } catch (error) {
+    if (error instanceof CheckoutError && error.resetSession) (await cookies()).delete(cookieName);
+    return failure(error);
+  }
 }
