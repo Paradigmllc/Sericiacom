@@ -1,3 +1,5 @@
+import type { CategoryKey } from "./catalog-categories";
+export { categoryLabel } from "./catalog-categories";
 /**
  * Product API — facade over Medusa v2 Store API.
  *
@@ -25,7 +27,7 @@ export type Product = {
   currency: string;
   weight_g: number;
   stock: number;
-  category: "tea" | "miso" | "mushroom" | "seasoning";
+  category: CategoryKey;
   images: string[];
   status: "active" | "draft" | "sold_out";
   origin_region: string | null;
@@ -48,12 +50,3 @@ export {
   getProductBySlug,
   getProductsByIds,
 } from "./products-medusa";
-
-export function categoryLabel(category: Product["category"]): string {
-  return {
-    tea: "Tea",
-    miso: "Miso",
-    mushroom: "Mushroom",
-    seasoning: "Seasoning",
-  }[category];
-}

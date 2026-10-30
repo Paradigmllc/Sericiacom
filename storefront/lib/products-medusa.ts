@@ -24,6 +24,7 @@ import { unstable_cache } from "next/cache";
 import { medusa, DEFAULT_REGION_SLUG, getRegion } from "./medusa";
 import { lowestCalculatedPrice } from "./money";
 import type { Product } from "./products";
+import { inferCategory } from "./catalog-categories";
 
 /**
  * Cache windows.
@@ -62,39 +63,6 @@ type MedusaProduct = {
   created_at: string;
   updated_at: string;
 };
-
-/**
- * inferCategory — Strategy B (category handle).
- *
- * Reads the first category handle from Medusa product.categories[] and maps it
- * to our 4-enum. Categories are bootstrapped by:
- *   medusa-backend/src/scripts/categorize-products.ts
- * which creates { tea, miso, mushroom, seasoning } as top-level product_category
- * records and attaches the 4 seed products accordingly.
- *
- * Fallback to handle keyword match if categories is empty — this keeps the UI
- * usable even if a new product is added via admin but categorization is
- * forgotten. Final fallback is "seasoning" (catch-all / limited-drop slot).
- */
-const VALID_CATEGORIES: ReadonlySet<Product["category"]> = new Set([
-  "tea",
-  "miso",
-  "mushroom",
-  "seasoning",
-]);
-
-function inferCategory(product: MedusaProduct): Product["category"] {
-  const handle = product.categories?.[0]?.handle;
-  if (handle && VALID_CATEGORIES.has(handle as Product["category"])) {
-    return handle as Product["category"];
-  }
-  // Keyword fallback for uncategorized new products
-  const h = product.handle.toLowerCase();
-  if (h.includes("sencha") || h.includes("tea") || h.includes("matcha")) return "tea";
-  if (h.includes("miso")) return "miso";
-  if (h.includes("shiitake") || h.includes("mushroom")) return "mushroom";
-  return "seasoning";
-}
 
 function toProduct(
   mp: MedusaProduct,

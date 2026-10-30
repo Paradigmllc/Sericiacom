@@ -13,12 +13,18 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-30 ブランド・商品分類更新中
+
+- Owner: Codex。倉庫は未契約と確認。実入荷・発送API接続は契約後。契約不要のブランド画面・商品導線を先行。
+- ホームの架空drop/在庫/価格/48h発送/無料送料構造化データを除去。Medusa公開商品のみ表示し、空状態と取得エラーを分離。器・生活用品・文具・布製品・ギフト等の分類を標準Medusa categoriesから読み、URL filterへ接続。商品名からの推測分類を廃止。
+- 既存UI/標準DB/APIを再利用、新規依存・有料サービスなし。商品カードの実画像表示・画像不達表示、古いdropリンクの削除を実装。検証・非公開配備中。実商品6draftの公開変更なし。
+
 ## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout非公開配備・実API検証済み
 
 - Owner: Codex。runtime9b5e0592、PR4。商品variant選択・カート・住所・送料をMedusaへ接続。cart version3は旧ブラウザキャッシュのみ破棄。価格/税/割引/creditはサーバー値、最新在庫のbatch照合、Origin/入力サイズ/数量検証、HttpOnly cookie、住所変更後の送料再選択を実装。
 - CI41003742878/41003742827成功。7 unit tests、型チェック、本番build、desktop/mobile12件通過。配備先でも12件(1.3m)、checkout JS SHAとイメージ一致。実APIでJPY1200×2=2400、検証用送料800、合計3200、cart再利用、在庫減少409を確認。
 - 実API検証でMedusa標準応答にitems.totalがない問題を検出し、全cart操作に明示fields指定を追加。失敗を隠さず修正して再配備。実商品6draft/実在庫level0/配送option0/fulfillment set0/注文0へ復帰をDB確認。架空情報の検証cart3件は監査用に保持。実送料/倉庫サービス接続を証明するテストではない。
-- 公開はShopifyのまま。支払・注文完了、現行ブランドの全面移行、運用adapter、仕入先/倉庫/SNS実接続、公開切替が未完。倉庫契約先はLocations/OPENLOGI候補を過去記録から回収、ユーザー回答待ち。決済申請を代行済みとは扱わない。
+- 公開はShopifyのまま。支払・注文完了、現行ブランドの全面移行、運用adapter、仕入先/倉庫/SNS実接続、公開切替が未完。倉庫は未契約とユーザーが確認（2026-10-30）。Locations/OPENLOGIは候補のみ。決済申請を代行済みとは扱わない。
 - 不合格候補9bbcd829の未使用Docker imageのみ削除し、SHA検証済みarchiveを保存。旧73fb662f imageと各archiveは維持。root空き12.76GiB、volume空き18GiB。元worktree既存変更は保持。
 - 詳細: [Checkout migration](docs/knowledge/sericia/checkout-migration-20261030.md)。localhost18000のSSHトンネルは独立接続へ更新。外部公開URLではない。
 

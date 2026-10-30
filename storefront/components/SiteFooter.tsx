@@ -91,8 +91,6 @@ export default function SiteFooter() {
         title: t("shop"),
         links: [
           { label: tNav("shop"), url: "/products" },
-          { label: tNav("current_drop"), url: "/#drop" },
-          { label: t("nav_waitlist"), url: "/#waitlist" },
           { label: tNav("guides"), url: "/guides" },
           { label: t("nav_journal"), url: "/journal" },
         ],
