@@ -6,16 +6,13 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Rule } from "@/components/ui";
 import { getProductBySlug, listActiveProducts, categoryLabel } from "@/lib/products";
-import { getCurrentDrop } from "@/lib/drops";
 import ProductCard from "@/components/ProductCard";
 import FadeIn from "@/components/FadeIn";
-import DropCountdown from "@/components/DropCountdown";
 import ProductDetailShell from "./ProductDetailShell";
 import {
   RecentlyViewedTracker,
   RecentlyViewedSection,
 } from "@/components/RecentlyViewed";
-import SamplerBanner from "@/components/SamplerBanner";
 
 const SITE_URL = "https://sericia.com";
 
@@ -43,10 +40,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
   const { slug } = await params;
   // F60 — Server-side i18n. Pulls translations alongside data fetches in
   // the same Promise.all so cold render cost stays at one round-trip.
-  const [p, all, drop, tPdp] = await Promise.all([
+  const [p, all, tPdp] = await Promise.all([
     getProductBySlug(slug),
     listActiveProducts(),
-    getCurrentDrop(),
     getTranslations("pdp"),
   ]);
   if (!p) notFound();
@@ -89,7 +85,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
       />
       <SiteHeader />
       <Container size="wide" className="py-16 md:py-24 pb-28 md:pb-24">
@@ -100,13 +96,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
           >
             ← All products
           </Link>
-          {drop?.closes_at && !outOfStock && (
-            <DropCountdown
-              closesAt={drop.closes_at}
-              label="Drop closes in"
-              variant="compact"
-            />
-          )}
+
         </div>
 
         <ProductDetailShell
@@ -140,7 +130,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
 
         <Rule className="my-20" />
 
-        <FadeIn>
+        {p.story && <FadeIn>
           <div className="grid md:grid-cols-12 gap-12 md:gap-20">
             <div className="md:col-span-4">
               <p className="label mb-3">{tPdp("extras.the_story")}</p>
@@ -154,7 +144,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
               </p>
             </div>
           </div>
-        </FadeIn>
+        </FadeIn>}
       </Container>
 
       {/* RecentlyViewed tracker — invisible. Records the current PDP into the
@@ -205,11 +195,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
         </>
       )}
 
-      {/* Aesop-style "complimentary sample" hairline strip + the
-          continue-browsing recently viewed row. Both render only when they
-          have content (sampler is always-on; recently-viewed silent until
-          the visitor has browsed ≥1 other product). */}
-      <SamplerBanner variant="compact" />
       <RecentlyViewedSection excludeId={p.id} />
 
       <SiteFooter />

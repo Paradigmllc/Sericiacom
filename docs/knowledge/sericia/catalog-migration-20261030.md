@@ -20,3 +20,5 @@ Local TypeScript, targeted lint and eight unit tests passed. Browser home regres
 User confirmed no warehouse contract on 2026-10-30. Locations/OPENLOGI are candidates only. Real receiving/shipping cannot run until a provider is contracted and authorized. Supplier stock/access rights, SNS authorization, payment/order completion, full localization/content migration, operations adapter and public cutover remain separate unfinished work. New home copy is Japanese/English (other locale selections currently use English). Category labels retain the existing English listing convention. This release does not create new sellable inventory or launch commerce.
 
 Public Shopify stays unchanged. All six imported products remain draft. Verification fixtures, if used, are isolated and removed after checks.
+
+Actual-product browser verification also found a legacy `getCurrentDrop()` call in PDP: it initializes unavailable Supabase and triggers the error boundary. Removed this unrelated query/countdown/sample banner from the Medusa product page. This was invisible with an empty draft-only catalog, so actual synthetic product verification remains required.
