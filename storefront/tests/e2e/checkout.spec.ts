@@ -13,7 +13,7 @@ test("checkout uses server quotes and resets shipping after address changes", as
     expect(input.items).toEqual([{variant_id:"variant_fixture",quantity:2}]);
     expect(input).not.toHaveProperty("price");
     if (input.action === "prepare") prepares++; else shipping++;
-    return route.fulfill({ json: { quote: { currency:"jpy",subtotal:2400,shipping:800,tax:0,total:3200,
+    return route.fulfill({ json: { quote: { currency:"jpy",subtotal:2400,shipping:800,tax:0,discount:0,credit:0,total:3200,
       items:[{id:"item_fixture",name:"Tea — 50g",quantity:2,total:2400}],
       options:[{id:"so_fixture",name:"Tracked delivery",amount:800}], shippingSelected:input.action === "shipping" } } });
   });

@@ -17,20 +17,22 @@ test('checkout rejects price tampering, duplicate variants, invalid quantities a
 });
 test('checkout persists authoritative cart, reuses it, rejects foreign/completed/stale carts and unsupported shipping', async () => {
   let creates=0; let updates=0; let saved;
-  let cart={id:'cart_fixture',region_id:'reg_preview',currency_code:'jpy',items:[{id:'item_fixture',product_id:'prod_fixture',variant_id:'variant_tea',product_title:'Tea',variant_title:'50g',quantity:2,total:2400}],item_subtotal:2400,shipping_total:0,tax_total:0,total:2400};
+  let cart={id:'cart_fixture',region_id:'reg_preview',currency_code:'jpy',items:[{id:'item_fixture',product_id:'prod_fixture',variant_id:'variant_tea',product_title:'Tea',variant_title:'50g',quantity:2,total:2400}],item_subtotal:2400,shipping_subtotal:0,tax_total:0,discount_subtotal:0,credit_line_total:0,total:2400};
   medusa.store.region.list=async()=>({regions:[{id:'reg_preview',name:'preview',currency_code:'jpy'}]});
   medusa.store.region.retrieve=async()=>({region:{countries:[{iso_2:'us',display_name:'United States'}]}});
   medusa.store.product.list=async()=>({products:[{id:"prod_fixture",variants:[{id:"variant_tea",inventory_quantity:10}]}]});
-  medusa.store.cart.create=async body=>{creates++;saved=body;return {cart};};
-  medusa.store.cart.retrieve=async()=>({cart});
-  medusa.store.cart.update=async()=>{updates++;return {cart};};
+  medusa.store.cart.create=async (body,query)=>{assert.equal(query.fields,"+items.total");creates++;saved=body;return {cart};};
+  medusa.store.cart.retrieve=async(id,query)=>{assert.equal(query.fields,"+items.total");return {cart};};
+  medusa.store.cart.update=async(id,body,query)=>{assert.equal(query.fields,"+items.total");updates++;return {cart};};
   medusa.store.fulfillment.listCartOptions=async()=>({shipping_options:[{id:'so_fixture',name:'Tracked',amount:800,price_type:'flat'}]});
-  medusa.store.cart.addShippingMethod=async()=>({cart:{...cart,shipping_methods:[{shipping_option_id:'so_fixture'}],shipping_total:800,total:3200}});
+  medusa.store.cart.addShippingMethod=async()=>({cart:{...cart,shipping_methods:[{shipping_option_id:'so_fixture'}],shipping_subtotal:800,total:3200}});
   const created=await prepareCheckout(input);
   assert.equal(creates,1);assert.equal(saved.region_id,'reg_preview');assert.deepEqual(saved.items,input.items);assert.equal(saved.items[0].price,undefined);
   await prepareCheckout(input,cart.id);assert.equal(creates,1);assert.equal(updates,1);
   const quote=await checkoutQuote(await prepareCheckout({action:'shipping',option_id:'so_fixture',items:input.items},cart.id));
   assert.equal(quote.total,3200);assert.equal(quote.currency,'jpy');assert.equal(quote.shippingSelected,true);
+  const taxed = await checkoutQuote({...created,shipping_subtotal:800,tax_total:280,discount_subtotal:400,credit_line_total:100,total:2980});
+  assert.equal(taxed.subtotal + taxed.shipping + taxed.tax - taxed.discount - taxed.credit, taxed.total);
   await assert.rejects(()=>prepareCheckout({...input,address:{...input.address,country_code:'gb'}}),/Delivery is not available/);
   await assert.rejects(()=>prepareCheckout({action:'shipping',option_id:'so_unknown',items:input.items},cart.id),/no longer available/);
   await assert.rejects(()=>prepareCheckout({action:'shipping',option_id:'so_fixture',items:[{variant_id:'variant_tea',quantity:3}]},cart.id),/cart changed/);

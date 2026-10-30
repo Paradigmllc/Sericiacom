@@ -91,8 +91,8 @@ export default function CartCheckoutForm() {
       {(currentQuote?.items ?? items.map(i => ({ id: i.variantId, name: i.name, quantity: i.quantity, total: i.price * i.quantity }))).map(i =>
         <div key={i.id} className="flex justify-between gap-3 text-sm"><span>{i.name} × {i.quantity}</span><span className="whitespace-nowrap">{formatMoney(i.total, currentQuote?.currency ?? items[0].currency)}</span></div>)}
       {currentQuote ? <dl className="space-y-3 border-t border-sericia-line pt-4">
-        {([['Items', currentQuote.subtotal], ['Shipping', currentQuote.shipping], ['Tax', currentQuote.tax], ['Total', currentQuote.total]] as const).map(([label, amount]) =>
-          <div key={label} className="flex justify-between"><dt>{label}</dt><dd>{['Shipping', 'Total'].includes(label) && !currentQuote.shippingSelected ? "Choose delivery" : formatMoney(amount, currentQuote.currency)}</dd></div>)}
+        {([['Items', currentQuote.subtotal], ['Shipping', currentQuote.shipping], ['Tax', currentQuote.tax], ['Discount', currentQuote.discount], ['Credit', currentQuote.credit], ['Total', currentQuote.total]] as const).map(([label, amount]) =>
+          <div key={label} className="flex justify-between"><dt>{label}</dt><dd>{['Shipping', 'Total'].includes(label) && !currentQuote.shippingSelected ? "Choose delivery" : `${["Discount", "Credit"].includes(label) && amount > 0 ? "−" : ""}${formatMoney(amount, currentQuote.currency)}`}</dd></div>)}
       </dl> : <p className="text-sm">Displayed item prices are estimates until verified. Shipping and tax are calculated after entering your address.</p>}
       <Link href="/cart" className="inline-block underline">Edit cart</Link>
     </aside>

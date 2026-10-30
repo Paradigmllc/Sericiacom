@@ -15,3 +15,5 @@ Local build stopped due to low disk (273MiB); removed only generated .next/cache
 Remaining: payment/complete-cart flow, real shipping and provider access, current full brand migration, operations adapter, persistent failure notifications, production routing/capacity and Shopify cancellation. This is not commercial launch readiness.
 
 Reference: https://docs.medusajs.com/resources/storefront-development/checkout/shipping ; installed Medusa2.22.1 Store API implementation confirms calculated shipping amount shape.
+
+Deployed integration found Store cart responses omit per-item totals unless explicitly selected. Added `+items.total` to every cart read/write response query and a regression assertion for the SDK contract. Summary now shows shipping excluding tax plus tax, discount and credit separately to avoid double-counting shipping tax in the displayed breakdown. See https://docs.medusajs.com/resources/storefront-development/cart/totals . Failed fixture attempts cleaned their product/location/country settings; synthetic carts remain for audit.

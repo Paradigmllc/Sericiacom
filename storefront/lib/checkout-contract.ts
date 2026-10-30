@@ -22,7 +22,7 @@ export function sameOrigin(origin: string | null, host: string | null) {
   catch (error) { console.warn("[checkout] Invalid origin", error instanceof Error ? error.name : "invalid"); return false; }
 }
 export type CheckoutQuote = {
-  currency: string; subtotal: number; shipping: number; tax: number; total: number;
+  currency: string; subtotal: number; shipping: number; tax: number; discount: number; credit: number; total: number;
   items: { id: string; name: string; quantity: number; total: number }[];
   options: { id: string; name: string; amount: number }[];
   shippingSelected: boolean;
