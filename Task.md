@@ -13,12 +13,14 @@
 
 ---
 
-## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout移行中
+## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout非公開配備・実API検証済み
 
-- Owner: Codex。商品optionをvariant IDで選択・カート保持。ブラウザcart version3で旧商品単位の曖昧なキャッシュを破棄（サーバーの注文/商品は変更なし）。wishlistからは商品ページでoption選択。
-- checkoutはMedusa標準cart/address/shippingへ接続。価格はサーバー計算、cookie HttpOnlyでcart IDを保持、数量/在庫/対象国/配送method/同一originを検証。支払/注文完了は未接続のまま。契約先未設定の配送を捏造しない。
-- ローカル型チェック・7 unit tests・変更したcheckout主要ファイルlint通過。ローカル容量273MiBのためbuildを停止、当タスクの.next/cacheのみ削除。CIでproduction buildとdesktop/mobile追加E2Eを実行予定。現行プレビューは73fb662f、公開Shopify未変更。
-- 詳細: [Checkout migration](docs/knowledge/sericia/checkout-migration-20261030.md)。外部provider、最終ブランドUI、運用adapter、公開切替は残る。
+- Owner: Codex。runtime9b5e0592、PR4。商品variant選択・カート・住所・送料をMedusaへ接続。cart version3は旧ブラウザキャッシュのみ破棄。価格/税/割引/creditはサーバー値、最新在庫のbatch照合、Origin/入力サイズ/数量検証、HttpOnly cookie、住所変更後の送料再選択を実装。
+- CI41003742878/41003742827成功。7 unit tests、型チェック、本番build、desktop/mobile12件通過。配備先でも12件(1.3m)、checkout JS SHAとイメージ一致。実APIでJPY1200×2=2400、検証用送料800、合計3200、cart再利用、在庫減少409を確認。
+- 実API検証でMedusa標準応答にitems.totalがない問題を検出し、全cart操作に明示fields指定を追加。失敗を隠さず修正して再配備。実商品6draft/実在庫level0/配送option0/fulfillment set0/注文0へ復帰をDB確認。架空情報の検証cart3件は監査用に保持。実送料/倉庫サービス接続を証明するテストではない。
+- 公開はShopifyのまま。支払・注文完了、現行ブランドの全面移行、運用adapter、仕入先/倉庫/SNS実接続、公開切替が未完。倉庫契約先はLocations/OPENLOGI候補を過去記録から回収、ユーザー回答待ち。決済申請を代行済みとは扱わない。
+- 不合格候補9bbcd829の未使用Docker imageのみ削除し、SHA検証済みarchiveを保存。旧73fb662f imageと各archiveは維持。root空き12.76GiB、volume空き18GiB。元worktree既存変更は保持。
+- 詳細: [Checkout migration](docs/knowledge/sericia/checkout-migration-20261030.md)。localhost18000のSSHトンネルは独立接続へ更新。外部公開URLではない。
 
 ## CURRENT STATUS / Active Handoff — 2026-10-29 Storefront非公開配備・実画面検証済み
 
