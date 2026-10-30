@@ -13,11 +13,14 @@
 
 ---
 
-## CURRENT STATUS / Active Handoff — 2026-10-30 ブランド・商品分類更新中
+## CURRENT STATUS / Active Handoff — 2026-10-30 ブランド・商品分類の非公開配備確認済み
 
-- Owner: Codex。倉庫は未契約と確認。実入荷・発送API接続は契約後。契約不要のブランド画面・商品導線を先行。
-- ホームの架空drop/在庫/価格/48h発送/無料送料構造化データを除去。Medusa公開商品のみ表示し、空状態と取得エラーを分離。器・生活用品・文具・布製品・ギフト等の分類を標準Medusa categoriesから読み、URL filterへ接続。商品名からの推測分類を廃止。
-- 既存UI/標準DB/APIを再利用、新規依存・有料サービスなし。商品カードの実画像表示・画像不達表示、古いdropリンクの削除を実装。検証・非公開配備中。実商品6draftの公開変更なし。
+- Owner: Codex。runtime `f5266075` / PR4 draft。日本製品全般のホーム・ブランド紹介、Medusaカテゴリ（器・生活用品・文具・布製品・ギフト等）、商品カード実画像/欠落表示を実装。架空drop/在庫/価格/48h発送、固定USD、根拠のない人気表示を除去。配送・返品は準備中表示。
+- 実API検証でカテゴリ取得漏れ（`*categories`が必要）とPDPの旧Supabase drop依存を発見して修正。検証商品でdesktop/mobileのホーム→カテゴリ一覧→PDP/JPY1200を確認。検証商品・一時カテゴリ削除後、実商品6件すべてdraft、ホーム空状態を再確認。
+- CI41017175479/41017175474成功。型チェック・8unit・build・監査gate・16browser通過。配備先も独立SSH接続へ切り替え後16件(2.0m)通過。途中のECONNRESET/遅延は記録済み、サーバー内HTTP200/0.03秒・再起動0/OOMなし。PDP配信JS SHAとcontainer一致。
+- 倉庫は未契約とユーザーが確認。Locations/OPENLOGIは候補のみ。公開ShopifyはHTTP200/Shopify markupを確認し維持。仕入先権限/在庫同期、倉庫/SNS実接続、決済・注文完了、運用adapter、残存旧コンテンツ/多言語、公開切替は未完。商用開始とは扱わない。
+- 非公開プレビュー: http://127.0.0.1:18001/ （このPCのSSH接続中のみ）。旧18000接続で不安定だったため独立経路へ変更。有料plugin/依存追加なし。root空き10.79GiBで余力は限定的。不合格候補2a104c88/545bd78eの未使用imageだけ削除、SHA確認済みarchiveと旧9b5e0592 rollback image保持。
+- 詳細: [Catalog migration](docs/knowledge/sericia/catalog-migration-20261030.md)。実決済・顧客送信・実発送なし。
 
 ## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout非公開配備・実API検証済み
 
