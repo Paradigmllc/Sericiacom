@@ -300,7 +300,7 @@ export default function SiteFooter() {
               ))}
             </ul>
           ) : (
-            <p className="hidden md:block">{fc?.tagline?.trim() || t("tagline")}</p>
+            <p className="hidden md:block">{locale === "ja" ? "日本のお茶と、暮らしを彩る品々。" : "Japanese tea, craft and everyday discoveries."}</p>
           )}
           <p>
             <span className="mr-2 text-sericia-ink-mute/70">{viewingLabel}</span>
