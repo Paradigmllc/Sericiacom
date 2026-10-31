@@ -13,11 +13,13 @@
 
 ---
 
-## CURRENT STATUS / Active Handoff — 2026-10-31 イベント連携・旧仕様表示の除去（配備進行中）
+## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa変更通知・旧仕様表示の修正を実機確認済み
 
-- Medusa sender `bad9f46a`: 商品/在庫変更を最小項目の署名付き通知で送信。Redis5回指数backoff・失敗job保持。CI41171323829成功、検証済image取得済み。operations PR765/9146c145は正式release進行中。受信側起動後にsender有効化し実イベント確認する。
-- 追加の画面確認で規約/privacyにCrossmint・未確認の米国法人/Delaware・48h配送等、thank-youにURLだけで注文確定表示が残っていたため修正。既存shipping/refundと同様に未確定条件を明示し、個人住所/電話番号は掲載しない。正式な法務適合・販売開始完了とは扱わない。
-- 新しいpolicy E2Eを追加、TypeScript確認中。公開Shopifyは維持。倉庫/仕入先/SNS実接続・決済/注文E2Eは引き続き未完。
+- Backend/storefront runtime7a5cc041。検証済CI artifactをSHA照合して非公開配備。backend16tests、storefront8unit+20browser・型・build成功。旧crypto/架空法人・Delaware/未確認配送条件/生成スコアを表示から除去。thank-youはURLパラメータだけで注文確定しない。日本語/英語・desktop/mobileを確認。プレビューはlocalhost18002（SSH接続中のみ）。
+- 運営画面appfa736a08、runtime restartbssslm35kcgb4jyfxewgn70p。通常Medusa商品更新→署名付き通知→private DB→SSE→商品一覧更新を本番ブラウザで確認。18:00:19の下書き名変更、18:00:39の復元が再読込なしで反映。10診断履歴/通知失敗0。HMAC改ざん・期限切れ401、重複保存なし。商品の公開/実在庫変更/実注文はしていない。
+- 実機で見つかったRedis内部イベント優先度上限、共有ネットワークのpostgres/redis名競合を修正。Supabase側のwal2json欠落、購読索引/検証trigger欠落、bundleのoptional bufferutil非互換も修復。既存DBを再起動せず検証済library追加、将来の再作成用imageをComposeへ固定。runtime-only WS_NO_BUFFER_UTIL=1。
+- 実商品6draft、inventory levels0、orders0。公開sericia.comはShopifyHTTP200のまま。倉庫未契約、仕入先/BASE OAuth・SNS認証未接続、決済・商用条件・購入E2E未完。商用運用開始済みとは扱わない。sender終端失敗の再実行・通知再送は手動。共通基盤の18moderate auditと別機能Manual Work V4 HTTP207は残るが、独立postdoctorは成功。
+- DBバックアップ全世代を保持。不要build cacheと検証済archiveへ退避した未使用imageだけ整理。実装・検証・復旧詳細は[今回の記録](docs/knowledge/sericia/events-and-policy-verification-20261031.md)。元worktreeの既存変更/untrackedは保持。
 
 ## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa運営画面 本番確認済み
 
