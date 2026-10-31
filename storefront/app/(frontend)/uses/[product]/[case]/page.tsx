@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Eyebrow, Rule, SectionHeading } from "@/components/ui";
-import VisualStatGrid from "@/components/VisualStatGrid";
 import { Marquee } from "@/components/magicui/marquee";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { BentoGrid, BentoCard } from "@/components/magicui/bento-grid";
@@ -44,24 +43,6 @@ function resolve(rawProduct: string, rawCase: string) {
   return { product: p, useCase: u };
 }
 
-// Deterministic stat generator — placeholder values until pSEO drainer
-// fills with real-data scores. Each (product × use-case) gets the
-// SAME stat strip on repeat visits so visitors don't see numbers
-// shuffle on refresh.
-function statsFor(productSlug: string, caseSlug: string) {
-  const seed = `${productSlug}-${caseSlug}`;
-  let h = 5381;
-  for (let i = 0; i < seed.length; i++) {
-    h = ((h << 5) + h) ^ seed.charCodeAt(i);
-  }
-  const r = (offset: number) => Math.abs((h >> offset) & 0xff) % 60 + 35; // 35..95
-  return {
-    fitScore: r(0),
-    minutes: 5 + (r(8) % 25),
-    countries: 23, // Sericia ships to 23+ countries
-    days: 14, // EMS delivery window
-  };
-}
 
 export async function generateMetadata({
   params,
@@ -89,7 +70,6 @@ export default async function UsesPage({ params }: { params: Params }) {
   if (!r) return notFound();
 
   const { product, useCase } = r;
-  const stats = statsFor(product.slug, useCase.slug);
   const t = await getTranslations("uses.sections");
 
   // ── JSON-LD ──────────────────────────────────────────────────────────
@@ -214,35 +194,7 @@ export default async function UsesPage({ params }: { params: Params }) {
 
           <Rule className="my-12" />
 
-          {/* Visual stat strip — react-countup animated, brand palette tones */}
-          <VisualStatGrid
-            stats={[
-              {
-                value: stats.fitScore,
-                suffix: "/100",
-                label: "Use-case fit score",
-                tone: "tea",
-              },
-              {
-                value: stats.minutes,
-                suffix: "min",
-                label: "Preparation",
-                tone: "miso",
-              },
-              {
-                value: stats.countries,
-                suffix: "+",
-                label: "Countries shipped",
-                tone: "mushroom",
-              },
-              {
-                value: stats.days,
-                suffix: "d",
-                label: "Avg delivery",
-                tone: "seasoning",
-              },
-            ]}
-          />
+
 
           <Rule className="my-12" />
 
@@ -280,7 +232,7 @@ export default async function UsesPage({ params }: { params: Params }) {
                   key={p.slug}
                   size={i === 0 ? "2x1" : "1x1"}
                   name={p.name}
-                  description={`Cross-ship with ${product.name} for ${useCase.name.toLowerCase()}. Free shipping on multi-item drops over $200.`}
+                  description={`Explore ${p.name} alongside ${product.name}. Check the current listings for availability.`}
                   cta={
                     <Link
                       href={`/uses/${p.slug}/${useCase.slug}`}
@@ -304,10 +256,8 @@ export default async function UsesPage({ params }: { params: Params }) {
               Explore {product.name} and other Japanese products.
             </h2>
             <p className="text-[15px] text-sericia-ink-soft mt-4 leading-relaxed max-w-prose">
-              Each drop sells through. When a producer's batch is gone,
-              the next drop sources from a different season or region.
-              Ships EMS to {stats.countries}+ countries within{" "}
-              {stats.days} days.
+              Review the current collection for product availability. Delivery
+              destinations, charges and handling conditions are being confirmed.
             </p>
             <Link
               href={`/products/${product.slug}`}

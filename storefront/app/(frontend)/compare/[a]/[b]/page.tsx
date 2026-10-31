@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Eyebrow, Rule, SectionHeading } from "@/components/ui";
-import ColorfulComparisonTable from "@/components/ColorfulComparisonTable";
 import { Marquee } from "@/components/magicui/marquee";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { SparklesText } from "@/components/magicui/sparkles-text";
@@ -15,18 +14,6 @@ import {
   type ProductSlug,
 } from "@/lib/pseo-matrix";
 
-// Deterministic faux-score generator: hash slug → 35–95 range so the
-// same product gets the same score across all comparisons it appears
-// in. This is placeholder data — once pSEO drainer fills in real
-// editorial briefs with attribute scores, swap to brief.attributes.
-function scoreFor(slug: string, attribute: string): number {
-  const seed = `${slug}-${attribute}`;
-  let h = 5381;
-  for (let i = 0; i < seed.length; i++) {
-    h = ((h << 5) + h) ^ seed.charCodeAt(i);
-  }
-  return 35 + (Math.abs(h) % 61); // 35..95
-}
 
 const COMPARE_ATTRIBUTES = [
   { key: "umami", label: "Umami depth", note: "Savoury intensity per gram" },
@@ -143,7 +130,7 @@ export default async function ComparePage({ params }: { params: Params }) {
   const faqs = [
     {
       q: `What is the difference between ${a.name} and ${b.name}?`,
-      a: `${a.name} and ${b.name} are both staple Japanese pantry items but serve different culinary purposes. ${a.name} typically excels at one dimension where ${b.name} brings a complementary profile — see the comparison table above for attribute-by-attribute scoring across umami depth, preparation time, shelf life, versatility, and regional variation.`,
+      a: `${a.name} and ${b.name} are both staple Japanese pantry items but serve different culinary purposes. ${a.name} typically excels at one dimension where ${b.name} brings a complementary profile — compare the producer specifications for umami depth, preparation time, shelf life, versatility, and regional variation.`,
     },
     {
       q: `Which should I buy first, ${a.name} or ${b.name}?`,
@@ -202,7 +189,7 @@ export default async function ComparePage({ params }: { params: Params }) {
             <strong className="text-sericia-ink">{a.name}</strong> and{" "}
             <strong className="text-sericia-ink">{b.name}</strong> are
             both staple Japanese pantry items but serve different
-            culinary purposes. The comparison table below scores each on
+            culinary purposes. When comparing specific products, consider
             umami depth, preparation time, shelf life, versatility, and
             regional variation — so you can choose by your kitchen's
             priorities. Availability and delivery conditions depend on the current product listing.
@@ -211,16 +198,11 @@ export default async function ComparePage({ params }: { params: Params }) {
           <Rule className="my-12" />
 
           <SectionHeading title={t("at_a_glance")} />
-          <ColorfulComparisonTable
-            productA={a.name}
-            productB={b.name}
-            rows={COMPARE_ATTRIBUTES.map((attr) => ({
-              label: attr.label,
-              note: attr.note,
-              a: scoreFor(a.slug, attr.key),
-              b: scoreFor(b.slug, attr.key),
-            }))}
-          />
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {COMPARE_ATTRIBUTES.map(attribute => <li key={attribute.key} className="border border-sericia-line p-4">
+              <h3 className="font-semibold">{attribute.label}</h3><p className="mt-2 text-sm">Check the producer specifications for each product.</p>
+            </li>)}
+          </ul>
           <div className="grid md:grid-cols-2 gap-px bg-sericia-line my-8">
             <div className="bg-sericia-paper p-8">
               <p className="label mb-3">{a.name}</p>
