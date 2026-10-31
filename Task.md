@@ -13,6 +13,14 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa運営画面 本番確認済み
+
+- Paradigm operations PR763 merged/deployed as `aa23a36c`; 通常CMSログイン→運営OS→Medusa確認で商品6draft/在庫13品目を実データ確認。desktop/mobile証跡はgit外 `/tmp/sericia-medusa-live/`。在庫拠点未登録を数量未確認と表示。自動同期の完了ではない。
+- serverのみCoolify内部networkへ接続し `/opt/sericia-medusa-preview/compose.override.yaml` に永続化。localhost限定port保持。再現用 `infra/medusa/compose.operations.yaml` とREADMEを追加。専用Medusa admin keyは本番runtime-only、build/preview除外。固定GET APIのみ公開、CMS admin/editor限定。
+- 4世代の暗号化backup（6,048,770,620bytes）を承認済み20GB volumeへSHA検証付き移設。元pathをbind mount、serviceにmount依存/事前確認、timer復帰。世代削除なし。deploy後の不要build cache約9.3GB回収。
+- 公開Shopify/非公開storefront f5266075を維持。倉庫未契約、仕入先在庫権限・SNS資格情報・決済/注文E2Eは未完。共有release末尾Manual Work V4の207は残存するがdeploy finished/standalone postdoctor合格。
+- 容量最終値と運用証跡は Paradigm operations `docs/knowledge/sericia/medusa-operations-live-20261031.md` を参照。新規有料plugin/追加課金なし。
+
 ## CURRENT STATUS / Active Handoff — 2026-10-30 ブランド・商品分類の非公開配備確認済み
 
 - Owner: Codex。runtime `f5266075` / PR4 draft。日本製品全般のホーム・ブランド紹介、Medusaカテゴリ（器・生活用品・文具・布製品・ギフト等）、商品カード実画像/欠落表示を実装。架空drop/在庫/価格/48h発送、固定USD、根拠のない人気表示を除去。配送・返品は準備中表示。

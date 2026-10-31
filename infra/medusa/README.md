@@ -44,3 +44,23 @@ Storefront connection preparation:
   unavailable-item rejection and no payment providers. Do not run this migration
   check after commercial configuration/publication; its empty-catalog assertions
   are specific to this isolated preview.
+
+## Private operations reader
+
+On the approved Coolify host only, install `compose.operations.yaml` alongside
+`compose.yaml` as `compose.override.yaml` (mode0600). Default Compose commands then
+retain the private operations connection on subsequent recreations. Verify the
+external `coolify` network exists before applying. Only the HTTP server joins it;
+PostgreSQL, Redis and the worker retain the commerce network. The host HTTP port
+remains bound to127.0.0.1; public storefront DNS is unchanged.
+
+The operations app uses runtime-only `SERICIA_MEDUSA_ADMIN_URL` set to
+`http://sericia-medusa-private:9000` and `SERICIA_MEDUSA_SECRET_API_KEY` stored in
+Coolify. Do not pass these values to builds or previews. The standard Medusa
+secret key carries admin privileges; the application exposes only fixed GET
+product/inventory paths to identified CMS admins/editors. Keep the key private.
+
+After applying, verify compose's merged network/port configuration, private
+`/health`, and the authenticated operations UI's product and inventory views.
+Removal requires first disabling the operations connection, removing the override,
+and recreating the server; do not disconnect a database network.
