@@ -17,7 +17,7 @@ export default defineConfig({
   },
   admin: { disable: env.mode === "worker", path: "/app" },
   modules: [
-    { resolve: "@medusajs/medusa/event-bus-redis", options: { redisUrl: env.redisUrl, jobOptions: { attempts: 5, backoff: { type: "exponential", delay: 5000 }, removeOnFail: false } } },
+    { resolve: "@medusajs/medusa/event-bus-redis", options: { redisUrl: env.redisUrl, jobOptions: { priority: 100, attempts: 5, backoff: { type: "exponential", delay: 5000 }, removeOnFail: false } } },
     { resolve: "@medusajs/medusa/workflow-engine-redis", options: { redis: { redisUrl: env.redisUrl } } },
     { resolve: "@medusajs/medusa/locking", options: { providers: [{
       resolve: "@medusajs/medusa/locking-redis", id: "locking-redis", is_default: true,
