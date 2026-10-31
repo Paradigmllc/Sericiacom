@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 test("pre-launch policies do not claim retired payments or unverified delivery terms", async ({ page }) => {
-  for (const path of ["/terms", "/privacy"]) {
+  for (const path of ["/terms", "/privacy", "/faq"]) {
     await page.goto(path);
     await expect(page.getByRole("status").first()).toContainText(/preview does not accept orders/i);
     await expect(page.locator("body")).not.toContainText(/Crossmint|USDC|Delaware|forty-eight hours/i);

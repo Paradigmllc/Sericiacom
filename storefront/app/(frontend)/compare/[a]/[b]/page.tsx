@@ -147,7 +147,7 @@ export default async function ComparePage({ params }: { params: Params }) {
     },
     {
       q: `Which should I buy first, ${a.name} or ${b.name}?`,
-      a: `Choose based on the dish you cook most often. If you favour traditional Japanese preparation, ${a.name} tends to lead. For distinct standalone flavour, ${b.name} wins. Sericia's drops frequently include both, so visitors who want to try both can cross-ship in a single order over $200 with free shipping.`,
+      a: `Choose based on the dish you cook most often. If you favour traditional Japanese preparation, ${a.name} tends to lead. For distinct standalone flavour, ${b.name} wins. Check current product listings for availability and delivery conditions.`,
     },
     {
       q: `Can I substitute ${a.name} for ${b.name} (or vice versa)?`,
@@ -155,7 +155,7 @@ export default async function ComparePage({ params }: { params: Params }) {
     },
     {
       q: `Where can I buy authentic ${a.name} and ${b.name} outside Japan?`,
-      a: `Sericia ships both from Kyoto via EMS to 23+ countries. Each drop is small-batch from named producers — when a producer's harvest sells through, the next drop sources from a different region or season.`,
+      a: `Browse the collection for current listings. Delivery destinations, carriers and charges are being confirmed before sales open.`,
     },
   ];
 
@@ -205,7 +205,7 @@ export default async function ComparePage({ params }: { params: Params }) {
             culinary purposes. The comparison table below scores each on
             umami depth, preparation time, shelf life, versatility, and
             regional variation — so you can choose by your kitchen's
-            priorities. Both ship from Kyoto via EMS to 23+ countries.
+            priorities. Availability and delivery conditions depend on the current product listing.
           </p>
 
           <Rule className="my-12" />
@@ -272,14 +272,13 @@ export default async function ComparePage({ params }: { params: Params }) {
           {/* Primary CTA — BorderBeam-bordered card per pSEO Strategy §6 */}
           <div className="relative overflow-hidden rounded-sm border border-sericia-line bg-sericia-paper-card p-8 md:p-12 my-16">
             <BorderBeam size={120} duration={10} />
-            <Eyebrow>Cross-ship & save</Eyebrow>
+            <Eyebrow>Explore the collection</Eyebrow>
             <h2 className="text-[28px] md:text-[36px] leading-tight font-normal tracking-tight mt-3">
-              Order {a.name} and {b.name} together — free shipping over $200.
+              Explore {a.name}, {b.name} and other Japanese products.
             </h2>
             <p className="text-[15px] text-sericia-ink-soft mt-4 leading-relaxed max-w-prose">
-              Both ship from Kyoto via EMS within 48 hours of payment.
-              Cross-ship multiple items to amortise the per-package
-              footprint and unlock free worldwide shipping.
+              Review product availability and specifications in the collection.
+              Shipping and purchase conditions will be confirmed before sales open.
             </p>
             <Link
               href="/products"

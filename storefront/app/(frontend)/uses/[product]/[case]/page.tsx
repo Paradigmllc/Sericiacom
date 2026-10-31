@@ -101,7 +101,7 @@ export default async function UsesPage({ params }: { params: Params }) {
   const faqs = [
     {
       q: `Is ${product.name} good for ${useCase.name.toLowerCase()}?`,
-      a: `Yes. ${product.name} brings characteristics — flavour intensity, regional traceability, shelf stability — that align with ${useCase.name.toLowerCase()} better than commodity alternatives. Sericia sources directly from small producers in Japan and ships via EMS to ${stats.countries}+ countries.`,
+      a: `Yes. ${product.name} brings characteristics — flavour intensity, regional traceability, shelf stability — that align with ${useCase.name.toLowerCase()} better than commodity alternatives. Review the product listing for its source and specifications.`,
     },
     {
       q: `How much ${product.name} should I use for ${useCase.name.toLowerCase()}?`,
@@ -109,11 +109,11 @@ export default async function UsesPage({ params }: { params: Params }) {
     },
     {
       q: `What pairs well with ${product.name} for ${useCase.name.toLowerCase()}?`,
-      a: `See the "Pairings" grid below — Sericia's curators select complementary pantry items from our catalogue. Cross-shipping multiple items in one drop unlocks free shipping and reduces per-item carbon footprint.`,
+      a: `See the "Pairings" grid below — Sericia's curators select complementary pantry items from our catalogue. Availability and shipping conditions depend on the current listings.`,
     },
     {
       q: `How is ${product.name} shipped?`,
-      a: `EMS Worldwide from Kyoto. Average delivery window: ${stats.days} days for the US/EU, faster for APAC. Cold-pack used where required by product class. Tracking provided to all destinations.`,
+      a: `Destinations, carriers, shipping charges and handling conditions are being confirmed. Check the shipping page before purchasing.`,
     },
   ];
 
@@ -202,8 +202,7 @@ export default async function UsesPage({ params }: { params: Params }) {
             because of its sourcing depth, flavour density, and the small-
             batch attention each Sericia drop receives. Below: practical
             preparation, real serving ratios, and which other Japanese
-            pantry items pair to amplify the use case. Ships EMS to{" "}
-            {stats.countries}+ countries from Kyoto in {stats.days} days.{" "}
+            pantry items pair to amplify the use case. Product availability and delivery conditions are being confirmed.{" "}
             <Link
               href={`/products/${product.slug}`}
               className="underline-link"
@@ -302,7 +301,7 @@ export default async function UsesPage({ params }: { params: Params }) {
             <BorderBeam size={120} duration={10} />
             <Eyebrow>Current drop</Eyebrow>
             <h2 className="text-[28px] md:text-[36px] leading-tight font-normal tracking-tight mt-3">
-              Shop {product.name} — small-batch from Kyoto.
+              Explore {product.name} and other Japanese products.
             </h2>
             <p className="text-[15px] text-sericia-ink-soft mt-4 leading-relaxed max-w-prose">
               Each drop sells through. When a producer's batch is gone,
