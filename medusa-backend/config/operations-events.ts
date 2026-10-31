@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 export const operationsTopics = ["product.created", "product.updated", "product.deleted", "inventory-item.created", "inventory-item.updated", "inventory-item.deleted", "inventory-level.created", "inventory-level.updated", "inventory-level.deleted"];
-export async function sendOperationsEvent(event: { name: string; data: unknown; metadata?: { created_at?: Date } }, env = process.env, send: typeof fetch = fetch) {
+export async function sendOperationsEvent(event: { name: string; data: unknown; metadata?: { created_at?: Date | string } }, env = process.env, send: typeof fetch = fetch) {
   const destination = env.SERICIA_OPERATIONS_EVENTS_URL, secret = env.SERICIA_MEDUSA_EVENT_SECRET;
   if (!destination && !secret) return;
   if (!destination || !secret || secret.length < 32) throw new Error("Operations event configuration incomplete");
@@ -8,7 +8,8 @@ export async function sendOperationsEvent(event: { name: string; data: unknown; 
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash || url.pathname !== "/api/medusa-ops/events") throw new Error("Invalid operations event destination");
   const data = event.data;
   if (!operationsTopics.includes(event.name) || !data || typeof data !== "object" || !("id" in data) || typeof data.id !== "string" || !/^[a-zA-Z0-9_-]{1,120}$/.test(data.id)) throw new Error("Invalid operations event");
-  const created = event.metadata?.created_at;
+  const rawCreated = event.metadata?.created_at;
+  const created = typeof rawCreated === "string" && /^\d{4}-\d{2}-\d{2}T/.test(rawCreated) ? new Date(rawCreated) : rawCreated;
   if (!(created instanceof Date) || !Number.isFinite(created.getTime())) throw new Error("Operations event timestamp missing");
   const body = JSON.stringify({ topic: event.name, entityId: data.id, occurredAt: created.toISOString() });
   const timestamp = String(Date.now());
