@@ -1,7 +1,9 @@
-## CURRENT STATUS / Active Handoff — 2026-11-01 Medusa isolated restore drill in progress
+## CURRENT STATUS / Active Handoff — 2026-11-01 Medusa backup restoration verified
 
-- Owner: Codex; scope: infra/medusa restore verifier + CI fixture/failure checks + operational documentation. Reuse PostgreSQL tools and Python standard library; no new dependencies, public routes, DB schema or GUI changes.
-- Restore only into a new network-disabled, resource-limited tmpfs container from the exact local PostgreSQL image. No live DB writes, no application/worker startup, no payment/email/fulfillment side effects. Report archive digest, aggregate counts and cleanup result only.
+- Codex: implemented isolated database restoration verifier + success/failure CI checks. Code7b40f11c pushed to migration PR4; CI41253052710 succeeded, including16backend tests, TypeScript, audit, container build/migrations/runtime and restore success/failure cleanup checks. No new dependencies/schema/API/GUI or recurring schedule; this is operational recovery tooling.
+- Actual release backup restored into an offline resource-limited tmpfs PostgreSQL:147tables,0invalid indexes/constraints; active6products/13variants/13inventory items/0inventory levels/0orders. Restore+validation+cleanup5.09s. Truncated archive rejected and cleanup verified. Three Python tests and backend TypeScript passed.
+- Tool installed0700 at `/opt/sericia-medusa-preview/ops/verify-restore.py`; committed/deployed SHA matched. Backend/private storefront/public health checks passed. root87%/20GiBfree, volume68%/6.1GiBfree; all backups retained. App images remain7a5cc041; public Shopify retained.
+- [Recovery evidence and limits](docs/knowledge/sericia/restore-drill-20261101.md). This verifies Medusa schema/data only:roles/ACLs,Redis,media,application failover and shared Supabase full recovery untested. Terminal-notification recovery and commercial external dependencies remain open. Operations audit rechecked18moderate/0high/0critical, not fixed.
 
 # Task.md — Sericia (multi-agent edition)
 
