@@ -1,3 +1,8 @@
+## CURRENT STATUS / Active Handoff — 2026-11-01 Medusa isolated restore drill in progress
+
+- Owner: Codex; scope: infra/medusa restore verifier + CI fixture/failure checks + operational documentation. Reuse PostgreSQL tools and Python standard library; no new dependencies, public routes, DB schema or GUI changes.
+- Restore only into a new network-disabled, resource-limited tmpfs container from the exact local PostgreSQL image. No live DB writes, no application/worker startup, no payment/email/fulfillment side effects. Report archive digest, aggregate counts and cleanup result only.
+
 # Task.md — Sericia (multi-agent edition)
 
 > 永久ルール **TASK / TASK-CLEAN / ANTI-BLOAT / TEAM-DEV** 準拠 (Global CLAUDE.md).

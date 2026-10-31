@@ -10,7 +10,9 @@ On the dedicated volume, keep `postgres`, `redis`, `uploads`, and backups.
 `.env` in a root-only deployment directory; do not commit credentials.
 Required values: `MEDUSA_IMAGE` (verified CI artifact), `SERICIA_DATA_ROOT`,
 `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, and the backend `.env.example` values.
-Inside the stack use hostnames `postgres` and `redis` in connection URLs.
+Use the unique service-container hostnames `sericia-medusa-preview-postgres-1`
+and `sericia-medusa-preview-redis-1` in connection URLs. Generic service aliases
+can collide when the server also joins the shared operations network.
 The runtime image never runs database migrations automatically.
 
 Release order:
@@ -64,3 +66,39 @@ After applying, verify compose's merged network/port configuration, private
 `/health`, and the authenticated operations UI's product and inventory views.
 Removal requires first disabling the operations connection, removing the override,
 and recreating the server; do not disconnect a database network.
+
+## Isolated backup restoration drill
+
+Run `verify-restore.py` on the Docker host with a trusted custom-format Medusa dump,
+its independently recorded SHA256, the exact local image ID from the running
+Medusa PostgreSQL container, and a new private report path:
+
+```sh
+python3 infra/medusa/verify-restore.py \
+  --dump /private/medusa.dump --sha256 <recorded-sha256> \
+  --image <sha256-image-id> --report /private/restore-report.json
+```
+
+The verifier checks the digest before creating a container. It restores all archive
+objects/data into a new network-disabled database, without host mounts, published
+ports, application workers, or production credentials. It uses 512MiB tmpfs and
+768MiB memory limits, a half CPU, finite operation timeouts and cleanup on normal
+failure/interruption. Keep at least1GiB available memory before running. This
+bounded drill must be reviewed before backups outgrow those limits; it must not
+silently expand resource use on the shared host.
+
+The report (mode0600, no overwrite) records aggregate counts for every public table,
+required commerce-table presence, index/constraint validity, image/archive hashes,
+duration and cleanup. Restoration is single-transaction and stops on any error.
+Raw PostgreSQL errors are deliberately not logged because they may contain row
+values. Failed reports identify the stage; investigate privately. A failed cleanup
+must be handled before retrying: remove only the named `sericia-restore-check-*`
+container. SIGKILL/host failure cannot run the cleanup handler; check for remnants.
+
+This proves database schema/data restoration only. Ownership/ACLs are intentionally
+not restored into the isolated superuser fixture; production roles/permissions,
+external media, Redis state, application startup and real purchase flows require
+separate recovery checks. No running database is replaced. The CI workflow tests a
+full Medusa migration fixture and a truncated archive, including failure cleanup.
+
+PostgreSQL behavior: https://www.postgresql.org/docs/16/app-pgrestore.html
