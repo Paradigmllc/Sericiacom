@@ -11,7 +11,7 @@ import ProductsFilterBar, {
   type SortKey,
 } from "@/components/ProductsFilterBar";
 import CategoryHero, { Breadcrumb } from "@/components/CategoryHero";
-import SamplerBanner from "@/components/SamplerBanner";
+import { CATEGORY_KEYS } from "@/lib/catalog-categories";
 import { RecentlyViewedSection } from "@/components/RecentlyViewed";
 
 /**
@@ -35,7 +35,6 @@ import { RecentlyViewedSection } from "@/components/RecentlyViewed";
  *     storefront; default indexability is fine.
  */
 
-const CATEGORY_KEYS: ReadonlyArray<CategoryKey> = ["tea", "miso", "mushroom", "seasoning"];
 const SORT_KEYS: ReadonlyArray<SortKey> = ["featured", "price-asc", "price-desc", "name"];
 
 function parseCategory(raw: string | undefined): CategoryKey | null {
@@ -53,9 +52,9 @@ function sortProducts(products: Product[], sort: SortKey): Product[] {
   // upstream (Medusa) ordering intact, which is the curator's intent.
   switch (sort) {
     case "price-asc":
-      return [...products].sort((a, b) => a.price_usd - b.price_usd);
+      return [...products].sort((a, b) => a.price - b.price);
     case "price-desc":
-      return [...products].sort((a, b) => b.price_usd - a.price_usd);
+      return [...products].sort((a, b) => b.price - a.price);
     case "name":
       return [...products].sort((a, b) => a.name.localeCompare(b.name));
     case "featured":
@@ -79,15 +78,15 @@ export async function generateMetadata(
   const sp = await searchParams;
   const category = parseCategory(typeof sp.category === "string" ? sp.category : undefined);
 
-  const baseTitle = "Shop — Rescued Japanese craft";
+  const baseTitle = "Shop — Japanese everyday discoveries";
   const baseDesc =
-    "Small-batch tea, miso, mushrooms and seasonings rescued from Japan's finest producers. Ships EMS worldwide from Kyoto.";
+    "Explore Japanese tea, pantry, tableware, stationery and everyday essentials.";
 
   if (category) {
     const label = categoryLabel(category);
     return {
-      title: `${label} — Rescued Japanese craft`,
-      description: `Small-batch ${label.toLowerCase()}, rescued from Japan's finest producers. Ships EMS worldwide from Kyoto.`,
+      title: `${label} — Japanese everyday discoveries`,
+      description: `Explore ${label.toLowerCase()} in the SERICIA collection.`,
       alternates: { canonical: "/products" },
     };
   }
@@ -113,12 +112,7 @@ export default async function ProductsIndexPage(
 
   // Build counts off the unfiltered list so pills always show "(N)" of what's
   // actually available, not "(0)" in a category the user just filtered away from.
-  const counts: Record<CategoryKey, number> = {
-    tea: 0,
-    miso: 0,
-    mushroom: 0,
-    seasoning: 0,
-  };
+  const counts = Object.fromEntries(CATEGORY_KEYS.map(key => [key, 0])) as Record<CategoryKey, number>;
   for (const p of all) {
     if (p.category in counts) counts[p.category as CategoryKey]++;
   }
@@ -126,24 +120,9 @@ export default async function ProductsIndexPage(
   const filtered = category === null ? all : all.filter((p) => p.category === category);
   const sorted = sortProducts(filtered, sort);
 
-  // Aesop-style status badges. Heuristic: first 2 of any list = "New addition";
-  // bundle / drop products = "Limited release"; everything else = "Beloved formulation".
-  // Editorial intent: each card shows ONE pill so the grid reads as curated, not noisy.
-  const withBadges: Array<Product & { badge?: string }> = sorted.map((p, i) => {
-    let badge: string | undefined;
-    if (p.category === "seasoning" && /drop/i.test(p.slug)) badge = "Limited release";
-    else if (i < 2) badge = "New addition";
-    else if (p.stock !== null && typeof p.stock === "number" && p.stock > 50)
-      badge = "Beloved formulation";
-    return { ...p, badge };
-  });
-
-  // Hero copy adapts to the active filter so a /products?category=tea visit
-  // greets the user with a tea-specific banner instead of the generic title.
+  const withBadges = sorted;
   const heroEyebrow = category ? "Collection" : "The collection";
-  const heroTitle = category
-    ? `${categoryLabel(category)} — rescued, shipped from Kyoto.`
-    : "Rescued Japanese craft, shipped from Kyoto.";
+  const heroTitle = category ? categoryLabel(category) : "Japanese everyday discoveries.";
 
   const heroTone = category === "tea"
     ? "tea"
@@ -175,7 +154,7 @@ export default async function ProductsIndexPage(
     "@type": "CollectionPage",
     name: heroTitle,
     description:
-      "Single-origin tea, barrel-aged miso, sun-dried mushrooms and small-batch seasonings — limited stock, EMS worldwide from Kyoto.",
+      "Japanese tea, pantry, tableware, stationery and everyday essentials.",
     url: `${SITE}/products${category ? `?category=${category}` : ""}`,
     mainEntity: {
       "@type": "ItemList",
@@ -202,7 +181,7 @@ export default async function ProductsIndexPage(
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, "\\u003c") }}
       />
       <SiteHeader />
       <CategoryHero
@@ -212,7 +191,6 @@ export default async function ProductsIndexPage(
       />
       {/* Aesop-style "complimentary sample with order" strip — sits just below
           the hero, just above the breadcrumb. Hairline border, no decoration. */}
-      <SamplerBanner variant="wide" />
       <Container size="wide" className="pt-10 md:pt-14 pb-20 md:pb-28">
         <div className="mb-8 md:mb-12">
           <Breadcrumb items={breadcrumb} />

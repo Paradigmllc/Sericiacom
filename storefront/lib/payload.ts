@@ -14,6 +14,9 @@ import { getPayload } from "payload";
 import config from "../payload.config";
 
 async function initPayload() {
+  if (!process.env.DATABASE_URL_PAYLOAD || !process.env.PAYLOAD_SECRET) {
+    throw new Error("CMS database and signing configuration are required");
+  }
   return getPayload({ config });
 }
 

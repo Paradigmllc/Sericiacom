@@ -1,0 +1,45 @@
+name: Storefront migration checks
+on:
+  pull_request:
+    paths: ['storefront/**', '.github/workflows/storefront-migration.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  storefront:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: storefront
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+          cache: npm
+          cache-dependency-path: storefront/package-lock.json
+      - run: npm ci
+      - run: node --import tsx --test tests/*.test.mjs
+      - run: npx --no-install next typegen
+      - run: npx --no-install tsc --noEmit
+      - run: npm audit --audit-level=high
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: storefront-test-results
+          path: storefront/test-results
+          retention-days: 3
+      - name: Build verified storefront image
+        run: docker build -t sericia-storefront:ci .
+      - name: Export storefront image
+        run: docker save sericia-storefront:ci | gzip > /tmp/sericia-storefront.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sericia-storefront-image
+          path: /tmp/sericia-storefront.tar.gz
+          compression-level: 0
+          retention-days: 1

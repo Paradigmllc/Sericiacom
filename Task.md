@@ -13,6 +13,78 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa変更通知・旧仕様表示の修正を実機確認済み
+
+- Backend/storefront runtime7a5cc041。検証済CI artifactをSHA照合して非公開配備。backend16tests、storefront8unit+20browser・型・build成功。旧crypto/架空法人・Delaware/未確認配送条件/生成スコアを表示から除去。thank-youはURLパラメータだけで注文確定しない。日本語/英語・desktop/mobileを確認。プレビューはlocalhost18002（SSH接続中のみ）。
+- 運営画面appfa736a08、runtime restartbssslm35kcgb4jyfxewgn70p。通常Medusa商品更新→署名付き通知→private DB→SSE→商品一覧更新を本番ブラウザで確認。18:00:19の下書き名変更、18:00:39の復元が再読込なしで反映。10診断履歴/通知失敗0。HMAC改ざん・期限切れ401、重複保存なし。商品の公開/実在庫変更/実注文はしていない。
+- 実機で見つかったRedis内部イベント優先度上限、共有ネットワークのpostgres/redis名競合を修正。Supabase側のwal2json欠落、購読索引/検証trigger欠落、bundleのoptional bufferutil非互換も修復。既存DBを再起動せず検証済library追加、将来の再作成用imageをComposeへ固定。runtime-only WS_NO_BUFFER_UTIL=1。
+- 実商品6draft、inventory levels0、orders0。公開sericia.comはShopifyHTTP200のまま。倉庫未契約、仕入先/BASE OAuth・SNS認証未接続、決済・商用条件・購入E2E未完。商用運用開始済みとは扱わない。sender終端失敗の再実行・通知再送は手動。共通基盤の18moderate auditと別機能Manual Work V4 HTTP207は残るが、独立postdoctorは成功。
+- DBバックアップ全世代を保持。不要build cacheと検証済archiveへ退避した未使用imageだけ整理。実装・検証・復旧詳細は[今回の記録](docs/knowledge/sericia/events-and-policy-verification-20261031.md)。元worktreeの既存変更/untrackedは保持。
+
+## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa運営画面 本番確認済み
+
+- Paradigm operations PR763 merged/deployed as `aa23a36c`; 通常CMSログイン→運営OS→Medusa確認で商品6draft/在庫13品目を実データ確認。desktop/mobile証跡はgit外 `/tmp/sericia-medusa-live/`。在庫拠点未登録を数量未確認と表示。自動同期の完了ではない。
+- serverのみCoolify内部networkへ接続し `/opt/sericia-medusa-preview/compose.override.yaml` に永続化。localhost限定port保持。再現用 `infra/medusa/compose.operations.yaml` とREADMEを追加。専用Medusa admin keyは本番runtime-only、build/preview除外。固定GET APIのみ公開、CMS admin/editor限定。
+- 4世代の暗号化backup（6,048,770,620bytes）を承認済み20GB volumeへSHA検証付き移設。元pathをbind mount、serviceにmount依存/事前確認、timer復帰。世代削除なし。deploy後の不要build cache約9.3GB回収。
+- 公開Shopify/非公開storefront f5266075を維持。倉庫未契約、仕入先在庫権限・SNS資格情報・決済/注文E2Eは未完。共有release末尾Manual Work V4の207は残存するがdeploy finished/standalone postdoctor合格。
+- 容量最終値と運用証跡は Paradigm operations `docs/knowledge/sericia/medusa-operations-live-20261031.md` を参照。新規有料plugin/追加課金なし。
+
+## CURRENT STATUS / Active Handoff — 2026-10-30 ブランド・商品分類の非公開配備確認済み
+
+- Owner: Codex。runtime `f5266075` / PR4 draft。日本製品全般のホーム・ブランド紹介、Medusaカテゴリ（器・生活用品・文具・布製品・ギフト等）、商品カード実画像/欠落表示を実装。架空drop/在庫/価格/48h発送、固定USD、根拠のない人気表示を除去。配送・返品は準備中表示。
+- 実API検証でカテゴリ取得漏れ（`*categories`が必要）とPDPの旧Supabase drop依存を発見して修正。検証商品でdesktop/mobileのホーム→カテゴリ一覧→PDP/JPY1200を確認。検証商品・一時カテゴリ削除後、実商品6件すべてdraft、ホーム空状態を再確認。
+- CI41017175479/41017175474成功。型チェック・8unit・build・監査gate・16browser通過。配備先も独立SSH接続へ切り替え後16件(2.0m)通過。途中のECONNRESET/遅延は記録済み、サーバー内HTTP200/0.03秒・再起動0/OOMなし。PDP配信JS SHAとcontainer一致。
+- 倉庫は未契約とユーザーが確認。Locations/OPENLOGIは候補のみ。公開ShopifyはHTTP200/Shopify markupを確認し維持。仕入先権限/在庫同期、倉庫/SNS実接続、決済・注文完了、運用adapter、残存旧コンテンツ/多言語、公開切替は未完。商用開始とは扱わない。
+- 非公開プレビュー: http://127.0.0.1:18001/ （このPCのSSH接続中のみ）。旧18000接続で不安定だったため独立経路へ変更。有料plugin/依存追加なし。root空き10.79GiBで余力は限定的。不合格候補2a104c88/545bd78eの未使用imageだけ削除、SHA確認済みarchiveと旧9b5e0592 rollback image保持。
+- 詳細: [Catalog migration](docs/knowledge/sericia/catalog-migration-20261030.md)。実決済・顧客送信・実発送なし。
+
+## CURRENT STATUS / Active Handoff — 2026-10-30 Medusa checkout非公開配備・実API検証済み
+
+- Owner: Codex。runtime9b5e0592、PR4。商品variant選択・カート・住所・送料をMedusaへ接続。cart version3は旧ブラウザキャッシュのみ破棄。価格/税/割引/creditはサーバー値、最新在庫のbatch照合、Origin/入力サイズ/数量検証、HttpOnly cookie、住所変更後の送料再選択を実装。
+- CI41003742878/41003742827成功。7 unit tests、型チェック、本番build、desktop/mobile12件通過。配備先でも12件(1.3m)、checkout JS SHAとイメージ一致。実APIでJPY1200×2=2400、検証用送料800、合計3200、cart再利用、在庫減少409を確認。
+- 実API検証でMedusa標準応答にitems.totalがない問題を検出し、全cart操作に明示fields指定を追加。失敗を隠さず修正して再配備。実商品6draft/実在庫level0/配送option0/fulfillment set0/注文0へ復帰をDB確認。架空情報の検証cart3件は監査用に保持。実送料/倉庫サービス接続を証明するテストではない。
+- 公開はShopifyのまま。支払・注文完了、現行ブランドの全面移行、運用adapter、仕入先/倉庫/SNS実接続、公開切替が未完。倉庫は未契約とユーザーが確認（2026-10-30）。Locations/OPENLOGIは候補のみ。決済申請を代行済みとは扱わない。
+- 不合格候補9bbcd829の未使用Docker imageのみ削除し、SHA検証済みarchiveを保存。旧73fb662f imageと各archiveは維持。root空き12.76GiB、volume空き18GiB。元worktree既存変更は保持。
+- 詳細: [Checkout migration](docs/knowledge/sericia/checkout-migration-20261030.md)。localhost18000のSSHトンネルは独立接続へ更新。外部公開URLではない。
+
+## CURRENT STATUS / Active Handoff — 2026-10-29 Storefront非公開配備・実画面検証済み
+
+- Owner: Codex。作業先は引き続きmedusa migration worktree / PR4。商品一覧・詳細・検索・お気に入り・閲覧履歴・cartでprice+currencyへ統一。Medusa v2金額の100分の1変換を削除し、regionの実通貨・calculated_priceを使用。
+- 非公開Medusaに一時検証商品を作成し、実Store APIでJPY1200/在庫0を確認後削除。既存6下書きの公開変更なし。旧USD注文経路は非USDを503で拒否、UIも非USD決済を無効化。
+- Crossmint UI/SDKを除去、旧create/webhookは410で無副作用。履歴DBは変更なし。
+- Next16.4.3 / Payload3.92.1 / Node24.22.1以上へ更新。StripeSDKは22.1.1固定でAPI契約を維持。ローカル4テスト・型チェック・本番build通過。監査high/critical0、moderate5/low12残存。Playwright desktop/mobile6件がローカル・CI・配備先で通過。CI40871577555/40871577480成功。storefront73fb662fをlocalhost18000へ配備しhealthy、実配信JS SHA一致を確認。
+- 配備後root93%/空き12GiB、専用volume空き18GiB。容量の余力は限定的。公開Shopify、実商品6下書き、実注文/決済なしを維持。ローカルSSHトンネル http://127.0.0.1:18000 で確認可能（接続中のみ）。
+- 詳細: [Storefront migration](docs/knowledge/sericia/storefront-migration-20261029.md)。公開Shopify切替/解約はまだ行っていない。
+
+## CURRENT STATUS / Active Handoff — 2026-10-29 Store API検証・反映済み
+
+- Owner: Codex。PR4 runtime8630c832を非公開環境へ配置。CI40839700759成功、配布ZIP digest照合、更新前DB backup、標準workflowによるpreview channel/JPY region/公開APIキー設定を2回実行して重複なし。
+- 実環境Store API検証成功: APIキー必須、下書き非公開、JPY cart、channel範囲、決済providerなし、未割当商品追加拒否、失敗後cart itemなし。空の検証cartを1件作成、注文/決済なし。
+- 管理者を初回作成し認証200/Admin商品取得200、6下書きを確認。ランダムpasswordはmacOS Keychain `Sericia-Medusa-Preview-Admin` にのみ保管。既存ログイン情報は変更なし。ブラウザ認証後のE2Eは未実施。
+- server healthy / worker running / localhost19000 health200。新イメージ8bdbcba3dc88、runtime script SHAとアーカイブSHAは詳細資料参照。6draft/在庫level0を維持。
+- 次: 旧storefrontの価格単位/通貨と独自注文経路を修正・移行、現行ブランドUIを接続、運用OS adapter、R2画像、仕入先/倉庫/SNS実接続、Cloudflare公開切替。公開はShopifyのまま、解約未実施。root90%の容量制約も残る。
+
+## CURRENT STATUS / Active Handoff — 2026-10-29 Medusa非公開プレビュー稼働
+
+- PR4 draft: https://github.com/Paradigmllc/Sericiacom/pull/4 。runtime1ae48492、compose50f4ff62。新しい20GB volume107303029上に独立PostgreSQL/Redis/データを配置し、Medusa server/workerをlocalhost19000で稼働。公開サイトはShopifyのまま。
+- 実商品6下書き/13variant/JPY価格13/売越0/在庫レベル0を確認。再インポート重複なし、バックアップ復元6/13/13・再起動health200・匿名Admin401・ブラウザログイン画面・配信HTML/image hash一致まで検証。管理者ログインは未設定/未検証。
+- 追加費用: ユーザー承認済み20GB=USD1.534/月。Cloudflare Workers Paidは既存契約。R2 bucket作成/読み書きテスト済み、実画像は未投入。Stripe/メールは無効。
+- rootディスクは90%/空き15GiB、専用volumeは空き19GiB。データ容量は確保したがroot余力は別の制約。既存DB/バックアップを移動・削除していない。
+- 次: storefront/購入経路、運用OSのMedusa接続、管理認証、画像配信、仕入れ/倉庫/SNSの実接続、最終切替/Shopify解約。商用運用や移行完了とは扱わない。
+
+## CURRENT STATUS / Active Handoff — 2026-10-29 Medusa移行着手
+
+- ユーザーがShopify月額予算不可のためMedusa + Stripe + Cloudflareへの移行を承認。Cloudflare課金を許可。有料プラグインは採用しない。
+- Owner: Codex。作業先 `/Users/apple/dev/sericia-medusa-migration`、branch `codex/sericia-medusa-migration`。元worktreeのTask.md変更/GEMINI.md/opencode.jsonは保持。
+- 構成: 既存 `medusa-backend/` を更新し、商品/注文/在庫はMedusa標準DB/API/Adminを利用。Stripe標準provider、R2標準S3 provider、Redisの永続イベント/ロックを使用。既存storefrontの購入経路は別途Medusa標準cartへ移行が必要。
+- UI方針: 現行の日本製品/海外向けブランドを維持、管理UIはMedusa標準を利用。旧Crossmint注文作成経路を廃止。新規DBに段階移行し既存データを上書きしない。
+- Cloudflareログイン/CLI確認済み。Workers Paidは既存契約（月額5 USD+従量）。新規プラン購入なし。
+- R2 `sericia-product-media` 作成/空を確認。Shopify商品6/variant13を非公開ファイルへ退避、JPY維持の下書き移行プランを作成。12テスト・型チェック通過。backend/admin build通過、Docker/DB/商品再インポートCI40828641186通過。PR4 draft。
+- 詳細: [Medusa migration](docs/knowledge/sericia/medusa-migration-20261029.md)。依存監査high/critical/moderate0、low9は残存。注文メールはプレビューで無効。
+- 共有サーバーはディスク89%/空き17GB。旧専用ホスト46.62.217.172はSSH接続timeout。ユーザーが追加20GB/月額USD1.534を許可し、volume107303029を作成・専用パスへmount済み。既存DB/バックアップは変更なし。非公開プレビュー配置中、本番切替・Shopify解約は未実施。
+- 決済申請、仕入先API権限、倉庫契約/API、SNS認証は未解決。今回の基盤変更で実務運用完了とは扱わない。
+
+
 ## 🔄 進行中 (multi-agent ロック付き)
 
 | Status | Owner | Lock-since | Branch | Task | Notes |

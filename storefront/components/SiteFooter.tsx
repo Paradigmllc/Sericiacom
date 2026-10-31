@@ -64,8 +64,6 @@ export default function SiteFooter() {
   // localised independently of the surrounding sentence.
   const privacyNoteBefore =
     fc?.subscribePrivacyNote?.trim() || t("subscribe_note_before_link");
-  const studioBodyBefore =
-    fc?.studioCopy?.trim() || t("studio_body_before_link");
   const viewingLabel = fc?.currentlyViewingLabel?.trim() || t("currently_viewing");
 
   // Resolve columns: CMS array if non-empty, else fallback uses next-intl
@@ -93,8 +91,6 @@ export default function SiteFooter() {
         title: t("shop"),
         links: [
           { label: tNav("shop"), url: "/products" },
-          { label: tNav("current_drop"), url: "/#drop" },
-          { label: t("nav_waitlist"), url: "/#waitlist" },
           { label: tNav("guides"), url: "/guides" },
           { label: t("nav_journal"), url: "/journal" },
         ],
@@ -124,11 +120,12 @@ export default function SiteFooter() {
         title: t("support"),
         links: [
           { label: "contact@sericia.com", url: "mailto:contact@sericia.com" },
-          { label: "+81 050-3120-3706", url: "tel:+81-50-3120-3706" },
         ],
       },
     ];
   }
+  columns = columns.map(column => ({ ...column, links: column.links.filter(link => !link.url.toLowerCase().startsWith("tel:")) }));
+
   // Emergency-literal escape valve: if next-intl somehow fails entirely,
   // the columns array would have empty titles. Fall back to one English
   // 'Tools'-only column to avoid an entirely blank footer.
@@ -147,7 +144,7 @@ export default function SiteFooter() {
     <footer className="bg-sericia-paper-deep text-sericia-ink">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12">
         {/* Band 1 — Editorial + Subscribe */}
-        <section className="py-20 md:py-28 border-b border-sericia-ink/10">
+        {fc?.editorialHeading?.trim() && fc?.editorialBody?.trim() && <section className="py-20 md:py-28 border-b border-sericia-ink/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             <div className="lg:col-span-7">
               <p className="text-[11px] tracking-[0.3em] uppercase text-sericia-ink-mute mb-6">
@@ -168,7 +165,7 @@ export default function SiteFooter() {
               </p>
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* Band 2 — Link grid (editor-controlled columns) */}
         <section className="py-16 md:py-20 border-b border-sericia-ink/10">
@@ -238,7 +235,6 @@ export default function SiteFooter() {
             <div>
               <p className="label mb-3">{t("studio_label")}</p>
               <p className="text-[14px] text-sericia-ink-soft leading-[1.75] max-w-xl">
-                {studioBodyBefore}{" "}
                 <Link href="/tokushoho" className="underline-link">
                   {t("tokushoho_label")}
                 </Link>
@@ -304,7 +300,7 @@ export default function SiteFooter() {
               ))}
             </ul>
           ) : (
-            <p className="hidden md:block">{fc?.tagline?.trim() || t("tagline")}</p>
+            <p className="hidden md:block">{locale === "ja" ? "日本のお茶と、暮らしを彩る品々。" : "Japanese tea, craft and everyday discoveries."}</p>
           )}
           <p>
             <span className="mr-2 text-sericia-ink-mute/70">{viewingLabel}</span>

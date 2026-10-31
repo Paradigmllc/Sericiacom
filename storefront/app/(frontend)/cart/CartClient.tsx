@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -32,14 +33,15 @@ export default function CartClient() {
     );
   }
 
-  const subtotal = items.reduce((s, i) => s + i.price_usd * i.quantity, 0);
+  const currency = items[0]?.currency ?? "USD";
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
 
   return (
     <div className="grid md:grid-cols-12 gap-12 md:gap-20">
       <div className="md:col-span-8">
         <div className="border-t border-sericia-line">
           {items.map((item) => (
-            <div key={item.productId} className="grid grid-cols-12 gap-4 py-6 border-b border-sericia-line items-center">
+            <div key={item.variantId} className="grid grid-cols-12 gap-4 py-6 border-b border-sericia-line items-center">
               <div className="col-span-3 md:col-span-2">
                 <div className="aspect-square bg-gradient-to-br from-[#d4c9b0] to-[#7a5c3c]" />
               </div>
@@ -47,30 +49,30 @@ export default function CartClient() {
                 <Link href={`/products/${item.slug}`} className="block">
                   <h3 className="text-[16px] font-normal leading-snug hover:text-sericia-accent transition">{item.name}</h3>
                 </Link>
-                <p className="text-[13px] text-sericia-ink-mute mt-2">${item.price_usd} each</p>
+                <p className="text-[13px] text-sericia-ink-mute mt-2">{formatMoney(item.price, item.currency)} each</p>
               </div>
               <div className="col-span-6 md:col-span-3">
                 <div className="flex items-center border border-sericia-line w-max">
                   <button
                     type="button"
-                    onClick={() => setQty(item.productId, item.quantity - 1)}
+                    onClick={() => setQty(item.variantId, item.quantity - 1)}
                     className="w-9 h-9 text-[16px] text-sericia-ink hover:bg-sericia-paper-card"
                     aria-label={tA11y("decrease")}
                   >−</button>
                   <span className="w-10 text-center text-[13px]">{item.quantity}</span>
                   <button
                     type="button"
-                    onClick={() => setQty(item.productId, item.quantity + 1)}
+                    onClick={() => setQty(item.variantId, item.quantity + 1)}
                     className="w-9 h-9 text-[16px] text-sericia-ink hover:bg-sericia-paper-card"
                     aria-label={tA11y("increase")}
                   >+</button>
                 </div>
               </div>
               <div className="col-span-6 md:col-span-2 text-right">
-                <div className="text-[15px]">${item.price_usd * item.quantity}</div>
+                <div className="text-[15px]">{formatMoney(item.price * item.quantity, item.currency)}</div>
                 <button
                   type="button"
-                  onClick={() => remove(item.productId)}
+                  onClick={() => remove(item.variantId)}
                   className="text-[11px] tracking-wider uppercase text-sericia-ink-mute hover:text-sericia-ink mt-2"
                 >
                   Remove
@@ -86,17 +88,17 @@ export default function CartClient() {
           <p className="label mb-6">Summary</p>
           <div className="flex justify-between py-3 text-[14px]">
             <span className="text-sericia-ink-soft">Subtotal</span>
-            <span>${subtotal}</span>
+            <span>{formatMoney(subtotal, currency)}</span>
           </div>
           <Rule />
           <div className="flex justify-between py-3 text-[14px]">
-            <span className="text-sericia-ink-soft">Shipping (EMS worldwide)</span>
-            <span>Included</span>
+            <span className="text-sericia-ink-soft">Shipping</span>
+            <span>Calculated at checkout</span>
           </div>
           <Rule />
           <div className="flex justify-between py-4 text-[16px] font-medium">
             <span>Total</span>
-            <span>${subtotal} USD</span>
+            <span>{formatMoney(subtotal, currency)}</span>
           </div>
           <Link
             href="/checkout"

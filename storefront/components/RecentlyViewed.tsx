@@ -15,6 +15,7 @@
  * empty for one frame then populates.
  */
 
+import { formatMoney } from "@/lib/money";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRecentlyViewed, type RecentItem } from "@/lib/recently-viewed-store";
@@ -101,7 +102,7 @@ export function RecentlyViewedSection({
                   {it.name}
                 </h3>
                 <p className="text-[13px] tabular-nums text-sericia-ink-soft">
-                  ${it.price_usd} USD
+                  {formatMoney(it.price, it.currency)}
                 </p>
               </Link>
             );

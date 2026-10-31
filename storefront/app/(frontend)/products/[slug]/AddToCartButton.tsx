@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -9,18 +10,22 @@ import { MinusIcon, PlusIcon } from "@/components/Icons";
 import AnimatedHeart from "@/components/AnimatedHeart";
 
 export default function AddToCartButton({
+  variants,
   productId,
   name,
   slug,
-  priceUsd,
+  priceAmount,
+  currency,
   outOfStock,
   category,
   onNotifyClick,
 }: {
+  variants: import("@/lib/products").ProductVariant[];
   productId: string;
   name: string;
   slug: string;
-  priceUsd: number;
+  priceAmount: number;
+  currency: string;
   outOfStock: boolean;
   category: string;
   onNotifyClick?: () => void;
@@ -32,9 +37,14 @@ export default function AddToCartButton({
   const wished = useWishlist((s) => s.has(productId));
   const [qty, setQty] = useState(1);
 
+  const [variantId, setVariantId] = useState(variants[0]?.id ?? "");
+  const selected = variants.find(v => v.id === variantId);
+  const available = !!selected && selected.stock >= qty;
+
   function handleAdd() {
     try {
-      add({ productId, name, slug, price_usd: priceUsd, quantity: qty, image: null });
+      if (!selected || !available) throw new Error("This option is unavailable in the selected quantity.");
+      add({ productId, variantId: selected.id, name: `${name} — ${selected.title}`, slug, price: selected.price, currency: selected.currency, quantity: qty, image: null });
       toast.success(`Added to cart — ${name}`);
       // Brief delay so the toast is perceivable before drawer opens
       setTimeout(() => openCart(), 120);
@@ -47,7 +57,7 @@ export default function AddToCartButton({
 
   function handleWish() {
     try {
-      const added = toggleWish({ productId, slug, name, price_usd: priceUsd, category });
+      const added = toggleWish({ productId, slug, name, price: priceAmount, currency, category });
       toast.success(added ? `Saved — ${name}` : `Removed — ${name}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -81,6 +91,12 @@ export default function AddToCartButton({
 
   return (
     <div className="space-y-4">
+      <label className="block text-sm">
+        Product option
+        <select aria-label="Product option" value={variantId} onChange={e => { setVariantId(e.target.value); setQty(1); }} className="mt-2 w-full border border-sericia-line bg-transparent p-3">
+          {variants.map(v => <option key={v.id} value={v.id}>{v.title} — {formatMoney(v.price, v.currency)}{v.stock < 1 ? " — Sold out" : ""}</option>)}
+        </select>
+      </label>
       <div className="flex items-center gap-6">
         <span className="label">Quantity</span>
         <div className="flex items-center border border-sericia-line">
@@ -107,10 +123,12 @@ export default function AddToCartButton({
         <button
           type="button"
           onClick={handleAdd}
+          disabled={!available}
+          aria-label="Add selected option to cart"
           data-pdp-add-to-cart
           className="bg-sericia-ink text-sericia-paper py-5 text-[14px] tracking-[0.18em] uppercase hover:bg-sericia-accent transition-colors"
         >
-          Add to cart — ${(priceUsd * qty).toFixed(2)}
+          {available ? `Add to cart — ${formatMoney(selected.price * qty, selected.currency)}` : "Selected quantity unavailable"}
         </button>
         <button
           type="button"

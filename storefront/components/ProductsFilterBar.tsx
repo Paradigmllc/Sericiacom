@@ -28,7 +28,8 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
-export type CategoryKey = "tea" | "miso" | "mushroom" | "seasoning";
+import { CATEGORY_KEYS, categoryLabel, type CategoryKey } from "@/lib/catalog-categories";
+export type { CategoryKey } from "@/lib/catalog-categories";
 export type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 
 export const SORT_OPTIONS: ReadonlyArray<{ value: SortKey; label: string }> = [
@@ -40,10 +41,7 @@ export const SORT_OPTIONS: ReadonlyArray<{ value: SortKey; label: string }> = [
 
 const CATEGORY_PILLS: ReadonlyArray<{ key: CategoryKey | "all"; label: string }> = [
   { key: "all", label: "All" },
-  { key: "tea", label: "Tea" },
-  { key: "miso", label: "Miso" },
-  { key: "mushroom", label: "Mushroom" },
-  { key: "seasoning", label: "Seasoning" },
+  ...CATEGORY_KEYS.map(key => ({ key, label: categoryLabel(key) })),
 ];
 
 type Props = {

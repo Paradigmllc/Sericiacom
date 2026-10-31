@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Eyebrow, Rule, SectionHeading } from "@/components/ui";
-import VisualStatGrid from "@/components/VisualStatGrid";
 import { Marquee } from "@/components/magicui/marquee";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { BentoGrid, BentoCard } from "@/components/magicui/bento-grid";
@@ -44,24 +43,6 @@ function resolve(rawProduct: string, rawCase: string) {
   return { product: p, useCase: u };
 }
 
-// Deterministic stat generator — placeholder values until pSEO drainer
-// fills with real-data scores. Each (product × use-case) gets the
-// SAME stat strip on repeat visits so visitors don't see numbers
-// shuffle on refresh.
-function statsFor(productSlug: string, caseSlug: string) {
-  const seed = `${productSlug}-${caseSlug}`;
-  let h = 5381;
-  for (let i = 0; i < seed.length; i++) {
-    h = ((h << 5) + h) ^ seed.charCodeAt(i);
-  }
-  const r = (offset: number) => Math.abs((h >> offset) & 0xff) % 60 + 35; // 35..95
-  return {
-    fitScore: r(0),
-    minutes: 5 + (r(8) % 25),
-    countries: 23, // Sericia ships to 23+ countries
-    days: 14, // EMS delivery window
-  };
-}
 
 export async function generateMetadata({
   params,
@@ -89,7 +70,6 @@ export default async function UsesPage({ params }: { params: Params }) {
   if (!r) return notFound();
 
   const { product, useCase } = r;
-  const stats = statsFor(product.slug, useCase.slug);
   const t = await getTranslations("uses.sections");
 
   // ── JSON-LD ──────────────────────────────────────────────────────────
@@ -101,7 +81,7 @@ export default async function UsesPage({ params }: { params: Params }) {
   const faqs = [
     {
       q: `Is ${product.name} good for ${useCase.name.toLowerCase()}?`,
-      a: `Yes. ${product.name} brings characteristics — flavour intensity, regional traceability, shelf stability — that align with ${useCase.name.toLowerCase()} better than commodity alternatives. Sericia sources directly from small producers in Japan and ships via EMS to ${stats.countries}+ countries.`,
+      a: `Yes. ${product.name} brings characteristics — flavour intensity, regional traceability, shelf stability — that align with ${useCase.name.toLowerCase()} better than commodity alternatives. Review the product listing for its source and specifications.`,
     },
     {
       q: `How much ${product.name} should I use for ${useCase.name.toLowerCase()}?`,
@@ -109,11 +89,11 @@ export default async function UsesPage({ params }: { params: Params }) {
     },
     {
       q: `What pairs well with ${product.name} for ${useCase.name.toLowerCase()}?`,
-      a: `See the "Pairings" grid below — Sericia's curators select complementary pantry items from our catalogue. Cross-shipping multiple items in one drop unlocks free shipping and reduces per-item carbon footprint.`,
+      a: `See the "Pairings" grid below — Sericia's curators select complementary pantry items from our catalogue. Availability and shipping conditions depend on the current listings.`,
     },
     {
       q: `How is ${product.name} shipped?`,
-      a: `EMS Worldwide from Kyoto. Average delivery window: ${stats.days} days for the US/EU, faster for APAC. Cold-pack used where required by product class. Tracking provided to all destinations.`,
+      a: `Destinations, carriers, shipping charges and handling conditions are being confirmed. Check the shipping page before purchasing.`,
     },
   ];
 
@@ -202,8 +182,7 @@ export default async function UsesPage({ params }: { params: Params }) {
             because of its sourcing depth, flavour density, and the small-
             batch attention each Sericia drop receives. Below: practical
             preparation, real serving ratios, and which other Japanese
-            pantry items pair to amplify the use case. Ships EMS to{" "}
-            {stats.countries}+ countries from Kyoto in {stats.days} days.{" "}
+            pantry items pair to amplify the use case. Product availability and delivery conditions are being confirmed.{" "}
             <Link
               href={`/products/${product.slug}`}
               className="underline-link"
@@ -215,35 +194,7 @@ export default async function UsesPage({ params }: { params: Params }) {
 
           <Rule className="my-12" />
 
-          {/* Visual stat strip — react-countup animated, brand palette tones */}
-          <VisualStatGrid
-            stats={[
-              {
-                value: stats.fitScore,
-                suffix: "/100",
-                label: "Use-case fit score",
-                tone: "tea",
-              },
-              {
-                value: stats.minutes,
-                suffix: "min",
-                label: "Preparation",
-                tone: "miso",
-              },
-              {
-                value: stats.countries,
-                suffix: "+",
-                label: "Countries shipped",
-                tone: "mushroom",
-              },
-              {
-                value: stats.days,
-                suffix: "d",
-                label: "Avg delivery",
-                tone: "seasoning",
-              },
-            ]}
-          />
+
 
           <Rule className="my-12" />
 
@@ -281,7 +232,7 @@ export default async function UsesPage({ params }: { params: Params }) {
                   key={p.slug}
                   size={i === 0 ? "2x1" : "1x1"}
                   name={p.name}
-                  description={`Cross-ship with ${product.name} for ${useCase.name.toLowerCase()}. Free shipping on multi-item drops over $200.`}
+                  description={`Explore ${p.name} alongside ${product.name}. Check the current listings for availability.`}
                   cta={
                     <Link
                       href={`/uses/${p.slug}/${useCase.slug}`}
@@ -302,13 +253,11 @@ export default async function UsesPage({ params }: { params: Params }) {
             <BorderBeam size={120} duration={10} />
             <Eyebrow>Current drop</Eyebrow>
             <h2 className="text-[28px] md:text-[36px] leading-tight font-normal tracking-tight mt-3">
-              Shop {product.name} — small-batch from Kyoto.
+              Explore {product.name} and other Japanese products.
             </h2>
             <p className="text-[15px] text-sericia-ink-soft mt-4 leading-relaxed max-w-prose">
-              Each drop sells through. When a producer's batch is gone,
-              the next drop sources from a different season or region.
-              Ships EMS to {stats.countries}+ countries within{" "}
-              {stats.days} days.
+              Review the current collection for product availability. Delivery
+              destinations, charges and handling conditions are being confirmed.
             </p>
             <Link
               href={`/products/${product.slug}`}

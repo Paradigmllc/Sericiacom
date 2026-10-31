@@ -1,14 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-if (!url || !anonKey) {
-  console.error("[supabase] missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
-}
-
-export const supabase = createClient(url, anonKey, {
-  auth: { persistSession: false },
+let client: SupabaseClient | undefined;
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, property) {
+    if (!client) {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (!url || !key) throw new Error("Supabase public configuration is missing");
+      client = createClient(url, key, { auth: { persistSession: false } });
+    }
+    const value = Reflect.get(client, property);
+    return typeof value === "function" ? value.bind(client) : value;
+  },
 });
 
 export type PseoArticle = {

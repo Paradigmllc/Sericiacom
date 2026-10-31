@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,12 +11,14 @@ import NotifyMeModal from "@/components/NotifyMeModal";
 import { Rule } from "@/components/ui";
 
 type ProductShape = {
+  variants: import("@/lib/products").ProductVariant[];
   id: string;
   slug: string;
   name: string;
   description: string;
   story: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   category: string;
   images: string[];
@@ -92,7 +95,7 @@ export default function ProductDetailShell({
   const accordionItems: AccordionItem[] = [
     {
       id: "origin",
-      title: t("ingredients_origin"),
+      title: t("category"),
       body: (
         <div className="space-y-4">
           <p>
@@ -111,10 +114,10 @@ export default function ProductDetailShell({
               {product.producer_name}
             </p>
           ) : null}
-          <p>
+          {product.weight_g > 0 && <p>
             <span className="label block mb-1">{t("weight")}</span>
             {t("weight_g_net_fmt", { grams: product.weight_g })}
-          </p>
+          </p>}
           {ingredientItems.length > 0 && (
             <div>
               <span className="label block mb-2">{t("ingredients")}</span>
@@ -145,8 +148,6 @@ export default function ProductDetailShell({
       title: t("shipping_returns"),
       body: (
         <div className="space-y-4">
-          <p>{t("shipping_copy")}</p>
-          <p>{t("returns_copy")}</p>
           <p>
             <Link href="/shipping" className="underline underline-offset-4 hover:text-sericia-ink">
               {t("shipping_link")}
@@ -160,13 +161,13 @@ export default function ProductDetailShell({
       title: t("producer_story"),
       body: (
         <p className="whitespace-pre-line text-[14px] leading-[1.7] text-sericia-ink-soft">
-          {product.story || t("story_fallback")}
+          {product.story}
         </p>
       ),
     },
     {
       id: "tasting",
-      title: t("tasting_pairing"),
+      title: t("preparation"),
       body: (
         <div className="space-y-4">
           <p>{product.description}</p>
@@ -191,7 +192,8 @@ export default function ProductDetailShell({
         </div>
       ),
     },
-  ];
+  ].filter(item => item.id !== "producer" || Boolean(product.story))
+    .filter(item => item.id !== "tasting" || Boolean(product.tastingNotes || product.preparation));
 
   return (
     <>
@@ -209,9 +211,9 @@ export default function ProductDetailShell({
           </h1>
           <p className="text-[17px] text-sericia-ink-soft leading-relaxed mb-8">{product.description}</p>
           <div className="flex items-baseline gap-6 mb-8">
-            <span className="text-[28px] font-normal">${product.price_usd}</span>
+            <span className="text-[28px] font-normal">{formatMoney(product.price, product.currency)}</span>
             <span className="text-[12px] tracking-[0.18em] uppercase text-sericia-ink-mute">
-              USD · {product.weight_g}g
+              {product.weight_g > 0 ? `${product.weight_g}g` : ""}
             </span>
           </div>
           {!product.outOfStock &&
@@ -235,10 +237,11 @@ export default function ProductDetailShell({
             )}
           <div ref={mainCtaRef}>
             <AddToCartButton
+              variants={product.variants}
               productId={product.id}
               name={product.name}
               slug={product.slug}
-              priceUsd={product.price_usd}
+              priceAmount={product.price} currency={product.currency}
               outOfStock={product.outOfStock}
               category={product.category}
               onNotifyClick={() => setNotifyOpen(true)}
@@ -247,7 +250,7 @@ export default function ProductDetailShell({
           <p className="text-[12px] text-sericia-ink-mute mt-6 leading-relaxed">
             {product.outOfStock
               ? "This item is currently sold out. Join the waitlist to be notified of restocks."
-              : "Ships within 48 hours from Kyoto · EMS worldwide · tracking included"}
+              : "Available delivery methods and costs are confirmed at checkout."}
           </p>
 
           <Rule className="my-10" />
@@ -279,7 +282,7 @@ export default function ProductDetailShell({
                 <p className="text-[12px] tracking-[0.12em] uppercase text-sericia-ink-mute truncate">
                   {product.name}
                 </p>
-                <p className="text-[14px] text-sericia-ink">${product.price_usd} USD</p>
+                <p className="text-[14px] text-sericia-ink">{formatMoney(product.price, product.currency)}</p>
               </div>
               {product.outOfStock ? (
                 <button

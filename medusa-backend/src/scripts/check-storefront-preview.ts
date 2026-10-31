@@ -1,0 +1,40 @@
+import assert from "node:assert/strict";
+import type { ExecArgs } from "@medusajs/framework/types";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+
+export default async function checkStorefrontPreview({ container }: ExecArgs) {
+  const origin = process.env.SERICIA_PREVIEW_CHECK_URL;
+  if (!origin || !/^http:\/\/(127\.0\.0\.1|server):9000$/.test(origin)) throw new Error("Preview checks require an explicit local Medusa URL");
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
+  const { data: keys } = await query.graph({ entity: "api_key", fields: ["token", "sales_channels.id"], filters: { title: "Sericia preview", type: "publishable" } });
+  assert.equal(keys.length, 1);
+  assert.equal(keys[0].sales_channels?.length, 1);
+  const headers = { "x-publishable-api-key": keys[0].token, "Content-Type": "application/json" };
+  assert.equal((await fetch(`${origin}/store/products`)).status, 400, "Store access requires publishable key");
+  const products = await fetch(`${origin}/store/products`, { headers });
+  assert.equal(products.status, 200);
+  assert.equal((await products.json()).count, 0, "Migration drafts must not be published");
+  const regions = await fetch(`${origin}/store/regions`, { headers });
+  assert.equal(regions.status, 200);
+  const region = (await regions.json()).regions.find((item: { name: string }) => item.name === "Sericia preview JPY");
+  assert.ok(region);
+  assert.equal(region.currency_code, "jpy");
+  assert.equal(region.countries.length, 0, "Delivery countries are unapproved");
+  const providers = await fetch(`${origin}/store/payment-providers?region_id=${region.id}`, { headers });
+  assert.equal(providers.status, 200);
+  assert.equal((await providers.json()).payment_providers.length, 0, "Preview must not allow payments");
+  const response = await fetch(`${origin}/store/carts`, { method: "POST", headers, body: JSON.stringify({ region_id: region.id }) });
+  assert.equal(response.status, 200);
+  const { cart } = await response.json();
+  assert.equal(cart.currency_code, "jpy");
+  assert.equal(cart.sales_channel_id, keys[0].sales_channels![0]!.id);
+  assert.equal(cart.items.length, 0);
+  const { data: variants } = await query.graph({ entity: "product_variant", fields: ["id"], pagination: { take: 1 } });
+  assert.equal(variants.length, 1);
+  const unavailable = await fetch(`${origin}/store/carts/${cart.id}/line-items`, { method: "POST", headers, body: JSON.stringify({ variant_id: variants[0].id, quantity: 1 }) });
+  assert.ok([400, 404].includes(unavailable.status), "Unallocated draft cannot enter the cart");
+  const saved = await fetch(`${origin}/store/carts/${cart.id}`, { headers });
+  assert.equal(saved.status, 200);
+  assert.equal((await saved.json()).cart.items.length, 0, "Failed add must not leave a partial cart item");
+  container.resolve(ContainerRegistrationKeys.LOGGER).info("Store preview checks passed: scoped access, hidden drafts, JPY cart, no payments, unavailable item rejected");
+}

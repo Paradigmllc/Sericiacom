@@ -13,3 +13,6 @@ coverage/
 .medusa/
 *.tsbuildinfo
 .playwright-mcp/
+
+storefront/test-results/
+storefront/playwright-report/

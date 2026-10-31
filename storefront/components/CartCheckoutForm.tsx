@@ -1,296 +1,100 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
-import { z } from "zod";
 import { useCart } from "@/lib/cart-store";
-import { Rule } from "@/components/ui";
-import ReferralCodeField, { type ReferralApplied } from "@/components/ReferralCodeField";
+import { checkoutInput, type CheckoutQuote } from "@/lib/checkout-contract";
+import { formatMoney } from "@/lib/money";
 
-const Schema = z.object({
-  email: z.string().email("Valid email required"),
-  full_name: z.string().min(1, "Name required"),
-  address_line1: z.string().min(1, "Address required"),
-  address_line2: z.string().optional(),
-  city: z.string().min(1, "City required"),
-  region: z.string().optional(),
-  postal_code: z.string().min(1, "Postal code required"),
-  country_code: z.string().length(2, "Country required"),
-  phone: z.string().optional(),
-});
-
-const COUNTRIES: [string, string][] = [
-  ["US", "United States"], ["GB", "United Kingdom"], ["DE", "Germany"],
-  ["FR", "France"], ["AU", "Australia"], ["SG", "Singapore"],
-  ["CA", "Canada"], ["HK", "Hong Kong"], ["JP", "Japan"],
-  ["NL", "Netherlands"], ["SE", "Sweden"], ["NO", "Norway"],
-  ["DK", "Denmark"], ["CH", "Switzerland"], ["IE", "Ireland"],
-  ["NZ", "New Zealand"], ["IT", "Italy"], ["ES", "Spain"],
-  ["BE", "Belgium"], ["AT", "Austria"], ["FI", "Finland"],
-  ["TW", "Taiwan"], ["KR", "South Korea"],
-];
-
-type Defaults = Partial<{
-  email: string;
-  full_name: string;
-  address_line1: string;
-  address_line2: string;
-  city: string;
-  region: string;
-  postal_code: string;
-  country_code: string;
-  phone: string;
-}>;
-
-export default function CartCheckoutForm({
-  defaultCountry,
-  profileDefaults,
-}: {
-  defaultCountry: string;
-  profileDefaults: Defaults;
-}) {
-  const router = useRouter();
-  const t = useTranslations("cart.checkout_extras");
-  const items = useCart((s) => s.items);
-  const clear = useCart((s) => s.clear);
+type Country = { code: string; name: string };
+const fields = [
+  ["email", "Email", "email"], ["first_name", "First name", "given-name"], ["last_name", "Last name", "family-name"],
+  ["address_1", "Street address", "address-line1"], ["address_2", "Apartment / suite (optional)", "address-line2"],
+  ["city", "City", "address-level2"], ["province", "State / province (optional)", "address-level1"],
+  ["postal_code", "Postal code", "postal-code"], ["phone", "Phone (optional)", "tel"],
+] as const;
+export default function CartCheckoutForm() {
+  const items = useCart(s => s.items);
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [referral, setReferral] = useState<ReferralApplied | null>(null);
-  const [form, setForm] = useState({
-    email: profileDefaults.email ?? "",
-    full_name: profileDefaults.full_name ?? "",
-    address_line1: profileDefaults.address_line1 ?? "",
-    address_line2: profileDefaults.address_line2 ?? "",
-    city: profileDefaults.city ?? "",
-    region: profileDefaults.region ?? "",
-    postal_code: profileDefaults.postal_code ?? "",
-    country_code: profileDefaults.country_code ?? defaultCountry.toUpperCase(),
-    phone: profileDefaults.phone ?? "",
-  });
-
-  useEffect(() => setMounted(true), []);
-
-  // text-[16px] is intentional — iOS Safari auto-zooms inputs whose computed
-  // font-size is < 16px on focus, which makes mobile checkout jank visibly
-  // (page zooms to fit the input, user has to manually zoom back). 16px
-  // suppresses this behaviour without visibly changing the desktop layout.
-  const inputCls = "w-full px-0 py-3 bg-transparent border-b border-sericia-line focus:border-sericia-ink focus:outline-none text-[16px] placeholder-sericia-ink-mute transition-colors";
-  const labelCls = "label block mb-2";
-
-  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const subtotal = items.reduce((s, i) => s + i.price_usd * i.quantity, 0);
-  const referralDiscount = referral?.discountAmountUsd ?? 0;
-  const total = Math.max(0, subtotal - referralDiscount);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (items.length === 0) {
-      toast.error(t("toast_empty"), {
-        description: t("empty_cart_lede"),
-      });
-      router.push("/products");
-      return;
-    }
-    const parsed = Schema.safeParse(form);
-    if (!parsed.success) {
-      toast.error(t("toast_missing"), {
-        description: parsed.error.issues[0]?.message ?? "Please complete the required fields.",
-      });
-      return;
-    }
-    setLoading(true);
+  const [countries, setCountries] = useState<Country[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [quote, setQuote] = useState<CheckoutQuote | null>(null);
+  const [form, setForm] = useState({ email: "", first_name: "", last_name: "", address_1: "", address_2: "", city: "", province: "", postal_code: "", phone: "", country_code: "" });
+  const [quotedItems, setQuotedItems] = useState("");
+  const selection = JSON.stringify(items.map(i => ({ variant_id: i.variantId, quantity: i.quantity })));
+  const currentQuote = quotedItems === selection ? quote : null;
+  function report(err: unknown) {
+    const message = err instanceof Error ? err.message : "Checkout unavailable. Please try again.";
+    console.error("[checkout]", message); setError(message); toast.error(message);
+  }
+  async function loadCountries() {
+    setError(null);
     try {
-      const params = new URLSearchParams(window.location.search);
-      const res = await fetch("/api/orders/create-cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
-          ...parsed.data,
-          utm_source: params.get("utm_source"),
-          utm_medium: params.get("utm_medium"),
-          utm_campaign: params.get("utm_campaign"),
-          // Referral attribution — the create-cart API re-validates the code
-          // (never trusts the client's discount value), applies the discount
-          // to amount_usd, and writes a sericia_referral_redemptions row with
-          // reward_status=pending. The Medusa order-placed subscriber flips
-          // pending→issued when the order ships (see T3-D).
-          referral_code: referral?.code ?? null,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        const map: Record<string, { title: string; description: string }> = {
-          insufficient_stock: {
-            title: "An item just sold out.",
-            description: "Drops move quickly. Please refresh your cart and try again.",
-          },
-          product_inactive: {
-            title: "Item no longer available.",
-            description: "One of your items has been retired. Please review your cart.",
-          },
-          product_not_found: {
-            title: "Item no longer available.",
-            description: "One of your items has been retired. Please review your cart.",
-          },
-        };
-        const fallback = {
-          title: "We couldn't reserve your order.",
-          description: "Please try once more. If it persists, write to concierge@sericia.com.",
-        };
-        const msg = map[data?.error as string] ?? fallback;
-        toast.error(msg.title, { description: msg.description });
-        console.error("[cart-checkout] failed", data);
-        setLoading(false);
-        return;
-      }
-      toast.success(t("toast_reserved"), {
-        description: "Continuing to payment.",
-      });
-      clear();
-      router.push(`/pay/${data.order_id}`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("[cart-checkout] exception", err);
-      toast.error(t("toast_interrupted"), {
-        description: msg,
-      });
-      setLoading(false);
-    }
+      const response = await fetch("/api/commerce/checkout", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setCountries(data.countries);
+    } catch (err) { report(err); }
   }
-
-  if (!mounted) {
-    return <div className="text-sericia-ink-soft">…</div>;
+  useEffect(() => { setMounted(true); void loadCountries(); }, []);
+  async function submit(action: "prepare" | "shipping", option_id?: string) {
+    setError(null);
+    const { email, ...address } = form;
+    const input = checkoutInput.safeParse(action === "prepare"
+      ? { action, email, address, items: JSON.parse(selection) }
+      : { action, option_id, items: JSON.parse(selection) });
+    if (!input.success) { report(new Error("Please check your address and product options.")); return; }
+    setBusy(true); setQuote(null);
+    try {
+      const response = await fetch("/api/commerce/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input.data) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setQuote(data.quote); setQuotedItems(selection);
+      toast.success(action === "prepare" ? "Prices and delivery options updated" : "Delivery method saved");
+    } catch (err) { report(err); }
+    finally { setBusy(false); }
   }
-
-  if (items.length === 0) {
-    return (
-      <div className="border border-sericia-line p-16 text-center">
-        <p className="label mb-5">{t("empty_cart")}</p>
-        <p className="text-[17px] text-sericia-ink-soft mb-10 max-w-md mx-auto leading-relaxed">
-          {t("empty_cart_lede")}
-        </p>
-        <Link href="/products" className="inline-block bg-sericia-ink text-sericia-paper px-10 py-4 text-[14px] tracking-wider hover:bg-sericia-accent transition">
-          {t("shop_drop")}
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid md:grid-cols-12 gap-12 md:gap-20">
-      <div className="md:col-span-7">
-        <form onSubmit={onSubmit} className="space-y-7">
-          <div>
-            <label className={labelCls}>{t("label_email")}</label>
-            <input type="email" required value={form.email} onChange={update("email")} className={inputCls} placeholder={t("placeholder_email")} autoComplete="email" />
-          </div>
-          <div>
-            <label className={labelCls}>{t("label_full_name")}</label>
-            <input type="text" required value={form.full_name} onChange={update("full_name")} className={inputCls} placeholder={t("placeholder_full_name")} autoComplete="name" />
-          </div>
-          <div>
-            <label className={labelCls}>{t("label_address1")}</label>
-            <input type="text" required value={form.address_line1} onChange={update("address_line1")} className={inputCls} placeholder={t("placeholder_address1")} autoComplete="address-line1" />
-          </div>
-          <div>
-            <label className={labelCls}>{t("label_address2")}</label>
-            <input type="text" value={form.address_line2} onChange={update("address_line2")} className={inputCls} placeholder={t("placeholder_address2")} autoComplete="address-line2" />
-          </div>
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <label className={labelCls}>{t("label_city")}</label>
-              <input type="text" required value={form.city} onChange={update("city")} className={inputCls} autoComplete="address-level2" />
-            </div>
-            <div>
-              <label className={labelCls}>{t("label_state")}</label>
-              <input type="text" value={form.region} onChange={update("region")} className={inputCls} autoComplete="address-level1" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <label className={labelCls}>{t("label_postal")}</label>
-              <input type="text" required value={form.postal_code} onChange={update("postal_code")} className={inputCls} autoComplete="postal-code" />
-            </div>
-            <div>
-              <label className={labelCls}>{t("label_country")}</label>
-              <select required value={form.country_code} onChange={update("country_code")} className={`${inputCls} cursor-pointer`}>
-                {COUNTRIES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className={labelCls}>{t("label_phone")}</label>
-            <input type="tel" value={form.phone} onChange={update("phone")} className={inputCls} autoComplete="tel" />
-          </div>
-          <div className="pt-2">
-            <ReferralCodeField onApplied={setReferral} />
-          </div>
-          <div className="pt-6">
-            <button type="submit" disabled={loading} className="w-full bg-sericia-ink text-sericia-paper py-5 text-[14px] tracking-wider hover:bg-sericia-accent transition-colors disabled:opacity-40">
-              {loading ? t("submit_reserving") : `${t("submit_reserve")} — $${total}`}
-            </button>
-            <p className="text-[12px] text-sericia-ink-mute text-center mt-5 leading-relaxed">
-              EMS worldwide · By continuing you agree to our{" "}
-              <a href="/terms" className="underline-link">Terms</a> and{" "}
-              <a href="/privacy" className="underline-link">Privacy Policy</a>.
-            </p>
-          </div>
-        </form>
-      </div>
-
-      <aside className="md:col-span-5">
-        <div className="md:sticky md:top-8 border border-sericia-line bg-sericia-paper-card p-8">
-          <p className="label mb-6">{t("order_summary")}</p>
-          <div className="space-y-4 mb-6">
-            {items.map((it) => (
-              <div key={it.productId} className="flex justify-between text-[14px]">
-                <div>
-                  <div>{it.name}</div>
-                  <div className="text-[12px] text-sericia-ink-mute mt-0.5">Qty {it.quantity}</div>
-                </div>
-                <div>${it.price_usd * it.quantity}</div>
-              </div>
-            ))}
-          </div>
-          <Rule />
-          <div className="flex justify-between py-4 text-[14px]">
-            <span className="text-sericia-ink-soft">Subtotal</span>
-            <span>${subtotal}</span>
-          </div>
-          <Rule />
-          <div className="flex justify-between py-4 text-[14px]">
-            <span className="text-sericia-ink-soft">Shipping (EMS worldwide)</span>
-            <span>Included</span>
-          </div>
-          {referral && (
-            <>
-              <Rule />
-              <div className="flex justify-between py-4 text-[14px]">
-                <span className="text-sericia-ink-soft">
-                  Referral
-                  {referral.referrerFirstName ? ` — ${referral.referrerFirstName}` : ""}
-                </span>
-                <span className="text-sericia-accent">−${referral.discountAmountUsd}</span>
-              </div>
-            </>
-          )}
-          <Rule />
-          <div className="flex justify-between py-5 text-[16px] font-medium">
-            <span>Total</span>
-            <span>${total} USD</span>
-          </div>
-          <Rule />
-          <p className="text-[12px] text-sericia-ink-mute mt-5 leading-relaxed">
-            Duties and taxes are calculated by your local customs and may apply on arrival.
-            See our <a href="/shipping" className="underline-link">shipping policy</a>.
-          </p>
-        </div>
-      </aside>
-    </div>
-  );
+  if (!mounted) return <p role="status">Loading your cart…</p>;
+  if (!items.length) return <div className="space-y-4"><p>Your cart is empty.</p><Link href="/products" className="underline">Browse products</Link></div>;
+  return <div className="grid grid-cols-1 gap-8 sm:gap-10 md:grid-cols-2 lg:gap-16" aria-busy={busy}>
+    <section aria-label="Delivery details" className="space-y-5">
+      <h2 className="text-2xl">Delivery details</h2>
+      <p className="text-sm">We verify current prices, stock and delivery availability before payment. Items are not reserved yet.</p>
+      {error && <div role="alert" className="border border-red-700 p-4 text-red-800">{error}<button type="button" onClick={() => void loadCountries()} className="block underline mt-2" aria-label="Retry checkout availability">Retry availability</button></div>}
+      {countries === null && !error && <p role="status">Checking available destinations…</p>}
+      {countries?.length === 0 && <p role="status" className="border border-sericia-line p-4">Delivery destinations are not available yet. Checkout is currently closed.</p>}
+      {!!countries?.length && <form onSubmit={e => { e.preventDefault(); void submit("prepare"); }} className="space-y-4">
+        <fieldset disabled={busy} className="space-y-4">
+          {fields.map(([key, label, autoComplete]) => <label key={key} className="block text-sm">{label}<input
+            aria-label={label} type={key === "email" ? "email" : key === "phone" ? "tel" : "text"} autoComplete={autoComplete}
+            required={!["address_2", "province", "phone"].includes(key)} maxLength={key === "email" ? 254 : 200}
+            value={form[key]} onChange={e => { setForm({ ...form, [key]: e.target.value }); setQuote(null); }}
+            className="mt-1 w-full border border-sericia-line bg-transparent p-3 text-base" /></label>)}
+          <label className="block text-sm">Country<select aria-label="Country" required value={form.country_code}
+            onChange={e => { setForm({ ...form, country_code: e.target.value }); setQuote(null); }} className="mt-1 w-full border border-sericia-line bg-transparent p-3 text-base">
+            <option value="">Choose a delivery country</option>{countries.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+          </select></label>
+          <button aria-label="Check prices and delivery" className="w-full bg-sericia-ink p-4 text-sericia-paper disabled:opacity-50" type="submit">{busy ? "Checking…" : "Check prices and delivery"}</button>
+        </fieldset>
+      </form>}
+      {busy && <p role="status" aria-live="polite">Updating your checkout…</p>}
+      {currentQuote && <section aria-label="Delivery methods" className="space-y-3">
+        <h2 className="text-xl">Delivery methods</h2>
+        {!currentQuote.options.length && <p role="status">No delivery method is available for this address and cart. Change your address or review your items.</p>}
+        {currentQuote.options.map(o => <button key={o.id} disabled={busy} aria-label={`Select ${o.name}`} type="button" onClick={() => void submit("shipping", o.id)} className="w-full border border-sericia-line p-4 text-left">{o.name} — {formatMoney(o.amount, currentQuote.currency)}</button>)}
+        {currentQuote.shippingSelected && <p role="status">Delivery saved. Payment is not available yet; no order has been placed.</p>}
+      </section>}
+    </section>
+    <aside aria-label="Order summary" className="border border-sericia-line p-5 sm:p-6 lg:p-8 self-start space-y-4">
+      <h2 className="text-xl">Order summary</h2>
+      {(currentQuote?.items ?? items.map(i => ({ id: i.variantId, name: i.name, quantity: i.quantity, total: i.price * i.quantity }))).map(i =>
+        <div key={i.id} className="flex justify-between gap-3 text-sm"><span>{i.name} × {i.quantity}</span><span className="whitespace-nowrap">{formatMoney(i.total, currentQuote?.currency ?? items[0].currency)}</span></div>)}
+      {currentQuote ? <dl className="space-y-3 border-t border-sericia-line pt-4">
+        {([['Items', currentQuote.subtotal], ['Shipping', currentQuote.shipping], ['Tax', currentQuote.tax], ['Discount', currentQuote.discount], ['Credit', currentQuote.credit], ['Total', currentQuote.total]] as const).map(([label, amount]) =>
+          <div key={label} className="flex justify-between"><dt>{label}</dt><dd>{['Shipping', 'Total'].includes(label) && !currentQuote.shippingSelected ? "Choose delivery" : `${["Discount", "Credit"].includes(label) && amount > 0 ? "−" : ""}${formatMoney(amount, currentQuote.currency)}`}</dd></div>)}
+      </dl> : <p className="text-sm">Displayed item prices are estimates until verified. Shipping and tax are calculated after entering your address.</p>}
+      <Link href="/cart" className="inline-block underline">Edit cart</Link>
+    </aside>
+  </div>;
 }
