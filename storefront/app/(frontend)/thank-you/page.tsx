@@ -1,81 +1,14 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import PushOptIn from "@/components/PushOptIn";
-import { Container, Eyebrow, Button, Rule } from "@/components/ui";
-
-export const metadata: Metadata = {
-  title: "Thank you",
-  robots: { index: false, follow: false },
-};
-
-export default async function ThankYouPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
-  const { order } = await searchParams;
-  return (
-    <>
-      <SiteHeader />
-      <section className="border-b border-sericia-line bg-sericia-paper-card">
-        <Container size="wide" className="py-20 md:py-28 text-center">
-          <Eyebrow>Order confirmed</Eyebrow>
-          <h1 className="text-[40px] md:text-[56px] leading-[1.08] font-normal tracking-tight max-w-3xl mx-auto">
-            Thank you for rescuing Japan&apos;s craft food.
-          </h1>
-          <p className="text-[17px] text-sericia-ink-soft mt-8 max-w-prose mx-auto leading-relaxed">
-            A confirmation has been sent to your email. Your drop ships from Kyoto within forty-eight hours
-            with EMS worldwide tracking.
-          </p>
-          {order && (
-            <p className="text-[12px] text-sericia-ink-mute mt-6 tracking-wider uppercase">
-              Order reference — {order}
-            </p>
-          )}
-        </Container>
-      </section>
-
-      <Container size="narrow" className="py-20 md:py-28">
-        <div className="grid md:grid-cols-3 gap-10 md:gap-16 text-center">
-          <div>
-            <p className="label mb-3">One</p>
-            <h3 className="text-[18px] font-normal mb-3">Confirmation</h3>
-            <p className="text-[14px] text-sericia-ink-soft leading-relaxed">
-              Check your inbox for the order summary and receipt.
-            </p>
-          </div>
-          <div>
-            <p className="label mb-3">Two</p>
-            <h3 className="text-[18px] font-normal mb-3">Tracking</h3>
-            <p className="text-[14px] text-sericia-ink-soft leading-relaxed">
-              EMS tracking is emailed within forty-eight hours of dispatch.
-            </p>
-          </div>
-          <div>
-            <p className="label mb-3">Three</p>
-            <h3 className="text-[18px] font-normal mb-3">Next drop</h3>
-            <p className="text-[14px] text-sericia-ink-soft leading-relaxed">
-              Early access to the next curation arrives in your inbox in about two weeks.
-            </p>
-          </div>
-        </div>
-        <Rule className="mt-20 mb-12" />
-
-        {/*
-          Push opt-in offered at the highest-intent moment we have: directly
-          after checkout. Renders nothing if the browser doesn't support push,
-          the user has already granted/denied, or has dismissed this card in
-          the last 60 days. See components/PushOptIn.tsx for the state machine.
-        */}
-        <div className="mx-auto max-w-lg mb-16">
-          <PushOptIn variant="thank-you" topics={["drops", "orders"]} />
-        </div>
-
-        <div className="text-center">
-          <Button href="/guides" variant="link">Browse country shipping guides</Button>
-          <div className="mt-10">
-            <Button href="/" variant="outline">Return to Sericia</Button>
-          </div>
-        </div>
-      </Container>
-      <SiteFooter />
-    </>
-  );
+import { Container, PageHero, Button } from "@/components/ui";
+export const metadata: Metadata = { title: "Order verification", robots: { index: false, follow: false } };
+export default async function ThankYouPage() {
+  const ja = (await getLocale()) === "ja";
+  return <><SiteHeader /><PageHero eyebrow="SERICIA" title={ja ? "注文は確認されていません" : "No order has been verified"} />
+    <Container size="narrow" className="py-12 sm:py-16 md:py-20 lg:py-24">
+      <p role="status" className="border border-sericia-line bg-sericia-paper-card p-6 leading-relaxed sm:p-8">{ja ? "このページを開くだけでは、注文・支払い・発送は確定しません。このプレビューでは決済を受け付けていません。既存の注文については、注文時の確認メールをご用意のうえお問い合わせください。" : "Opening this page does not confirm an order, payment or shipment. This preview does not accept payments. For an existing order, contact us with the confirmation you received when ordering."}</p>
+      <div className="mt-8 flex flex-wrap gap-4"><Button href="/products" variant="outline">{ja ? "コレクションへ" : "Explore the collection"}</Button><Button href="/contact" variant="outline">{ja ? "問い合わせ" : "Contact"}</Button></div>
+    </Container><SiteFooter /></>;
 }

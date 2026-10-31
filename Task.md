@@ -13,6 +13,12 @@
 
 ---
 
+## CURRENT STATUS / Active Handoff — 2026-10-31 イベント連携・旧仕様表示の除去（配備進行中）
+
+- Medusa sender `bad9f46a`: 商品/在庫変更を最小項目の署名付き通知で送信。Redis5回指数backoff・失敗job保持。CI41171323829成功、検証済image取得済み。operations PR765/9146c145は正式release進行中。受信側起動後にsender有効化し実イベント確認する。
+- 追加の画面確認で規約/privacyにCrossmint・未確認の米国法人/Delaware・48h配送等、thank-youにURLだけで注文確定表示が残っていたため修正。既存shipping/refundと同様に未確定条件を明示し、個人住所/電話番号は掲載しない。正式な法務適合・販売開始完了とは扱わない。
+- 新しいpolicy E2Eを追加、TypeScript確認中。公開Shopifyは維持。倉庫/仕入先/SNS実接続・決済/注文E2Eは引き続き未完。
+
 ## CURRENT STATUS / Active Handoff — 2026-10-31 Medusa運営画面 本番確認済み
 
 - Paradigm operations PR763 merged/deployed as `aa23a36c`; 通常CMSログイン→運営OS→Medusa確認で商品6draft/在庫13品目を実データ確認。desktop/mobile証跡はgit外 `/tmp/sericia-medusa-live/`。在庫拠点未登録を数量未確認と表示。自動同期の完了ではない。

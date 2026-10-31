@@ -104,7 +104,7 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               <div className="flex h-full flex-col items-center justify-center text-center py-16">
                 <p className="label mb-4">Empty cart</p>
                 <p className="text-[14px] text-sericia-ink-soft mb-8 max-w-[260px]">
-                  Browse the collection — every drop is limited and ships from Kyoto.
+                  Explore Japanese tea, tableware, stationery, textiles and more.
                 </p>
                 <Link
                   href="/products"
