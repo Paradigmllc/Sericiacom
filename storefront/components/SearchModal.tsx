@@ -1,4 +1,5 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import Fuse from "fuse.js";
@@ -12,7 +13,8 @@ type Item = {
   slug: string;
   name: string;
   description: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   category: string;
   origin_region: string | null;
@@ -194,7 +196,7 @@ export default function SearchModal() {
                           <p className="text-[14px] text-sericia-ink truncate">{r.name}</p>
                         </div>
                         <span className="text-[13px] tabular-nums text-sericia-ink">
-                          ${r.price_usd}
+                          {formatMoney(r.price, r.currency)}
                         </span>
                       </Link>
                     </li>

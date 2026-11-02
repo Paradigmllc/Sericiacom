@@ -27,7 +27,8 @@ export type RecentItem = {
   slug: string;
   name: string;
   category: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   origin_region: string | null;
   /** Image URL or null. Card falls back to gradient when null. */
@@ -68,7 +69,7 @@ export const useRecentlyViewed = create<RecentlyViewedState>()(
       name: "sericia-recently-viewed",
       storage: createJSONStorage(() => localStorage),
       // version bump rebuilds the store when shape changes
-      version: 1,
+      version: 2,
     },
   ),
 );

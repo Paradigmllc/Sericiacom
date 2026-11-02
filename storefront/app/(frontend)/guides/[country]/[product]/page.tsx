@@ -15,6 +15,10 @@ export const dynamicParams = true;
 type Params = { country: string; product: string };
 
 export async function generateStaticParams() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn("[pseo] Skipping guide prerendering: content database is not configured");
+    return [];
+  }
   return COUNTRIES.flatMap((c) =>
     PRODUCTS.map((p) => ({ country: c.code, product: p.slug }))
   );

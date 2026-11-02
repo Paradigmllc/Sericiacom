@@ -1,0 +1,9 @@
+# Overlay: docker compose -f compose.yaml -f compose.public.yaml up -d
+# The storefront joins the proxy network; database/Redis remain private.
+services:
+  storefront:
+    networks: [commerce, proxy]
+networks:
+  proxy:
+    external: true
+    name: coolify

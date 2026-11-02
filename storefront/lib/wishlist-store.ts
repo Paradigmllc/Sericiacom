@@ -6,7 +6,8 @@ export type WishlistItem = {
   productId: string;
   slug: string;
   name: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   category: string;
   addedAt: number;
 };
@@ -43,6 +44,6 @@ export const useWishlist = create<WishlistState>()(
       has: (productId) => !!get().items.find((i) => i.productId === productId),
       clear: () => set({ items: [] }),
     }),
-    { name: "sericia-wishlist" },
+    { name: "sericia-wishlist", version: 2 },
   ),
 );

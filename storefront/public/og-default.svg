@@ -17,7 +17,7 @@
   </g>
 
   <!-- Top eyebrow -->
-  <text x="90" y="110" font-family="Inter, sans-serif" font-size="18" letter-spacing="8" fill="#8b5a2b" text-transform="uppercase">Quietly, from Kyoto</text>
+  <text x="90" y="110" font-family="Inter, sans-serif" font-size="18" letter-spacing="8" fill="#8b5a2b" text-transform="uppercase">From Japan, for everyday life</text>
 
   <!-- Wordmark -->
   <text x="90" y="240" font-family="Cormorant Garamond, Didot, serif" font-weight="500" font-size="120" letter-spacing="18" fill="#1a1a1a">SERICIA</text>
@@ -26,10 +26,10 @@
   <line x1="90" y1="290" x2="1110" y2="290" stroke="#1a1a1a" stroke-width="1" opacity="0.25"/>
 
   <!-- Editorial body -->
-  <text x="90" y="360" font-family="Cormorant Garamond, serif" font-weight="500" font-size="46" fill="#1a1a1a">Drop-by-drop limited releases of rescued</text>
-  <text x="90" y="410" font-family="Cormorant Garamond, serif" font-weight="500" font-size="46" fill="#1a1a1a">Japanese craft food.</text>
-  <text x="90" y="470" font-family="Inter, sans-serif" font-size="22" fill="#555" letter-spacing="2">Single-origin sencha · barrel-aged miso · hand-dried shiitake</text>
-  <text x="90" y="500" font-family="Inter, sans-serif" font-size="22" fill="#555" letter-spacing="2">Shipped from Kyoto to 23+ countries via EMS</text>
+  <text x="90" y="360" font-family="Cormorant Garamond, serif" font-weight="500" font-size="46" fill="#1a1a1a">A little Japan.</text>
+  <text x="90" y="410" font-family="Cormorant Garamond, serif" font-weight="500" font-size="46" fill="#1a1a1a">An everyday discovery.</text>
+  <text x="90" y="470" font-family="Inter, sans-serif" font-size="22" fill="#555" letter-spacing="2">Tea · Pantry · Objects · Everyday</text>
+  <text x="90" y="500" font-family="Inter, sans-serif" font-size="22" fill="#555" letter-spacing="2">Discover the SERICIA collection</text>
 
   <!-- Footer mark -->
   <text x="90" y="580" font-family="Inter, sans-serif" font-size="15" letter-spacing="6" fill="#8b5a2b" text-transform="uppercase">Sericia.com</text>

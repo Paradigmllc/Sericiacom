@@ -1,5 +1,8 @@
 "use client";
+import { formatMoney } from "@/lib/money";
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useWishlist } from "@/lib/wishlist-store";
@@ -10,12 +13,14 @@ type Product = {
   slug: string;
   name: string;
   description: string;
-  price_usd: number;
+  price: number;
+  currency: string;
   weight_g: number;
   category: string;
   origin_region: string | null;
   /** Optional — if passed and low, shows "Only X left" pill on the card */
   stock?: number | null;
+  images?: string[];
   /** Aesop-style status pill ("New addition" / "Limited release" / "Beloved formulation") */
   badge?: string | null;
 };
@@ -46,6 +51,8 @@ export default function ProductCard({
   className?: string;
   padding?: string;
 }) {
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const image = product.images?.[0];
   const toggle = useWishlist((s) => s.toggle);
   const has = useWishlist((s) => s.has(product.id));
 
@@ -57,7 +64,8 @@ export default function ProductCard({
         productId: product.id,
         slug: product.slug,
         name: product.name,
-        price_usd: product.price_usd,
+        price: product.price,
+        currency: product.currency,
         category: product.category,
       });
       toast.success(added ? `Saved — ${product.name}` : `Removed — ${product.name}`);
@@ -114,20 +122,11 @@ export default function ProductCard({
           whileHover={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         />
-        {/* grain overlay */}
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.14] mix-blend-overlay pointer-events-none"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>\")",
-          }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          whileHover={{ scale: 1.03 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        />
+        {image && failedImage !== image && <Image src={image} alt={product.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" onError={() => {
+          console.error("[product-card] image unavailable", product.id);
+          setFailedImage(image);
+        }} />}
+        {(!image || failedImage === image) && <span className="absolute inset-x-4 bottom-4 text-center text-sm bg-sericia-paper/90 py-2">Image unavailable</span>}
       </div>
       <p className="label mb-3">
         {product.category}
@@ -138,9 +137,9 @@ export default function ProductCard({
         {product.description}
       </p>
       <div className="flex items-baseline justify-between pt-4 border-t border-sericia-line">
-        <span className="text-[15px] tabular-nums">${product.price_usd} USD</span>
+        <span className="text-[15px] tabular-nums">{formatMoney(product.price, product.currency)}</span>
         <span className="text-[11px] tracking-[0.18em] uppercase text-sericia-ink-mute">
-          {product.weight_g}g
+          {product.weight_g > 0 ? `${product.weight_g}g` : ""}
         </span>
       </div>
     </Link>

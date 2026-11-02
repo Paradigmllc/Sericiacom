@@ -43,23 +43,12 @@ const SITE_URL = "https://sericia.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Sericia — Rescued Japanese Craft Food, Shipped Worldwide",
+    default: "SERICIA — Japanese everyday discoveries",
     template: "%s | Sericia",
   },
   description:
-    "Drop-by-drop limited releases of rescued Japanese craft food: single-origin sencha, barrel-aged miso, hand-dried shiitake. Ships from Japan via EMS to 23+ countries.",
-  keywords: [
-    "Japanese craft food",
-    "sencha tea",
-    "aged miso",
-    "dried shiitake",
-    "matcha",
-    "yuzu kosho",
-    "Japanese food delivery worldwide",
-    "EMS Japan",
-    "food rescue",
-    "surplus food Japan",
-  ],
+    "Discover Japanese tea, pantry, tableware, stationery and objects for everyday living.",
+  keywords: ["Japanese products", "Japanese tea", "tableware", "stationery", "Japanese gifts"],
   authors: [{ name: "Paradigm LLC" }],
   creator: "Sericia",
   publisher: "Paradigm LLC",
@@ -92,15 +81,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: "Sericia",
-    title: "Sericia — Rescued Japanese Craft Food",
+    title: "SERICIA — Japanese everyday discoveries",
     description:
-      "Limited drops of surplus Japanese craft food. Tea, miso, shiitake — rescued before disposal, shipped worldwide.",
-    images: [{ url: "/og-default.svg", width: 1200, height: 630, alt: "Sericia — rescued Japanese craft food" }],
+      "Japanese tea, pantry and objects for everyday living.",
+    images: [{ url: "/og-default.svg", width: 1200, height: 630, alt: "SERICIA — Japanese everyday discoveries" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sericia — Rescued Japanese Craft Food",
-    description: "Limited drops of surplus Japanese craft food, shipped worldwide.",
+    title: "SERICIA — Japanese everyday discoveries",
+    description: "Japanese tea, pantry and objects for everyday living.",
     images: ["/og-default.svg"],
   },
   robots: {

@@ -1,0 +1,17 @@
+name: Medusa storefront ingress
+on:
+  pull_request:
+    paths: ['infra/storefront/**', '.github/workflows/storefront-edge.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ingress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - run: node --test infra/storefront/edge/worker.test.mjs
+      - run: node --check infra/storefront/edge/worker.mjs

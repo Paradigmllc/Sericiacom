@@ -8,7 +8,6 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     NEXT_PUBLIC_MEDUSA_BACKEND_URL: process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL,
-    NEXT_PUBLIC_CROSSMINT_CLIENT_ID: process.env.NEXT_PUBLIC_CROSSMINT_CLIENT_ID,
   },
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   // F40 hotfix: F39 attempted experimental.optimizePackageImports for

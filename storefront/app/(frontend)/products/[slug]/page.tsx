@@ -6,16 +6,13 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { Container, Rule } from "@/components/ui";
 import { getProductBySlug, listActiveProducts, categoryLabel } from "@/lib/products";
-import { getCurrentDrop } from "@/lib/drops";
 import ProductCard from "@/components/ProductCard";
 import FadeIn from "@/components/FadeIn";
-import DropCountdown from "@/components/DropCountdown";
 import ProductDetailShell from "./ProductDetailShell";
 import {
   RecentlyViewedTracker,
   RecentlyViewedSection,
 } from "@/components/RecentlyViewed";
-import SamplerBanner from "@/components/SamplerBanner";
 
 const SITE_URL = "https://sericia.com";
 
@@ -43,10 +40,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
   const { slug } = await params;
   // F60 — Server-side i18n. Pulls translations alongside data fetches in
   // the same Promise.all so cold render cost stays at one round-trip.
-  const [p, all, drop, tPdp] = await Promise.all([
+  const [p, all, tPdp] = await Promise.all([
     getProductBySlug(slug),
     listActiveProducts(),
-    getCurrentDrop(),
     getTranslations("pdp"),
   ]);
   if (!p) notFound();
@@ -76,24 +72,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
     offers: {
       "@type": "Offer",
       url: productUrl,
-      priceCurrency: "USD",
-      price: p.price_usd,
+      priceCurrency: p.currency.toUpperCase(),
+      price: p.price,
       availability: outOfStock
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "Sericia" },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "USD" },
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: ["US", "GB", "DE", "FR", "AU", "SG", "CA", "HK", "JP"],
-        },
-        deliveryTime: {
-          "@type": "ShippingDeliveryTime",
-          transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 7, unitCode: "DAY" },
-        },
-      },
     },
   };
 
@@ -101,7 +85,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
       />
       <SiteHeader />
       <Container size="wide" className="py-16 md:py-24 pb-28 md:pb-24">
@@ -112,13 +96,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
           >
             ← All products
           </Link>
-          {drop?.closes_at && !outOfStock && (
-            <DropCountdown
-              closesAt={drop.closes_at}
-              label="Drop closes in"
-              variant="compact"
-            />
-          )}
+
         </div>
 
         <ProductDetailShell
@@ -128,7 +106,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
             name: p.name,
             description: p.description,
             story: p.story,
-            price_usd: p.price_usd,
+            price: p.price,
+            currency: p.currency,
             weight_g: p.weight_g,
             category: p.category,
             images: p.images ?? [],
@@ -137,6 +116,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
             outOfStock,
             // Medusa variant.inventory_quantity, fetched live per request
             // (page has `export const dynamic = "force-dynamic"`).
+            variants: p.variants,
             stockRemaining: typeof p.stock === "number" ? p.stock : null,
             // F12 metadata fields surfaced in the accordion when present.
             ingredients: p.ingredients,
@@ -150,7 +130,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
 
         <Rule className="my-20" />
 
-        <FadeIn>
+        {p.story && <FadeIn>
           <div className="grid md:grid-cols-12 gap-12 md:gap-20">
             <div className="md:col-span-4">
               <p className="label mb-3">{tPdp("extras.the_story")}</p>
@@ -164,7 +144,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
               </p>
             </div>
           </div>
-        </FadeIn>
+        </FadeIn>}
       </Container>
 
       {/* RecentlyViewed tracker — invisible. Records the current PDP into the
@@ -176,7 +156,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
           slug: p.slug,
           name: p.name,
           category: p.category,
-          price_usd: p.price_usd,
+          price: p.price,
+          currency: p.currency,
           weight_g: p.weight_g,
           origin_region: p.origin_region,
           thumbnail: (p.images?.[0] as string | undefined) ?? null,
@@ -214,11 +195,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pa
         </>
       )}
 
-      {/* Aesop-style "complimentary sample" hairline strip + the
-          continue-browsing recently viewed row. Both render only when they
-          have content (sampler is always-on; recently-viewed silent until
-          the visitor has browsed ≥1 other product). */}
-      <SamplerBanner variant="compact" />
       <RecentlyViewedSection excludeId={p.id} />
 
       <SiteFooter />

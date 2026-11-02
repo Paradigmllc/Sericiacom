@@ -1,0 +1,12 @@
+# Opt-in connection to the existing operations host; no public port is added.
+services:
+  server:
+    networks:
+      commerce: {}
+      operations:
+        aliases:
+          - sericia-medusa-private
+networks:
+  operations:
+    external: true
+    name: coolify

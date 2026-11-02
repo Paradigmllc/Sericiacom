@@ -12,7 +12,7 @@ import ThemeToggle from "./ThemeToggle";
 import { BagIcon, SearchIcon, UserIcon } from "./Icons";
 
 type SessionState = {
-  status: "loading" | "anon" | "authed";
+  status: "loading" | "anon" | "authed" | "unavailable";
   email: string | null;
 };
 
@@ -29,22 +29,28 @@ export default function HeaderClient() {
 
   useEffect(() => {
     setMounted(true);
-    const supa = supabaseBrowser();
-    supa.auth.getUser().then(({ data }) => {
-      setSession({
-        status: data.user ? "authed" : "anon",
-        email: data.user?.email ?? null,
-      });
-    });
-    const { data: sub } = supa.auth.onAuthStateChange((_event, s) => {
-      setSession({
-        status: s?.user ? "authed" : "anon",
-        email: s?.user?.email ?? null,
-      });
-    });
-    return () => {
-      sub.subscription.unsubscribe();
+    let active = true;
+    const unavailable = (error: unknown) => {
+      console.error("[header] Account service unavailable", error);
+      if (active) {
+        setSession({ status: "unavailable", email: null });
+        toast.error("Account sign-in is temporarily unavailable.");
+      }
     };
+    try {
+      const supa = supabaseBrowser();
+      supa.auth.getUser().then(({ data, error }) => {
+        if (error && error.name !== "AuthSessionMissingError") throw error;
+        if (active) setSession({ status: data.user ? "authed" : "anon", email: data.user?.email ?? null });
+      }).catch(unavailable);
+      const { data: sub } = supa.auth.onAuthStateChange((_event, current) => {
+        if (active) setSession({ status: current?.user ? "authed" : "anon", email: current?.user?.email ?? null });
+      });
+      return () => { active = false; sub.subscription.unsubscribe(); };
+    } catch (error) {
+      unavailable(error);
+      return () => { active = false; };
+    }
   }, []);
 
   async function signOut() {
@@ -75,6 +81,12 @@ export default function HeaderClient() {
         <SearchIcon className="h-5 w-5" />
       </button>
 
+      {session.status === "unavailable" && (
+        <button type="button" disabled aria-label="Account sign-in temporarily unavailable"
+          title="Account sign-in temporarily unavailable" className="p-1.5 opacity-50">
+          <UserIcon filled={false} className="h-5 w-5" />
+        </button>
+      )}
       {session.status === "anon" && (
         <Link
           href="/login"
