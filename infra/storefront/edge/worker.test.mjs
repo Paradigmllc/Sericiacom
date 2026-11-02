@@ -28,3 +28,16 @@ test('origin is fixed, credentials filtered, redirects rewritten and failures cl
   assert.equal((await worker.fetch(request('/'),env)).status,503);
   assert.equal((await worker.fetch(request('/'),{})).status,503);
 });
+test('Stripe webhook is closed by default and forwards the exact signed body only when enabled',async(t)=>{
+  const payload='{"id":"evt_fixture"}';
+  assert.equal((await worker.fetch(request('/hooks/payment/stripe_stripe',{method:'POST',body:payload}),env)).status,503);
+  const enabled={...env,PAYMENT_WEBHOOKS_ENABLED:'true'};
+  assert.equal((await worker.fetch(request('/hooks/payment/stripe_stripe',{method:'POST',body:payload}),enabled)).status,400);
+  t.mock.method(globalThis,'fetch',async(url,options)=>{
+    assert.equal(url.pathname,'/_sericia-medusa/hooks/payment/stripe_stripe');
+    assert.equal(options.headers.get('stripe-signature'),'fixture');
+    assert.equal(await new Response(options.body).text(),payload);
+    return new Response('accepted');
+  });
+  assert.equal((await worker.fetch(request('/hooks/payment/stripe_stripe',{method:'POST',headers:{'stripe-signature':'fixture'},body:payload}),enabled)).status,200);
+});

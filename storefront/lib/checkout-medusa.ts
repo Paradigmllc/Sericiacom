@@ -47,14 +47,7 @@ export async function prepareCheckout(input: z.infer<typeof checkoutInput>, cart
     cart = (await medusa.store.cart.addShippingMethod(cart.id, { option_id: input.option_id }, cartQuery)).cart;
   }
   if (!cart) throw new CheckoutError(409, "Please restart checkout.");
-  const ids = [...new Set((cart.items ?? []).map(i => i.product_id).filter((id): id is string => !!id))];
-  if (!ids.length) throw new CheckoutError(409, "Please review your cart items.");
-  const { products } = await medusa.store.product.list({ id: ids, region_id: regionId,
-    fields: "id,variants.id,variants.inventory_quantity", limit: ids.length });
-  const stock = new Map<string, number>((products as { variants?: { id: string; inventory_quantity?: number }[] }[])
-    .flatMap(p => (p.variants ?? []).map(v => [v.id, v.inventory_quantity ?? 0] as [string, number])));
-  if ((cart.items ?? []).some(i => !i.variant_id || (stock.get(i.variant_id) ?? 0) < i.quantity))
-    throw new CheckoutError(409, "An option is no longer available in this quantity. Please review your cart.");
+  await verifyCheckoutStock(cart);
   return cart;
 }
 export async function checkoutQuote(cart: Cart): Promise<CheckoutQuote> {
@@ -71,4 +64,15 @@ export async function checkoutQuote(cart: Cart): Promise<CheckoutQuote> {
     items: (cart.items ?? []).map(i => ({ id: i.id, name: `${i.product_title} — ${i.variant_title}`, quantity: i.quantity, total: i.total })),
     options, shippingSelected: (cart.shipping_methods ?? []).some(m => options.some(o => o.id === m.shipping_option_id)),
   };
+}
+
+export async function verifyCheckoutStock(cart: Cart) {
+  const ids = [...new Set((cart.items ?? []).map(i => i.product_id).filter((id): id is string => !!id))];
+  if (!ids.length) throw new CheckoutError(409, "Please review your cart items.");
+  const { products } = await medusa.store.product.list({ id: ids, region_id: cart.region_id,
+    fields: "id,variants.id,variants.inventory_quantity", limit: ids.length });
+  const stock = new Map<string, number>((products as { variants?: { id: string; inventory_quantity?: number }[] }[])
+    .flatMap(p => (p.variants ?? []).map(v => [v.id, v.inventory_quantity ?? 0] as [string, number])));
+  if ((cart.items ?? []).some(i => !i.variant_id || (stock.get(i.variant_id) ?? 0) < i.quantity))
+    throw new CheckoutError(409, "An option is no longer available in this quantity. Please review your cart.");
 }

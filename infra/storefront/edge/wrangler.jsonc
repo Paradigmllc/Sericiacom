@@ -5,7 +5,8 @@
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
   "vars": {
-    "RELEASE": "medusa-ingress-20261103"
+    "RELEASE": "medusa-ingress-20261103",
+    "PAYMENT_WEBHOOKS_ENABLED": "false"
   },
   "routes": [
     {

@@ -3,19 +3,67 @@
     "routers": {
       "sericia-medusa-origin": {
         "rule": "Host(`paradigmjp.com`) && PathPrefix(`/_sericia-medusa/`) && Header(`X-Sericia-Origin`, `${ORIGIN_TOKEN}`)",
-        "entryPoints": ["https"],
-        "priority": 200000,
+        "entryPoints": [
+          "https"
+        ],
+        "priority": 400000,
         "tls": {},
         "service": "sericia-medusa-origin",
-        "middlewares": ["sericia-medusa-strip", "sericia-medusa-no-cache"]
+        "middlewares": [
+          "sericia-medusa-strip",
+          "sericia-medusa-no-cache"
+        ]
+      },
+      "sericia-medusa-webhook": {
+        "rule": "Host(`paradigmjp.com`) && Path(`/_sericia-medusa/hooks/payment/stripe_stripe`) && Header(`X-Sericia-Origin`, `${ORIGIN_TOKEN}`)",
+        "entryPoints": [
+          "https"
+        ],
+        "priority": 400001,
+        "tls": {},
+        "service": "sericia-medusa-webhook",
+        "middlewares": [
+          "sericia-medusa-strip",
+          "sericia-medusa-no-cache"
+        ]
       }
     },
     "middlewares": {
-      "sericia-medusa-strip": { "stripPrefix": { "prefixes": ["/_sericia-medusa"] } },
-      "sericia-medusa-no-cache": { "headers": { "customResponseHeaders": { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" } } }
+      "sericia-medusa-strip": {
+        "stripPrefix": {
+          "prefixes": [
+            "/_sericia-medusa"
+          ]
+        }
+      },
+      "sericia-medusa-no-cache": {
+        "headers": {
+          "customResponseHeaders": {
+            "Cache-Control": "private, no-store",
+            "X-Robots-Tag": "noindex, nofollow"
+          }
+        }
+      }
     },
     "services": {
-      "sericia-medusa-origin": { "loadBalancer": { "servers": [{ "url": "http://sericia-storefront-preview-storefront-1:8000" }] } }
+      "sericia-medusa-origin": {
+        "loadBalancer": {
+          "servers": [
+            {
+              "url": "http://sericia-storefront-preview-storefront-1:8000"
+            }
+          ]
+        }
+      },
+      "sericia-medusa-webhook": {
+        "loadBalancer": {
+          "servers": [
+            {
+              "url": "http://sericia-medusa-preview-server-1:9000"
+            }
+          ]
+        }
+      }
     }
   }
 }

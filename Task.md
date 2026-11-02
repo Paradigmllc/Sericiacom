@@ -1,3 +1,8 @@
+## CURRENT STATUS / Active Handoff — 2026-11-03 Public domain now Medusa
+
+- Owner: Codex. sericia.com/www custom domains now target the Medusa Cloudflare Worker; public home200/platform fingerprint/browser verified. Old Shopify apex/www DNS replaced; mail DNS untouched. No Shopify upstream. Shopify subscription cancellation remains separate.
+- Payment/session/order verification implementation in progress with default-closed activation flags. Existing6draft products/no stock/no warehouse; public deployment is not commercial readiness. See [cutover evidence and activation requirements](docs/knowledge/sericia/public-cutover-20261103.md).
+
 ## CURRENT STATUS / Active Handoff — 2026-11-03 Medusa public cutover in progress
 
 - Owner: Codex. User explicitly requests replacing Shopify with Medusa now. Preparing Cloudflare ingress to the verified Medusa storefront; no fake stock or purchase activation. Scope: edge routing, isolated origin access, legacy API isolation, tests/config and public browser verification. No new subscription. Existing draft products and database retained.

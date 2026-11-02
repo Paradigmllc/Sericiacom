@@ -2,7 +2,7 @@
 const PREFIX = '/_sericia-medusa';
 const LOCALE = /^\/(?:en|ja|de|fr|es|it|ko|zh-TW|ru|ar)(?=\/|$)/;
 const PRIVATE = /^\/(?:admin|cms|auth|account|login|pay)(?:\/|$)/;
-const API = new Set(['/api/commerce/checkout', '/api/products/search-index']);
+const API = new Set(['/api/commerce/checkout', '/api/commerce/payment', '/api/products/search-index']);
 const RETIRED = /^\/api\/(?:orders|stripe|crossmint-webhook|hyperswitch|pay|admin)(?:\/|$)/;
 function response(message, status) {
   return Response.json({ error: message }, { status, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'X-Sericia-Platform': 'medusa' } });
@@ -21,8 +21,11 @@ export default {
     if (/[\\\x00-\x1f]/.test(path) || path.split('/').some(p => p === '.' || p === '..') || path.includes('//')) return response('Invalid path', 400);
     if (PRIVATE.test(path)) return response('This service is not available. Please return to the store.', 503);
     if (path.startsWith('/api') && !API.has(path)) return response('This service is not available.', RETIRED.test(path) ? 410 : 503);
-    if (!['GET', 'HEAD'].includes(request.method)) {
-      if (request.method !== 'POST' || path !== '/api/commerce/checkout') return response('Method not allowed', 405);
+    const webhook = path === '/hooks/payment/stripe_stripe';
+    if (webhook && env.PAYMENT_WEBHOOKS_ENABLED !== 'true') return response('Payment webhook is not configured.', 503);
+    if (webhook && (request.method !== 'POST' || !request.headers.get('stripe-signature'))) return response('Invalid payment webhook', 400);
+    if (!webhook && !['GET', 'HEAD'].includes(request.method)) {
+      if (request.method !== 'POST' || !['/api/commerce/checkout', '/api/commerce/payment'].includes(path)) return response('Method not allowed', 405);
       if (request.headers.get('Origin') !== url.origin) return response('Invalid request origin', 403);
     }
     if (path === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' } });
@@ -49,6 +52,7 @@ export default {
       result.headers.set('X-Robots-Tag', 'noindex, nofollow');
       result.headers.set('Cache-Control', 'private, no-store');
       result.headers.delete('x-sericia-origin');
+      result.headers.delete('refresh');
       const location = result.headers.get('location');
       if (location) {
         const target = new URL(location, origin);

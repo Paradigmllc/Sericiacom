@@ -4,6 +4,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useCart } from "@/lib/cart-store";
 import { checkoutInput, type CheckoutQuote } from "@/lib/checkout-contract";
+import dynamic from "next/dynamic";
+const MedusaPayment = dynamic(() => import("./MedusaPayment"), { ssr: false, loading: () => <p role="status">Loading payment…</p> });
 import { formatMoney } from "@/lib/money";
 
 type Country = { code: string; name: string };
@@ -16,6 +18,7 @@ const fields = [
 export default function CartCheckoutForm() {
   const items = useCart(s => s.items);
   const [mounted, setMounted] = useState(false);
+  const [returning, setReturning] = useState(false);
   const [countries, setCountries] = useState<Country[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export default function CartCheckoutForm() {
       setCountries(data.countries);
     } catch (err) { report(err); }
   }
-  useEffect(() => { setMounted(true); void loadCountries(); }, []);
+  useEffect(() => { setMounted(true); setReturning(new URLSearchParams(window.location.search).get("verify") === "1"); void loadCountries(); }, []);
   async function submit(action: "prepare" | "shipping", option_id?: string) {
     setError(null);
     const { email, ...address } = form;
@@ -56,6 +59,7 @@ export default function CartCheckoutForm() {
     finally { setBusy(false); }
   }
   if (!mounted) return <p role="status">Loading your cart…</p>;
+  if (returning) return <MedusaPayment returning />;
   if (!items.length) return <div className="space-y-4"><p>Your cart is empty.</p><Link href="/products" className="underline">Browse products</Link></div>;
   return <div className="grid grid-cols-1 gap-8 sm:gap-10 md:grid-cols-2 lg:gap-16" aria-busy={busy}>
     <section aria-label="Delivery details" className="space-y-5">
@@ -83,7 +87,7 @@ export default function CartCheckoutForm() {
         <h2 className="text-xl">Delivery methods</h2>
         {!currentQuote.options.length && <p role="status">No delivery method is available for this address and cart. Change your address or review your items.</p>}
         {currentQuote.options.map(o => <button key={o.id} disabled={busy} aria-label={`Select ${o.name}`} type="button" onClick={() => void submit("shipping", o.id)} className="w-full border border-sericia-line p-4 text-left">{o.name} — {formatMoney(o.amount, currentQuote.currency)}</button>)}
-        {currentQuote.shippingSelected && <p role="status">Delivery saved. Payment is not available yet; no order has been placed.</p>}
+        {currentQuote.shippingSelected && <MedusaPayment quote={currentQuote} />}
       </section>}
     </section>
     <aside aria-label="Order summary" className="border border-sericia-line p-5 sm:p-6 lg:p-8 self-start space-y-4">
