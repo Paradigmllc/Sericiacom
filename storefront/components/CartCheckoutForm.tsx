@@ -40,7 +40,12 @@ export default function CartCheckoutForm() {
       setCountries(data.countries);
     } catch (err) { report(err); }
   }
-  useEffect(() => { setMounted(true); setReturning(new URLSearchParams(window.location.search).get("verify") === "1"); void loadCountries(); }, []);
+  useEffect(() => {
+    setMounted(true);
+    const verifying = new URLSearchParams(window.location.search).get("verify") === "1";
+    setReturning(verifying);
+    if (!verifying) void loadCountries();
+  }, []);
   async function submit(action: "prepare" | "shipping", option_id?: string) {
     setError(null);
     const { email, ...address } = form;

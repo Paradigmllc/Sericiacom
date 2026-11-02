@@ -57,7 +57,7 @@ export default function MedusaPayment({ quote, returning = false }: { quote?: Ch
       const data = await paymentRequest({ action: 'start', total: quote.total, currency: quote.currency,
         items: items.map(i => ({ variant_id: i.variantId, quantity: i.quantity })) });
       if (data.state !== 'payment') throw new Error('Please verify your existing order.');
-      setPayment({ secret: data.clientSecret, stripe: loadStripe(data.publishableKey) });
+      setPayment({ secret: data.clientSecret, stripe: loadStripe(data.publishableKey).catch(() => { report(new Error('The secure payment service could not load. Please retry.')); return null; }) });
     } catch (err) { report(err); }
     finally { setBusy(false); }
   }
@@ -67,7 +67,7 @@ export default function MedusaPayment({ quote, returning = false }: { quote?: Ch
   </section>;
   return <section aria-label="Payment" aria-busy={busy} className="space-y-4 border border-sericia-line p-4 sm:p-5 lg:p-6">
     <h2 className="text-xl">{returning ? 'Verify your order' : 'Payment'}</h2>
-    {error && <div role="alert"><p>{error}</p><button type="button" aria-label="Retry order verification" onClick={() => setAttempt(a => a + 1)} className="mt-3 underline">{returning ? 'Retry order verification — do not pay again' : 'Retry availability'}</button></div>}
+    {error && <div role="alert"><p>{error}</p><button type="button" aria-label="Retry order verification" disabled={busy} onClick={() => setAttempt(a => a + 1)} className="mt-3 underline">{returning ? 'Retry order verification — do not pay again' : 'Retry availability'}</button></div>}
     {(busy || (!returning && enabled === null && !error)) && <p role="status">{returning ? 'Verifying payment and order…' : 'Preparing secure payment…'}</p>}
     {enabled === false && <p role="status">Payment is not available yet; no order has been placed.</p>}
     {!returning && enabled && !payment && <button type="button" disabled={busy} aria-label="Continue to secure payment" onClick={() => void start()} className="w-full bg-sericia-ink text-sericia-paper p-4 disabled:opacity-50">Continue to secure payment</button>}
