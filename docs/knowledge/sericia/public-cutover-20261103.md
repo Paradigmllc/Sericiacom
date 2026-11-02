@@ -20,7 +20,7 @@ has not been cancelled by this deployment.
   route; only exact host/prefix plus origin token selects this route. A lower
   priority produced an actual redirect loop during cutover, corrected and rechecked.
 - Storefront joins Coolify proxy network via committed compose overlay. DB/Redis
-  remain isolated. The application image remains7a5cc041 until payment release.
+  remain isolated. The initial cutover used7a5cc041; the payment release is recorded below.
 - Missing local image metadata was restored from the retained CI archive. Loaded
   imageID26e280282946b716b6c6886ee0e4a3e6bea742fc722adf8de344b55aeae8422e
   matches the running container. BuildID hash6d8f8b43fa6ce95112183307175c5d7e46e01dd2a77371e40763f34bfcef606a
@@ -52,6 +52,44 @@ edgePAYMENT_WEBHOOKS_ENABLED. Live keys additionally requireSERICIA_LIVE_PAYMENT
 The API checks cookie-owned cart, region, items, authoritative total, shipping,
 stock and provider before returning a Stripe client secret. Completion failure
 instructs verification retry, not a second charge. Error logs exclude SDK payloads.
+
+## Checkout release validation
+
+- Sourceae237e0f adds standard Stripe sessions and server-verified completion, a
+  lazy-loaded Payment Element, bounded request validation, disabled/live-key gates
+  and safe verification retry. No new dependency or custom order database.
+- BackendCI41546384365 and edgeCI41546384544 passed. StorefrontCI41546384154
+  passed9unit tests, TypeScript, high-severity audit gate, Next production build,
+  24desktop/mobile browser tests and container build/export. Artifact13189641123
+  has GitHub SHA256c541d939d43d5ff87977f1a54f0c8c4cb754da6fb6e1e86b4a13e2e9c88e60bb.
+- Public18page smoke checks returned200/medusa/noindex. Actual Japanese mobile
+  viewport390px had scrollWidth390. Screenshots retained outside Git.
+- Local redundant build was stopped to avoid competing with other projects for
+  memory; production artifacts are generated and verified in CI.
+
+## Deployed checkout artifact and public verification
+
+- Runtime `sericia-storefront:ae237e0f`, imageID
+  `sha256:aa0eba3b46e02aa4c248cd3ddfbefae13b1c3c71ea668eff156ee94edbd06126`.
+  CI ZIP digest above verified locally. Extracted Docker archive SHA256
+  `d79b4651529f30a960a36f0dfa22844913fffabe550ef25eb3e811873aa98468`
+  independently matched on the deployment host before loading/recreation.
+- Running payment route JS SHA256
+  `ff8d5675917bc8eb4f03b74a2edcc06ecc40cefbbfcf26b5a24e31bc1388554d`.
+  New route responds200 `{"enabled":false}` through public ingress. Public
+  schema rejection400, oversized input413, missing Origin403, disabled
+  completion/webhook503 and retired Stripe API410 all verified. The edge masks
+  origin503 details with its generic unavailable message.
+- Actual public browser verifies checkout?verify=1 shows verification failure
+  and retry-without-paying-again, never an order confirmation. Retry loading
+  and resulting error checked. Home restored and retained for user review.
+- Container healthy/restarts0. Backend unchanged7a5cc041/healthy. Database still
+  has6products/0inventory levels/0orders. No paid transaction, email or shipment.
+- Rollback7a5cc041 image/archive retained, environment backup0600 retained.
+  Root free16GiB (90%used); volume free5.8GiB (70%used). No backups deleted.
+- Evidence screenshots (private, outside Git):
+  `/Users/apple/.codex/sericia-release-evidence/migration/20261103/public-medusa-home-final.png`,
+  `public-medusa-mobile-ja.png`, `public-order-verification.png` in the same folder.
 
 ## Remaining commercial dependencies
 

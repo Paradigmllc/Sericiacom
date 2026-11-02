@@ -1,11 +1,10 @@
-## CURRENT STATUS / Active Handoff — 2026-11-03 Public domain now Medusa
+## CURRENT STATUS / Active Handoff — 2026-11-03 Medusa public cutover verified
 
-- Owner: Codex. sericia.com/www custom domains now target the Medusa Cloudflare Worker; public home200/platform fingerprint/browser verified. Old Shopify apex/www DNS replaced; mail DNS untouched. No Shopify upstream. Shopify subscription cancellation remains separate.
-- Payment/session/order verification implementation in progress with default-closed activation flags. Existing6draft products/no stock/no warehouse; public deployment is not commercial readiness. See [cutover evidence and activation requirements](docs/knowledge/sericia/public-cutover-20261103.md).
-
-## CURRENT STATUS / Active Handoff — 2026-11-03 Medusa public cutover in progress
-
-- Owner: Codex. User explicitly requests replacing Shopify with Medusa now. Preparing Cloudflare ingress to the verified Medusa storefront; no fake stock or purchase activation. Scope: edge routing, isolated origin access, legacy API isolation, tests/config and public browser verification. No new subscription. Existing draft products and database retained.
+- Owner: Codex. Public sericia.com/www now use Cloudflare → Medusa storefront; Shopify apex/www records replaced, mail records untouched. No Shopify upstream/fallback. Subscription cancellation is separate and not done.
+- Storefront runtimeae237e0f deployed from SHA-verified CI artifact. Medusa Stripe sessions/Payment Element/server order verification implemented using existing Medusa DB/workflows. Signed webhook forwarding is gated. Backend remains7a5cc041. Payment flags closed because Stripe keys are absent.
+- StorefrontCI41546384154 passed9unit+24browser/type/build/audit/container; backend41546384365 and edge41546384544 passed. Public18pages200, desktop/mobile390px, payment200 disabled/schema400/size413/origin403/webhook503/legacy410, actual verification retry UI checked. Healthy/restarts0, orders0.
+- Actual6draft products, inventory levels0, no warehouse contract/supplier stock access/SNS credentials. Real shipping, commercial terms and sandbox/live purchase/fulfillment still need verification. Public deployment is not commercial readiness. No customer payment/email/shipment executed.
+- Old image/config and all DB backups preserved. Root16GiBfree, volume5.8GiBfree. Code pushed to PR4; detailed evidence: [public cutover and activation requirements](docs/knowledge/sericia/public-cutover-20261103.md). Original worktree changes preserved.
 
 ## CURRENT STATUS / Active Handoff — 2026-11-01 Medusa backup restoration verified
 

@@ -5,7 +5,9 @@ Next storefront → private Medusa. Shopify is not an upstream or fallback.
 The backend/database remain private. Uses the existing Workers paid account.
 
 - `wrangler deploy --config infra/storefront/edge/wrangler.jsonc` publishes the Worker
-  and replaces only apex/www DNS via Custom Domains. Back up those records first.
+  and reconciles apex/www Custom Domains. Existing conflicting DNS can fail with
+  error100117; back up and remove only the conflicting apex/www records using
+  an authorized DNS session, then attach the Custom Domains. Preserve mail records.
 - Configure `ORIGIN_TOKEN` using Wrangler secrets, with a matching high-entropy value
   substituted into `traefik.template.json`. Install it as a mode0600 **.yml** file
   in `/data/coolify/proxy/dynamic/` (JSON is valid YAML). Never commit the rendered file.
@@ -15,7 +17,8 @@ The backend/database remain private. Uses the existing Workers paid account.
 - Test with `node --test infra/storefront/edge/worker.test.mjs` and verify public
   `X-Sericia-Release` and `X-Sericia-Platform` headers plus desktop/mobile navigation.
 - Legacy order/payment routes return410; other unconnected APIs/private surfaces
-  return503. Only Medusa checkout and catalog search APIs are routed. No Shopify or
+  return503. Only Medusa checkout/payment and catalog search APIs are routed. The exact
+  Stripe webhook route stays closed until PAYMENT_WEBHOOKS_ENABLED=true. No Shopify or
   account auth cookies forwarded; server-only origin token never returned.
 - The collection remains draft until supplier stock and delivery are established.
   Noindex/no-store stay enabled. Public site migration is NOT purchase readiness.
