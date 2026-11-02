@@ -1,0 +1,21 @@
+{
+  "http": {
+    "routers": {
+      "sericia-medusa-origin": {
+        "rule": "Host(`paradigmjp.com`) && PathPrefix(`/_sericia-medusa/`) && Header(`X-Sericia-Origin`, `${ORIGIN_TOKEN}`)",
+        "entryPoints": ["https"],
+        "priority": 200000,
+        "tls": {},
+        "service": "sericia-medusa-origin",
+        "middlewares": ["sericia-medusa-strip", "sericia-medusa-no-cache"]
+      }
+    },
+    "middlewares": {
+      "sericia-medusa-strip": { "stripPrefix": { "prefixes": ["/_sericia-medusa"] } },
+      "sericia-medusa-no-cache": { "headers": { "customResponseHeaders": { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" } } }
+    },
+    "services": {
+      "sericia-medusa-origin": { "loadBalancer": { "servers": [{ "url": "http://sericia-storefront-preview-storefront-1:8000" }] } }
+    }
+  }
+}

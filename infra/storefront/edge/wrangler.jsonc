@@ -1,0 +1,8 @@
+{
+  "name": "sericia-medusa-storefront",
+  "main": "worker.mjs",
+  "account_id": "7ff83549f2bdc7bc62c1d64a698aabf1",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "vars": { "RELEASE": "medusa-ingress-20261103" }
+}

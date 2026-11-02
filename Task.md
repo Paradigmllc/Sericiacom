@@ -1,3 +1,7 @@
+## CURRENT STATUS / Active Handoff — 2026-11-03 Medusa public cutover in progress
+
+- Owner: Codex. User explicitly requests replacing Shopify with Medusa now. Preparing Cloudflare ingress to the verified Medusa storefront; no fake stock or purchase activation. Scope: edge routing, isolated origin access, legacy API isolation, tests/config and public browser verification. No new subscription. Existing draft products and database retained.
+
 ## CURRENT STATUS / Active Handoff — 2026-11-01 Medusa backup restoration verified
 
 - Codex: implemented isolated database restoration verifier + success/failure CI checks. Code7b40f11c pushed to migration PR4; CI41253052710 succeeded, including16backend tests, TypeScript, audit, container build/migrations/runtime and restore success/failure cleanup checks. No new dependencies/schema/API/GUI or recurring schedule; this is operational recovery tooling.
